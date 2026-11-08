@@ -1,4 +1,5 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
   <Script file="Probe.lua"/>
   <Script file="Art.lua"/>
+  <Script file="RevealTest.lua"/>
 </Ui>

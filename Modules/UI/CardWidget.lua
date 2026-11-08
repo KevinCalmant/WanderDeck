@@ -80,9 +80,137 @@ local function buildAnimations(w)
   end)
 end
 
+-- Reveal effects for Epic (4) and Legendary (5) cards, played once when the
+-- card flips in a pack: a rarity-colored burst swells out from behind the
+-- card, sparks fly outward, a light band sweeps across the face and the card
+-- pops. Legendary is bigger and slower and adds rays turning behind the card.
+local FX = {
+  [4] = { burst = 1.6, duration = 0.8, sparks = 8, spread = 80, sweeps = 1, rays = false, pop = 1.08 },
+  [5] = { burst = 2.1, duration = 1.3, sparks = 14, spread = 120, sweeps = 2, rays = true, pop = 1.14 },
+}
+CardWidget.FX = FX
+local MAX_SPARKS, RAY_COUNT = 14, 4
+
+local function fade(group, region, from, to, duration, delay)
+  local a = group:CreateAnimation("Alpha")
+  a:SetTarget(region)
+  a:SetFromAlpha(from)
+  a:SetToAlpha(to)
+  a:SetDuration(duration)
+  a:SetStartDelay(delay or 0)
+  return a
+end
+
+local function scale(group, region, x, duration, delay)
+  local s = group:CreateAnimation("Scale")
+  s:SetTarget(region)
+  s:SetScale(x, x)
+  s:SetDuration(duration)
+  s:SetStartDelay(delay or 0)
+  s:SetOrigin("CENTER", 0, 0)
+  return s
+end
+
+local function buildFxGroup(w, fx, parts)
+  local g = w:CreateAnimationGroup()
+  local d = fx.duration
+  -- Burst: flash in, swell, fade.
+  fade(g, parts.burst, 0, 0.9, 0.1, 0.15)
+  fade(g, parts.burst, 0.9, 0, d * 0.7, 0.25)
+  scale(g, parts.burst, fx.burst, d * 0.8, 0.15)
+  -- Sparks: from the centre outward on a circle, fading as they go.
+  for i = 1, fx.sparks do
+    local spark = parts.sparks[i]
+    local angle = (i - 1) * 2 * math.pi / fx.sparks
+    local t = g:CreateAnimation("Translation")
+    t:SetTarget(spark)
+    t:SetOffset(math.cos(angle) * fx.spread, math.sin(angle) * fx.spread)
+    t:SetDuration(d * 0.7)
+    t:SetStartDelay(0.18)
+    t:SetSmoothing("OUT")
+    fade(g, spark, 0, 1, 0.05, 0.18)
+    fade(g, spark, 1, 0, d * 0.6, 0.3)
+  end
+  -- Light band sweeping left to right across the face, once or twice.
+  for pass = 1, fx.sweeps do
+    local delay = 0.2 + (pass - 1) * 0.45
+    local t = g:CreateAnimation("Translation")
+    t:SetTarget(parts.shine)
+    t:SetOffset(W + 60, 0)
+    t:SetDuration(0.4)
+    t:SetStartDelay(delay)
+    fade(g, parts.shine, 0, 0.7, 0.08, delay)
+    fade(g, parts.shine, 0.7, 0, 0.12, delay + 0.28)
+  end
+  -- Rays turning behind the card (Legendary).
+  if fx.rays then
+    for _, ray in ipairs(parts.rays) do
+      local r = g:CreateAnimation("Rotation")
+      r:SetTarget(ray)
+      r:SetDegrees(-60)
+      r:SetDuration(d)
+      r:SetStartDelay(0.15)
+      r:SetOrigin("CENTER", 0, 0)
+      fade(g, ray, 0, 0.55, 0.2, 0.15)
+      fade(g, ray, 0.55, 0, d * 0.5, 0.15 + d * 0.5)
+    end
+  end
+  -- Pop: the card grows a little right after the flip, then settles.
+  scale(g, w, fx.pop, 0.12, 0.18)
+  scale(g, w, 1 / fx.pop, 0.16, 0.3)
+  return g
+end
+
+-- Optional like the flip: on a client without these APIs the card simply
+-- flips. Every part starts at alpha 0 and returns to it once the group ends.
+local function buildRevealFx(w)
+  local ok, fx = pcall(function()
+    local parts = { sparks = {}, rays = {} }
+    parts.burst = w:CreateTexture(nil, "BACKGROUND", nil, -7)
+    parts.burst:SetPoint("CENTER")
+    parts.burst:SetSize(W + 16, H + 16)
+    for i = 1, RAY_COUNT do
+      local ray = w:CreateTexture(nil, "BACKGROUND", nil, -8)
+      ray:SetPoint("CENTER")
+      ray:SetSize(W * 2.6, 5)
+      ray:SetRotation((i - 1) * math.pi / RAY_COUNT)
+      parts.rays[i] = ray
+    end
+    for i = 1, MAX_SPARKS do
+      local spark = w:CreateTexture(nil, "OVERLAY", nil, 7)
+      spark:SetPoint("CENTER")
+      spark:SetSize(5, 5)
+      parts.sparks[i] = spark
+    end
+    -- The band is clipped to the card so it never shows outside the frame.
+    local clip = CreateFrame("Frame", nil, w)
+    clip:SetAllPoints()
+    clip:SetClipsChildren(true)
+    parts.shine = clip:CreateTexture(nil, "OVERLAY", nil, 7)
+    parts.shine:SetSize(20, H * 1.6)
+    parts.shine:SetPoint("CENTER", clip, "LEFT", -30, 0)
+    parts.shine:SetRotation(math.rad(18))
+    parts.shine:SetColorTexture(1, 1, 1, 1)
+    parts.colored = { parts.burst }
+    for _, r in ipairs(parts.rays) do parts.colored[#parts.colored + 1] = r end
+    for _, s in ipairs(parts.sparks) do parts.colored[#parts.colored + 1] = s end
+    for _, region in ipairs(parts.colored) do region:SetAlpha(0) end
+    parts.shine:SetAlpha(0)
+    parts.groups = { [4] = buildFxGroup(w, FX[4], parts), [5] = buildFxGroup(w, FX[5], parts) }
+    return parts
+  end)
+  if ok then w.revealFx = fx end
+end
+
+local function stopRevealFx(w)
+  if type(w.revealFx) ~= "table" then return end
+  for _, group in pairs(w.revealFx.groups) do group:Stop() end
+end
+
 ---@param parent table frame
+---@param opts table|nil { revealFx = true } adds the Epic/Legendary reveal effects
 ---@return table widget Button
-function CardWidget.create(parent)
+function CardWidget.create(parent, opts)
   local w = CreateFrame("Button", nil, parent)
   w:SetSize(W, H)
 
@@ -167,6 +295,7 @@ function CardWidget.create(parent)
   w.backParts = { backPanel, backBorder.top, backBorder.bottom, backBorder.left, backBorder.right, w.back, w.backLabel }
 
   buildAnimations(w)
+  if opts and opts.revealFx then buildRevealFx(w) end
   return w
 end
 
@@ -183,6 +312,7 @@ local function setHalo(w, rarity)
 end
 
 local function reset(w)
+  stopRevealFx(w)
   setShown(w.faceParts, false)
   setShown(w.backParts, false)
   w.copies:Hide()
@@ -226,10 +356,19 @@ function CardWidget.showCard(w, card, opts)
   w:Show()
 end
 
----Face up with the flip-in animation (reveal).
+---Face up with the flip-in animation (reveal); Epic and Legendary cards also
+---play their reveal effects when the widget has them.
+---@return boolean played true when a reveal effect started
 function CardWidget.flip(w, card, opts)
   CardWidget.showCard(w, card, opts)
   if w.flipAnim then w.flipAnim:Play() end
+  local fx = w.revealFx
+  local group = type(fx) == "table" and FX[card.rarity] and fx.groups[card.rarity]
+  if not group then return false end
+  local r, g, b = CardWidget.rarityRGB(card.rarity)
+  for _, region in ipairs(fx.colored) do region:SetColorTexture(r, g, b, 1) end
+  group:Play()
+  return true
 end
 
 ---Face down, before a reveal.

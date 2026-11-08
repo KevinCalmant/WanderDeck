@@ -47,7 +47,7 @@ local function build()
 
   widgets = {}
   for i = 1, MAX_CARDS do
-    local w = CardWidget.create(frame)
+    local w = CardWidget.create(frame, { revealFx = true })
     w:SetPoint("TOPLEFT", 25 + (i - 1) * (CardWidget.WIDTH + GAP), -74)
     -- First click flips the card; a click on a revealed card shows its detail.
     w:SetScript("OnClick", function()
