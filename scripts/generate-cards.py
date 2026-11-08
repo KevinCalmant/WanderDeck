@@ -1123,14 +1123,15 @@ def render(zone, cards):
 
 
 # Loose on purpose: a hand-reformatted file (tabs, {id="..."}) still counts.
-GENERATED_ID = re.compile(r'\bid\s*=\s*"([^"\n]*)"')
+GENERATED_ID = re.compile(r'''(?:\bid|\[\s*["']id["']\s*\])\s*=\s*(?:"([^"\n]*)"|'([^'\n]*)'|\[\[([^\]\n]*)\]\])''')
 SHIPPED_BATCH = re.compile(r'"([0-9]+):generated"')
 
 
 def removed_ids(old_text, new_cards):
     """Card IDs of an existing generated file that the new cards no longer have, sorted."""
     kept = {c["id"] for c in new_cards}
-    return sorted(set(GENERATED_ID.findall(old_text)) - kept)
+    old = {"".join(groups) for groups in GENERATED_ID.findall(old_text)}
+    return sorted(old - kept)
 
 
 def shipped_zones(loaded_text):

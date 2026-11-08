@@ -248,11 +248,67 @@ class RemovedIds(unittest.TestCase):
             {"id": "1436:npc_503"}, {"id": "1436:quest_7"}, {"id": "1436:item_9"}]))
 
     def test_still_sees_ids_of_a_reformatted_file(self):
-        for text in ['\t{ id = "1436:npc_503" }', '    {id="1436:npc_503"}', '{\n  id = "1436:npc_503",\n}']:
+        for text in ['\t{ id = "1436:npc_503" }', '    {id="1436:npc_503"}', '{\n  id = "1436:npc_503",\n}',
+                     "{ id = '1436:npc_503' }", '{ ["id"] = "1436:npc_503" }', "{ ['id']='1436:npc_503' }",
+                     '{ id = [[1436:npc_503]] }']:
             self.assertEqual(["1436:npc_503"], gen.removed_ids(text, []), repr(text))
 
     def test_does_not_mistake_a_creature_id_field_for_a_card_id(self):
         self.assertEqual([], gen.removed_ids('  { id = "1436:npc_503", npcID = 503 }', [{"id": "1436:npc_503"}]))
+
+
+    def test_a_name_ending_in_id_fails_closed_without_hiding_the_real_id(self):
+        text = '  { id = "1436:npc_503", name = "Squid id =", icon = "X" }'
+        gone = gen.removed_ids(text, [{"id": "1436:npc_503"}])
+        self.assertNotIn("1436:npc_503", gone)
+        self.assertTrue(gone)  # the fake match makes main() refuse, never lose a card
+
+
+class MainRefusal(unittest.TestCase):
+    """main() must refuse before writing anything when a shipped card ID would go."""
+
+    def setUp(self):
+        import sys
+        import tempfile
+        self.tmp = tempfile.TemporaryDirectory()
+        self.repo = self.tmp.name
+        os.makedirs(os.path.join(self.repo, "Data", "Generated"))
+        with open(os.path.join(self.repo, "Data", "Loaded.lua"), "w") as handle:
+            handle.write('ns.Cards.EXPECTED_BATCHES = { "1436:generated" }\n')
+        self.real_build, self.real_argv = gen.build, sys.argv
+        gen.build = lambda sql, repo, report: {z: ([], 0, 0) for z in gen.ZONE_ORDER}
+
+    def tearDown(self):
+        import sys
+        gen.build, sys.argv = self.real_build, self.real_argv
+        self.tmp.cleanup()
+
+    def run_main(self, *flags):
+        import sys
+        sys.argv = ["generate-cards.py", "unused-sql", "--repo", self.repo] + list(flags)
+        gen.main()
+
+    def generated(self):
+        return sorted(os.listdir(os.path.join(self.repo, "Data", "Generated")))
+
+    def test_refuses_when_a_shipped_zone_file_is_missing(self):
+        with self.assertRaises(SystemExit):
+            self.run_main()
+        self.assertEqual([], self.generated())
+
+    def test_refuses_when_an_id_would_disappear_and_writes_nothing(self):
+        path = os.path.join(self.repo, "Data", "Generated", "Westfall.lua")
+        with open(path, "w") as handle:
+            handle.write('  { id = "1436:npc_503", name = "Lord Malathrom" },\n')
+        with self.assertRaises(SystemExit):
+            self.run_main()
+        self.assertEqual(["Westfall.lua"], self.generated())
+        with open(path) as handle:
+            self.assertIn("1436:npc_503", handle.read())
+
+    def test_writes_with_allow_removed_ids(self):
+        self.run_main("--allow-removed-ids")
+        self.assertEqual(len(gen.ZONE_ORDER), len(self.generated()))
 
 
 class ShippedZones(unittest.TestCase):
