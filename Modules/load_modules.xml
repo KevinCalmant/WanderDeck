@@ -6,7 +6,13 @@
   <Script file="Packs.lua"/>
   <Script file="Cards.lua"/>
   <Script file="Collection.lua"/>
+  <Script file="Reveal.lua"/>
+  <Script file="BinderModel.lua"/>
   <Script file="Slash.lua"/>
   <Script file="Walker.lua"/>
+  <Script file="UI\Window.lua"/>
+  <Script file="UI\CardWidget.lua"/>
+  <Script file="UI\RevealFrame.lua"/>
+  <Script file="UI\BinderFrame.lua"/>
   <Script file="Opener.lua"/>
 </Ui>

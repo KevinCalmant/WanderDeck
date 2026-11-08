@@ -1,7 +1,7 @@
 local _, ns = ...
 
--- Shell for /wd open and /wd cards. Chat output for now; the reveal frame and
--- the binder UI come later (docs/FEATURES.md sections 3 and 4).
+-- Shell for /wd open, /wd binder and /wd cards. Opening shows the reveal
+-- frame; if the frame fails to build, the cards go to chat instead.
 
 local L = ns.L
 local Config, Cards, Collection, Zone, Wow, Walker = ns.Config, ns.Cards, ns.Collection, ns.Zone, ns.Wow, ns.Walker
@@ -14,6 +14,14 @@ local function continentOf(zoneMapID)
   if type(getMapInfo) ~= "function" then return nil end
   local ok, id = pcall(Zone.continentOf, zoneMapID, getMapInfo, Wow.isSecret)
   return ok and id or nil
+end
+
+---Hands a caught UI error to the client's error handler (the Lua error frame
+---or BugSack), so a fallback still leaves a trace to debug.
+function Opener.reportError(err)
+  local get = _G.geterrorhandler
+  local handler = type(get) == "function" and get()
+  if type(handler) == "function" then pcall(handler, err) end
 end
 
 ---One chat line for a card: colored name, rarity, attack/defense, New tag.
@@ -29,19 +37,45 @@ function Opener.cardLine(card, isNew)
   return line
 end
 
-local function handleOpen()
+local function printResult(result, zoneName, packsLeft)
+  ns.print(L["Pack from"].." "..zoneName..":")
+  for _, id in ipairs(result.cardIDs) do
+    print("  "..Opener.cardLine(Cards.get(id), result.firstTime[id]))
+  end
+  ns.print(L["Unopened packs:"].." "..packsLeft)
+end
+
+local handleOpen
+
+local function packsLeft()
+  local db = ns.GetDB()
+  return db and #db.char.packs or 0
+end
+
+handleOpen = function()
   local db = ns.GetDB()
   if not db then return end
+  -- The pack is consumed and its cards saved here, before any display.
   local result, reason = Collection.openNext(db.char, math.random, continentOf, Config)
   if not result then
     ns.print(reason == "no-pack" and L["No pack to open. Keep walking!"] or L["No cards available for this pack."])
     return
   end
-  ns.print(L["Pack from"].." "..Walker.zoneName(result.pack.zoneMapID)..":")
-  for _, id in ipairs(result.cardIDs) do
-    print("  "..Opener.cardLine(Cards.get(id), result.firstTime[id]))
+  local zoneName = Walker.zoneName(result.pack.zoneMapID)
+  -- The closure keeps a missing RevealFrame module inside the protection.
+  local ok, err = pcall(function() return ns.RevealFrame.show(result, zoneName, handleOpen, packsLeft) end)
+  if not ok then
+    Opener.reportError(err)
+    printResult(result, zoneName, packsLeft())
   end
-  ns.print(L["Unopened packs:"].." "..#db.char.packs)
+end
+
+local function handleBinder()
+  local ok, err = pcall(function() return ns.BinderFrame.toggle() end)
+  if not ok then
+    Opener.reportError(err)
+    ns.print(L["The binder could not open. Use /wd cards."])
+  end
 end
 
 local function handleCards()
@@ -62,6 +96,13 @@ ns.Slash.register({
   usage = "open",
   help = L["Open your oldest pack"],
   handler = handleOpen,
+})
+
+ns.Slash.register({
+  name = "binder",
+  usage = "binder",
+  help = L["Open or close the binder"],
+  handler = handleBinder,
 })
 
 ns.Slash.register({

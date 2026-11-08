@@ -1,0 +1,179 @@
+local _, ns = ...
+
+-- The binder: zones on the left with their completion, the selected zone's
+-- cards on the right as a 3x3 grid. Filters, rarity, search and paging come
+-- from BinderModel; owned cards shown here lose their New flag.
+
+local L = ns.L
+local Cards, CardWidget, BinderModel, Window, Walker = ns.Cards, ns.CardWidget, ns.BinderModel, ns.Window, ns.Walker
+
+local BinderFrame = {}
+ns.BinderFrame = BinderFrame
+
+local COLUMNS, ROWS = 3, 3
+local PER_PAGE = COLUMNS * ROWS
+local GAP = 8
+local LIST_WIDTH = 180
+local MAX_ZONE_BUTTONS = 14
+local FILTER_LABELS = { all = "All", owned = "Owned", missing = "Missing", duplicates = "Duplicates" }
+
+local frame, widgets, zoneButtons, filterButtons
+local view = { zoneMapID = nil, filter = "all", rarity = nil, search = "", page = 1 }
+
+local function char()
+  local db = ns.GetDB()
+  return db and db.char
+end
+
+local function render()
+  local c = char()
+  if not c then return end
+
+  local zones = BinderModel.zoneList(Cards.zoneIDs(), Cards.zoneCards, c.collection)
+  if not view.zoneMapID and zones[1] then view.zoneMapID = zones[1].zoneMapID end
+  for i, button in ipairs(zoneButtons) do
+    local zone = zones[i]
+    if zone then
+      button.zoneMapID = zone.zoneMapID
+      button:SetText(Walker.zoneName(zone.zoneMapID).."  "..zone.owned.."/"..zone.total)
+      button:SetEnabled(zone.zoneMapID ~= view.zoneMapID)
+      button:Show()
+    else
+      button:Hide()
+    end
+  end
+
+  for key, button in pairs(filterButtons) do button:SetEnabled(key ~= view.filter) end
+  frame.rarity:SetText(view.rarity and L[Cards.RARITY_NAMES[view.rarity]] or L["All rarities"])
+
+  local entries = BinderModel.entries(Cards.zoneCards(view.zoneMapID), c.collection, c.newCards, {
+    filter = view.filter, rarity = view.rarity, search = view.search,
+    localize = function(key) return L[key] end,
+  })
+  local shown, page, pageCount = BinderModel.page(entries, view.page, PER_PAGE)
+  view.page = page
+
+  for i, w in ipairs(widgets) do
+    local entry = shown[i]
+    if not entry then
+      w:Hide()
+    elseif entry.copies > 0 then
+      CardWidget.showCard(w, entry.card, { copies = entry.copies, isNew = entry.isNew })
+    else
+      CardWidget.showMissing(w, entry.card)
+    end
+  end
+  frame.pageText:SetText(page.." / "..pageCount)
+  frame.prev:SetEnabled(page > 1)
+  frame.next:SetEnabled(page < pageCount)
+  frame.empty:SetShown(#shown == 0)
+
+  -- Last, and only while the frame is visible (IsVisible is false with the UI
+  -- hidden by Alt+Z): a card loses its New tag once the player could see it.
+  if frame:IsVisible() then BinderModel.markSeen(c.newCards, shown) end
+end
+
+local function build()
+  local gridWidth = COLUMNS * CardWidget.WIDTH + (COLUMNS - 1) * GAP
+  local gridHeight = ROWS * CardWidget.HEIGHT + (ROWS - 1) * GAP
+  frame = Window.create("WanderDeckBinder", L["Binder"], LIST_WIDTH + gridWidth + 70, gridHeight + 140)
+
+  zoneButtons = {}
+  for i = 1, MAX_ZONE_BUTTONS do
+    local b = Window.button(frame, "", LIST_WIDTH)
+    b:SetPoint("TOPLEFT", 20, -50 - (i - 1) * 26)
+    b:SetScript("OnClick", function(self)
+      view.zoneMapID, view.page = self.zoneMapID, 1
+      render()
+    end)
+    zoneButtons[i] = b
+  end
+
+  local left = LIST_WIDTH + 40
+  filterButtons = {}
+  local x = left
+  for _, key in ipairs(BinderModel.FILTERS) do
+    local b = Window.button(frame, L[FILTER_LABELS[key]], 84)
+    b:SetPoint("TOPLEFT", x, -46)
+    b:SetScript("OnClick", function()
+      view.filter, view.page = key, 1
+      render()
+    end)
+    filterButtons[key] = b
+    x = x + 88
+  end
+
+  frame.rarity = Window.button(frame, "", 120)
+  frame.rarity:SetPoint("TOPLEFT", left, -72)
+  frame.rarity:SetScript("OnClick", function()
+    -- Cycles All -> Common -> ... -> Legendary -> All.
+    if view.rarity == nil then view.rarity = 1 elseif view.rarity >= 5 then view.rarity = nil else view.rarity = view.rarity + 1 end
+    view.page = 1
+    render()
+  end)
+
+  frame.search = CreateFrame("EditBox", nil, frame, "InputBoxTemplate")
+  frame.search:SetSize(170, 20)
+  frame.search:SetPoint("TOPLEFT", left + 136, -73)
+  frame.search:SetAutoFocus(false)
+  frame.search:SetMaxLetters(BinderModel.SEARCH_MAX_LENGTH)
+  frame.search:SetScript("OnTextChanged", function(self)
+    view.search, view.page = self:GetText(), 1
+    render()
+  end)
+  frame.search:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
+
+  widgets = {}
+  for i = 1, PER_PAGE do
+    local col, row = (i - 1) % COLUMNS, math.floor((i - 1) / COLUMNS)
+    local w = CardWidget.create(frame)
+    w:SetPoint("TOPLEFT", left + col * (CardWidget.WIDTH + GAP), -102 - row * (CardWidget.HEIGHT + GAP))
+    widgets[i] = w
+  end
+
+  frame.empty = frame:CreateFontString(nil, "OVERLAY", "GameFontDisable")
+  frame.empty:SetPoint("TOPLEFT", left, -130)
+  frame.empty:SetText(L["No cards match."])
+
+  frame.prev = Window.button(frame, "<", 40)
+  frame.prev:SetPoint("BOTTOMLEFT", left, 20)
+  frame.prev:SetScript("OnClick", function() view.page = view.page - 1 render() end)
+  frame.next = Window.button(frame, ">", 40)
+  frame.next:SetPoint("BOTTOMLEFT", left + gridWidth - 40, 20)
+  frame.next:SetScript("OnClick", function() view.page = view.page + 1 render() end)
+  frame.pageText = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+  frame.pageText:SetPoint("BOTTOMLEFT", left + gridWidth / 2 - 15, 26)
+end
+
+---Test hook: the frame, card widgets, zone buttons and view state.
+function BinderFrame._debug() return frame, widgets, zoneButtons, view end
+
+local broken
+
+---Builds the frame once. A build that fails partway marks the binder broken
+---instead of leaving a half-built frame that later calls would draw into.
+local function ensureBuilt()
+  if broken then error("WanderDeck binder failed to build earlier", 0) end
+  if frame then return end
+  local ok, err = pcall(build)
+  if not ok then
+    broken = true
+    if frame then frame:Hide() end
+    error(err, 0)
+  end
+end
+
+function BinderFrame.toggle()
+  if not char() then return end
+  ensureBuilt()
+  if frame:IsShown() then
+    frame:Hide()
+    return
+  end
+  frame:Show()
+  local ok, err = pcall(render)
+  if not ok then
+    frame:Hide()
+    error(err, 0)
+  end
+end

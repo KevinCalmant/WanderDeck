@@ -49,6 +49,8 @@ A card is static data in `Data/<Continent>/<Zone>.lua`:
 - Tags: player-defined labels plus the built-in **For trade** tag. Players can pin favorites to the top.
 - Duplicates are stored as counts (`collection[cardID] = n`); the binder shows `×n`.
 
+Built so far (`Modules/UI/`): reveal window with click-to-flip and Reveal all; binder with zone list, 3x3 grid, silhouettes, owned/missing/duplicates and rarity filters, search, paging, New tag cleared on view. Not built yet: reveal sounds, player tags, the For trade tag, pinned favorites, continent level in the binder, minimap button.
+
 ## 5. Achievements
 
 Local, stored per character, checked by pure functions over the save data so each one has a unit test. Starting set:
