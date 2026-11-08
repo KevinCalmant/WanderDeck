@@ -1,8 +1,21 @@
 # Card candidates 01: Elwynn Forest to Stranglethorn Vale
 
+## uiMapIDs
+Classic-era IDs, all from the Classic table (IDs 1411-1460) of https://warcraft.wiki.gg/wiki/UiMapID.
+
+| Zone | uiMapID | source URL |
+|---|---|---|
+| Elwynn Forest | 1429 | https://warcraft.wiki.gg/wiki/UiMapID |
+| Westfall | 1436 | https://warcraft.wiki.gg/wiki/UiMapID |
+| Redridge Mountains | 1433 | https://warcraft.wiki.gg/wiki/UiMapID |
+| Duskwood | 1431 | https://warcraft.wiki.gg/wiki/UiMapID |
+| Stranglethorn Vale | 1434 | https://warcraft.wiki.gg/wiki/UiMapID |
+| Stormwind City (city, folded into Elwynn Forest) | 1453 | https://warcraft.wiki.gg/wiki/UiMapID |
+
+
 Method: Wowhead Classic NPC pages (EN via search results, FR via `https://www.wowhead.com/classic/fr/npc=<id>`), plus warcraft.wiki.gg zone pages for creature families and landmarks. Wowhead zone pages (`zone=12`) returned no usable content (JS-only or redirect loop), and the FR NPC pages started returning HTTP 403 mid-run, so many FR names are "?". Rarity: 1 Common, 2 Uncommon, 3 Rare, 4 Epic, 5 Legendary. Notes are original wording.
 
-## Elwynn Forest / Forêt d'Elwynn — uiMapID ?
+## Elwynn Forest / Forêt d'Elwynn — uiMapID 1429
 New candidates only (Stormwind City and the Stockade folded in, per project rule). FR zone name verified on https://www.wowhead.com/classic/fr/npc=472.
 
 | EN name | FR name | kind | rarity | note | source URL |
@@ -23,7 +36,7 @@ New candidates only (Stormwind City and the Stockade folded in, per project rule
 
 Existing cards checked: Hogger FR = "Lardeur" (https://www.wowhead.com/classic/fr/npc=448), Princess FR = "Princesse" (npc=330), Mother Fang = npc 471 (https://www.wowhead.com/classic/npc=471/mother-fang), Gruff Swiftbite = npc 100 (https://www.wowhead.com/wotlk/npc=100/gruff-swiftbite). No wrong EN name found. Note Goldtooth is npc 327 and Mother Fang is 471, so do not confuse the IDs.
 
-## Westfall / Marche de l'Ouest — uiMapID ?
+## Westfall / Marche de l'Ouest — uiMapID 1436
 New candidates only (Deadmines folded in; FR dungeon name "Les Mortemines" verified on the FR boss pages below).
 
 | EN name | FR name | kind | rarity | note | source URL |
@@ -41,7 +54,7 @@ New candidates only (Deadmines folded in; FR dungeon name "Les Mortemines" verif
 
 Existing cards checked: The Deadmines FR = "Les Mortemines" (matches). No wrong EN name found among those I could check; Old Murk-Eye's zone is unverified (see Doubts).
 
-## Redridge Mountains / Montagnes de Redridge — uiMapID ?
+## Redridge Mountains / Montagnes de Redridge — uiMapID 1433
 
 | EN name | FR name | kind | rarity | note | source URL |
 |---|---|---|---|---|---|
@@ -60,7 +73,7 @@ Existing cards checked: The Deadmines FR = "Les Mortemines" (matches). No wrong 
 | Blackrock Sentry | ? | elite | 4 | Level 21-22 elite orc guard (zone unconfirmed). | https://www.wowhead.com/classic/npc=4065/blackrock-sentry |
 | Magistrate Solomon | ? | npc | 5 | Lakeshire's magistrate, destination of many Alliance errands. | https://www.wowhead.com/classic/npc=344/magistrate-solomon |
 
-## Duskwood / Bois de la Pénombre — uiMapID ?
+## Duskwood / Bois de la Pénombre — uiMapID 1431
 FR zone name from memory, not verified (see Doubts). Creature rows are family-level because no Classic creature page was reached.
 
 | EN name | FR name | kind | rarity | note | source URL |
@@ -79,7 +92,7 @@ FR zone name from memory, not verified (see Doubts). Creature rows are family-le
 | Eliza | ? | elite | 4 | Level 31 elite bride of the embalmer. | https://www.wowhead.com/classic/npc=314/eliza |
 | Stitches | ? | elite | 5 | Level 35 elite abomination, Duskwood's best-known horror. | https://www.wowhead.com/classic/npc=412/stitches |
 
-## Stranglethorn Vale / Vallée de Strangleronce — uiMapID ?
+## Stranglethorn Vale / Vallée de Strangleronce — uiMapID 1434
 FR zone name from memory, not verified. Booty Bay FR verified in a search-result title.
 
 | EN name | FR name | kind | rarity | note | source URL |
@@ -103,7 +116,6 @@ FR zone name from memory, not verified. Booty Bay FR verified in a search-result
 | Zul'Gurub (RAID, flagged) | ? | place | 4 | Troll raid city; do not treat as a zone. | https://warcraft.wiki.gg/wiki/Stranglethorn_Vale |
 
 ## Doubts
-- uiMapID: not found for any zone. Wowhead zone pages returned no content (redirect loop or empty), and uiMapIDs are not on the NPC pages. Left as "?".
 - FR names: Wowhead FR pages returned HTTP 403 partway through the run, so only FR names seen on fetched FR pages or in French search titles are filled in. Everything else is "?". Most FR place names were not looked up at all.
 - FR zone names for Duskwood and Stranglethorn were not verified (not on any opened page).
 - Goldtooth: the FR page did not show its rank, so kind "rare" is unconfirmed.
@@ -116,3 +128,4 @@ FR zone name from memory, not verified. Booty Bay FR verified in a search-result
 - warcraft.wiki.gg is a secondary source used for landmarks and families only; re-check place cards against Wowhead subzone lists.
 - Wiki lists John J. Keeshan, Marshal Marris and Reginald Windsor for Redridge, but the era is unclear. They are not carded.
 - Anduin Wrynn: the FR page title says "Roi de Stormwind"; confirm this is the Classic-era NPC you want.
+- uiMapIDs resolved from the Classic table (IDs 1411-1460) on https://warcraft.wiki.gg/wiki/UiMapID. The retail table on the same page uses different numbers (e.g. Elwynn Forest 37), so do not mix them.

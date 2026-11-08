@@ -1,8 +1,24 @@
 # 03 — Tirisfal Glades to Plaguelands (research candidates)
 
+## uiMapIDs
+Classic-era IDs, all from the Classic table (IDs 1411-1460) of https://warcraft.wiki.gg/wiki/UiMapID.
+
+| Zone | uiMapID | source URL |
+|---|---|---|
+| Tirisfal Glades | 1420 | https://warcraft.wiki.gg/wiki/UiMapID |
+| Silverpine Forest | 1421 | https://warcraft.wiki.gg/wiki/UiMapID |
+| Hillsbrad Foothills | 1424 | https://warcraft.wiki.gg/wiki/UiMapID |
+| Alterac Mountains | 1416 | https://warcraft.wiki.gg/wiki/UiMapID |
+| Arathi Highlands | 1417 | https://warcraft.wiki.gg/wiki/UiMapID |
+| The Hinterlands | 1425 | https://warcraft.wiki.gg/wiki/UiMapID |
+| Western Plaguelands | 1422 | https://warcraft.wiki.gg/wiki/UiMapID |
+| Eastern Plaguelands | 1423 | https://warcraft.wiki.gg/wiki/UiMapID |
+| Undercity (city, folded into Tirisfal Glades) | 1458 | https://warcraft.wiki.gg/wiki/UiMapID |
+
+
 Method note: Wowhead Classic zone/NPC pages are JS-rendered and returned almost no list data through WebFetch (zone=85 returned only the title). Zone facts (towns, NPCs, families, rares) therefore come from warcraft.wiki.gg Classic pages that were opened; Wowhead NPC pages are cited only where opened. FR names are "?" unless seen on a fr.wowhead page. Rarity: 1 Common .. 5 Legendary (my proposal, not sourced).
 
-## Tirisfal Glades / Clairières de Tirisfal — uiMapID ? (Wowhead zone=85)
+## Tirisfal Glades / Clairières de Tirisfal — uiMapID 1420
 | EN name | FR name | kind | rarity | note | source URL |
 |---|---|---|---|---|---|
 | Darkhound | ? | creature | 1 | Undead hound packs roaming the glades | https://warcraft.wiki.gg/wiki/Tirisfal_Glades_(Classic) |
@@ -22,7 +38,7 @@ Method note: Wowhead Classic zone/NPC pages are JS-rendered and returned almost 
 | Scarlet Monastery | ? | place | 4 | Crusader fortress dungeon in Tirisfal | https://warcraft.wiki.gg/wiki/Tirisfal_Glades_(Classic) |
 | Sylvanas Windrunner | ? | npc | 5 | Banshee Queen ruling Undercity (fr page subtitle: Reine Banshee) | https://www.wowhead.com/classic/fr/npc=10181 |
 
-## Silverpine Forest / Forêt des Pins-Argentés — uiMapID ?
+## Silverpine Forest / Forêt des Pins-Argentés — uiMapID 1421
 | EN name | FR name | kind | rarity | note | source URL |
 |---|---|---|---|---|---|
 | Worgen | ? | creature | 1 | Cursed wolf-men of the forest | https://warcraft.wiki.gg/wiki/Silverpine_Forest_(Classic) |
@@ -41,7 +57,7 @@ Method note: Wowhead Classic zone/NPC pages are JS-rendered and returned almost 
 | Shadowfang Keep | Donjon d'Ombrecroc | place | 4 | Arugal's fortress dungeon (FR seen on wowhead page) | https://www.wowhead.com/classic/fr/npc=4275 |
 | Archmage Arugal | Archimage Arugal | boss | 4 | Wizard who summoned the worgen; final boss | https://www.wowhead.com/classic/fr/npc=4275 |
 
-## Hillsbrad Foothills / Contreforts de Hillsbrad — uiMapID ?
+## Hillsbrad Foothills / Contreforts de Hillsbrad — uiMapID 1424
 | EN name | FR name | kind | rarity | note | source URL |
 |---|---|---|---|---|---|
 | Bear | ? | creature | 1 | Foothill bears | https://warcraft.wiki.gg/wiki/Hillsbrad_Foothills_(Classic) |
@@ -60,7 +76,7 @@ Method note: Wowhead Classic zone/NPC pages are JS-rendered and returned almost 
 | High Executor Darthalia | ? | npc | 3 | Forsaken commander at Tarren Mill | https://warcraft.wiki.gg/wiki/Hillsbrad_Foothills_(Classic) |
 | Apothecary Lydon | ? | npc | 2 | Forsaken apothecary quest giver | https://warcraft.wiki.gg/wiki/Hillsbrad_Foothills_(Classic) |
 
-## Alterac Mountains / Montagnes d'Alterac — uiMapID ?
+## Alterac Mountains / Montagnes d'Alterac — uiMapID 1416
 | EN name | FR name | kind | rarity | note | source URL |
 |---|---|---|---|---|---|
 | Yeti | ? | creature | 1 | Mountain snow apes | https://warcraft.wiki.gg/wiki/Alterac_Mountains_(Classic) |
@@ -79,7 +95,7 @@ Method note: Wowhead Classic zone/NPC pages are JS-rendered and returned almost 
 | Narillasanz | ? | rare | 3 | Only rare spawn listed on the zone page | https://warcraft.wiki.gg/wiki/Alterac_Mountains_(Classic) |
 | Warmaster Laggrond | ? | npc | 3 | Horde warmaster tied to the Valley | https://warcraft.wiki.gg/wiki/Alterac_Mountains_(Classic) |
 
-## Arathi Highlands / Hautes-terres d'Arathi — uiMapID ?
+## Arathi Highlands / Hautes-terres d'Arathi — uiMapID 1417
 | EN name | FR name | kind | rarity | note | source URL |
 |---|---|---|---|---|---|
 | Raptor | ? | creature | 1 | Fast hunting lizards | https://warcraft.wiki.gg/wiki/Arathi_Highlands_(Classic) |
@@ -98,7 +114,7 @@ Method note: Wowhead Classic zone/NPC pages are JS-rendered and returned almost 
 | Galen Trollbane | ? | npc | 3 | Stromgarde noble listed for the zone | https://warcraft.wiki.gg/wiki/Arathi_Highlands_(Classic) |
 | Skuerto | ? | npc | 2 | Listed notable NPC | https://warcraft.wiki.gg/wiki/Arathi_Highlands_(Classic) |
 
-## The Hinterlands / Les Hinterlands — uiMapID ?
+## The Hinterlands / Les Hinterlands — uiMapID 1425
 | EN name | FR name | kind | rarity | note | source URL |
 |---|---|---|---|---|---|
 | Wildkin | ? | creature | 1 | Owl-like beasts of the zone | https://warcraft.wiki.gg/wiki/The_Hinterlands |
@@ -117,7 +133,7 @@ Method note: Wowhead Classic zone/NPC pages are JS-rendered and returned almost 
 | Vile Priestess Hexx | ? | elite | 4 | Vilebranch priestess in the troll city | https://warcraft.wiki.gg/wiki/The_Hinterlands |
 | Highlord Kruul | ? | elite | 4 | Demon lord listed for the zone | https://warcraft.wiki.gg/wiki/The_Hinterlands |
 
-## Western Plaguelands / Maleterres de l'ouest — uiMapID ?
+## Western Plaguelands / Maleterres de l'ouest — uiMapID 1422
 | EN name | FR name | kind | rarity | note | source URL |
 |---|---|---|---|---|---|
 | Zombie | ? | creature | 1 | Plague-risen dead | https://warcraft.wiki.gg/wiki/Western_Plaguelands_(Classic) |
@@ -136,7 +152,7 @@ Method note: Wowhead Classic zone/NPC pages are JS-rendered and returned almost 
 | Eva Sarkhoff | ? | npc | 2 | Notable NPC listed for the zone | https://warcraft.wiki.gg/wiki/Western_Plaguelands_(Classic) |
 | Scholomance | ? | place | 4 | Necromancy academy dungeon at Caer Darrow | https://warcraft.wiki.gg/wiki/Western_Plaguelands_(Classic) |
 
-## Eastern Plaguelands / Maleterres de l'est — uiMapID ? (FR zone name seen on fr.wowhead npc=1855 page)
+## Eastern Plaguelands / Maleterres de l'est — uiMapID 1423 (FR zone name seen on fr.wowhead npc=1855 page)
 | EN name | FR name | kind | rarity | note | source URL |
 |---|---|---|---|---|---|
 | Ghoul | ? | creature | 1 | Undead scavengers | https://warcraft.wiki.gg/wiki/Eastern_Plaguelands_(Classic) |
@@ -157,10 +173,11 @@ Method note: Wowhead Classic zone/NPC pages are JS-rendered and returned almost 
 | Naxxramas (raid) | ? | place | 4 | RAID: floating necropolis, formerly in zone; flagged, not a normal pack source | https://warcraft.wiki.gg/wiki/Eastern_Plaguelands_(Classic) |
 
 ## Doubts
-- uiMapID: not obtainable. Wowhead Classic zone pages returned only the title; only the Wowhead zone ID 85 (Tirisfal) was confirmed, and that is not a uiMapID. All uiMapIDs are "?"; needs a separate lookup (e.g. wago.tools UiMap table).
 - FR names: fr.wowhead pages returned mostly English NPC names via WebFetch. Confirmed FR: Clairières de Tirisfal, Maleterres de l'est, Donjon d'Ombrecroc, Archimage Arugal. Everything else is "?" (zone FR names in headings are from memory except the confirmed ones, so verify them). Sylvanas FR name unconfirmed.
 - Rares: no verified rare lists for Hillsbrad, Hinterlands, Western/Eastern Plaguelands (wiki pages list none; metaforge.app returned 403). Rare rows exist only for Tirisfal, Silverpine (Gorefang), Alterac (Narillasanz). Search snippets only, unverified: Arathi (Geomancer Flintdagger, Kovork, Nimar the Slayer, Prince Nazjak; seen via https://es.classic.wowhead.com/news/frostbitten-guide-to-all-rares-part-2-201482 and an unnamed Wowhead Classic rare-drop post), Eastern Plaguelands (Gish the Unmoving, Deathspeaker Selendre; third-party site).
 - Epic/Legendary slots thin: Arathi, Hillsbrad, Alterac have no verified elite/boss or legendary figure. Hinterlands Highlord Kruul and Vile Priestess Hexx are wiki-listed only; their Classic spawn status is unverified. Hillsbrad legendary candidate (Lord Aliden Perenolde / Thrall at Durnholde) not verified.
 - Scholomance, Shadowfang Keep, Scarlet Monastery boss rosters (Gandling, Silverlaine, Herod, Thalnos, Balnazzar) not verified; fr npc=3976 and npc=1853 failed (redirect loop / timeout).
 - Silverpine NPC wiki page mixes Classic and later-expansion entries; Gorefang should be rechecked as a Classic spawn.
 - Rows citing wiki.gg as source were taken from list pages that were opened; no Wowhead NPC page was opened for them.
+- uiMapIDs resolved from the Classic table on https://warcraft.wiki.gg/wiki/UiMapID (Alterac Mountains 1416; Alterac Valley battleground is 1459, not a zone card).
+- Zones in this file were outside the thin-zone list for this pass; rows were not changed.

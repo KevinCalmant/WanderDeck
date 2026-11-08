@@ -1,8 +1,22 @@
 # Card candidates 02: Dun Morogh to Burning Steppes
 
+## uiMapIDs
+Classic-era IDs, all from the Classic table (IDs 1411-1460) of https://warcraft.wiki.gg/wiki/UiMapID.
+
+| Zone | uiMapID | source URL |
+|---|---|---|
+| Dun Morogh | 1426 | https://warcraft.wiki.gg/wiki/UiMapID |
+| Loch Modan | 1432 | https://warcraft.wiki.gg/wiki/UiMapID |
+| Wetlands | 1437 | https://warcraft.wiki.gg/wiki/UiMapID |
+| Badlands | 1418 | https://warcraft.wiki.gg/wiki/UiMapID |
+| Searing Gorge | 1427 | https://warcraft.wiki.gg/wiki/UiMapID |
+| Burning Steppes | 1428 | https://warcraft.wiki.gg/wiki/UiMapID |
+| Ironforge (city, folded into Dun Morogh) | 1455 | https://warcraft.wiki.gg/wiki/UiMapID |
+
+
 Method note: wowhead.com/classic zone pages return no usable content through fetch (JS-rendered), and Wowhead began returning HTTP 403 mid-run. Rows below come from Wowhead URLs seen in search results or opened. FR names are only filled when a fr Wowhead page was actually opened (title read); otherwise "?". Rarity values are proposals.
 
-## Dun Morogh / Dun Morogh — uiMapID ? (27 per warcraft.wiki.gg/wiki/UiMapID, not Wowhead)
+## Dun Morogh / Dun Morogh — uiMapID 1426
 Ironforge, Gnomeregan and Hall of Thanes cards are grouped here (entrances in this zone).
 | EN name | FR name | kind | rarity | note | source URL |
 |---|---|---|---|---|---|
@@ -21,7 +35,7 @@ Ironforge, Gnomeregan and Hall of Thanes cards are grouped here (entrances in th
 
 Hall of Thanes: found. Wowhead Forever dungeon journal lists 4 bosses (Faldrim Anvilmar, Magmatus, Plunder, Durgen Dirgehammer). Method.gg puts it in Old Ironforge beneath the High Seat (https://www.method.gg/wow-forever/dungeons/hall-of-thanes), level 13-18 per search summary. Magmatus and Plunder only appear as names there (same journal URL).
 
-## Loch Modan / Loch Modan — uiMapID ? (48 per warcraft.wiki.gg, not Wowhead)
+## Loch Modan / Loch Modan — uiMapID 1432
 | EN name | FR name | kind | rarity | note | source URL |
 |---|---|---|---|---|---|
 | Loch Crocolisk | ? | creature | 1 | Level 14-15 crocolisk in the lake | https://www.wowhead.com/classic/npc=1693/loch-crocolisk |
@@ -32,8 +46,15 @@ Hall of Thanes: found. Wowhead Forever dungeon journal lists 4 bosses (Faldrim A
 | Large Loch Crocolisk | ? | rare | 3 | Level 22 rare crocolisk | https://www.wowhead.com/classic/npc=2476/large-loch-crocolisk |
 | Boss Galgosh | ? | rare | 3 | Rare listed in Loch Modan (TBC page only) | https://www.wowhead.com/tbc/npc=1398/boss-galgosh |
 | Kackle | ? | elite | 4 | Level 15-16 elite crocolisk (ID 210107, maybe not Forever) | https://www.wowhead.com/classic/npc=210107/kackle |
+| Bear | ? | creature | 1 | Woodland bears roaming the hills around the loch. | https://warcraft.wiki.gg/wiki/Loch_Modan_(Classic) |
+| Kobold | ? | creature | 1 | Mine-dwelling diggers listed among the zone inhabitants. | https://warcraft.wiki.gg/wiki/Loch_Modan_(Classic) |
+| Thelsamar | ? | place | 2 | The zone's main dwarf town with its inn. | https://warcraft.wiki.gg/wiki/Loch_Modan_(Classic) |
+| Stonewrought Dam | ? | place | 2 | Great dam holding back the loch; Dark Iron trouble nearby. | https://warcraft.wiki.gg/wiki/Loch_Modan_(Classic) |
+| Mo'grosh Stronghold | ? | place | 4 | Ogre micro-dungeon, flagged as an elite area. | https://warcraft.wiki.gg/wiki/Loch_Modan_(Classic) |
+| Prospector Ironband | ? | npc | 2 | Excavation chief sending adventurers toward Uldaman. | https://warcraft.wiki.gg/wiki/Loch_Modan_(Classic) |
+| Chief Engineer Hinderweir VII | ? | npc | 2 | Dam engineer wanting Dark Iron dwarves driven out. | https://warcraft.wiki.gg/wiki/Loch_Modan_(Classic) |
 
-## Wetlands / Wetlands — uiMapID ? (56 per warcraft.wiki.gg, not Wowhead)
+## Wetlands / Wetlands — uiMapID 1437
 | EN name | FR name | kind | rarity | note | source URL |
 |---|---|---|---|---|---|
 | Mottled Raptor | ? | creature | 1 | Level 22-23 raptor, quest target | https://www.wowhead.com/classic/npc=1020/mottled-raptor |
@@ -45,8 +66,14 @@ Hall of Thanes: found. Wowhead Forever dungeon journal lists 4 bosses (Faldrim A
 | Captain Stoutfist | ? | npc | 3 | Level 35 Ironforge officer fighting the Dragonmaw | https://www.wowhead.com/classic/npc=2104/captain-stoutfist |
 | Leech Widow | ? | rare | 3 | Level 24 rare spider | https://www.wowhead.com/classic/npc=1112/leech-widow |
 | Dragonmaw Battlemaster | ? | rare | 3 | Level 30 rare orc warrior | https://www.wowhead.com/classic/npc=1037/dragonmaw-battlemaster |
+| Bog Beast | ? | creature | 1 | Swamp elementals corrupted around the Green Belt. | https://warcraft.wiki.gg/wiki/Wetlands_(Classic) |
+| Menethil Harbor | ? | place | 2 | Alliance port town on the zone's west coast. | https://warcraft.wiki.gg/wiki/Wetlands_(Classic) |
+| Dragonmaw Gates | ? | place | 4 | Orc micro-dungeon, flagged as an elite area. | https://warcraft.wiki.gg/wiki/Wetlands_(Classic) |
+| Grim Batol | ? | place | 4 | Red dragonflight stronghold guarded by level 60+ elites. | https://warcraft.wiki.gg/wiki/Wetlands_(Classic) |
+| Rhag Garmason | ? | npc | 2 | Dun Modr dwarf working to retake the town. | https://warcraft.wiki.gg/wiki/Wetlands_(Classic) |
+| Razormaw Matriarch | ? | rare | 3 | Raptor rare listed in the old rare-spawn page. | https://warcraft.wiki.gg/wiki/User:FuzzicalLogic/Maps/Rare_Spawn_Locations |
 
-## Badlands / Badlands — uiMapID ? (15 per warcraft.wiki.gg, not Wowhead)
+## Badlands / Badlands — uiMapID 1418
 Uldaman cards are grouped here.
 | EN name | FR name | kind | rarity | note | source URL |
 |---|---|---|---|---|---|
@@ -60,7 +87,7 @@ Uldaman cards are grouped here.
 | Barnabus | ? | rare | 3 | Level 38 rare golem-type | https://www.wowhead.com/wotlk/npc=2753/barnabus |
 | Archaedas | Archaedas | boss | 5 | Ancient stone guardian, final boss of Uldaman | https://www.wowhead.com/classic/fr/npc=2748 |
 
-## Searing Gorge / Searing Gorge — uiMapID ? (32 per warcraft.wiki.gg, not Wowhead)
+## Searing Gorge / Searing Gorge — uiMapID 1427
 | EN name | FR name | kind | rarity | note | source URL |
 |---|---|---|---|---|---|
 | Dark Iron Slaver | ? | creature | 2 | Level 45-46 Dark Iron dwarf, quest target | https://www.wowhead.com/classic/npc=5844/dark-iron-slaver |
@@ -69,8 +96,17 @@ Uldaman cards are grouped here.
 | Rekk'tilac | ? | rare | 3 | Rare listed in Searing Gorge (TBC page) | https://www.wowhead.com/tbc/npc=8277/rekktilac |
 | Highlord Mastrogonde | ? | elite | 4 | Level 51 rare elite | https://classic.wowhead.com/npc=8282/highlord-mastrogonde |
 | Obsidion | ? | elite | 4 | Elite listed in Searing Gorge | https://www.wowhead.com/classic/npc=8400/obsidion |
+| Golem | ? | creature | 1 | Constructs wandering the gorge, quest targets for Thorium Point. | https://warcraft.wiki.gg/wiki/Searing_Gorge_(Classic) |
+| Fire Elemental | ? | creature | 1 | Flame spirits drifting over the scorched ground. | https://warcraft.wiki.gg/wiki/Searing_Gorge_(Classic) |
+| Incendosaur | ? | creature | 1 | Fiery lizards that plague the gorge. | https://warcraft.wiki.gg/wiki/Searing_Gorge_(Classic) |
+| Thunder Lizard | ? | creature | 1 | Large reptiles listed among the gorge beasts. | https://warcraft.wiki.gg/wiki/Searing_Gorge_(Classic) |
+| Thorium Point | ? | place | 2 | Fortified brotherhood settlement, the zone hub. | https://warcraft.wiki.gg/wiki/Searing_Gorge_(Classic) |
+| The Cauldron | ? | place | 2 | Dark Iron-held pit containing the Slag Pit. | https://warcraft.wiki.gg/wiki/Searing_Gorge_(Classic) |
+| Hansel Heavyhands | ? | npc | 2 | Thorium Point quest giver fighting golems and spiders. | https://warcraft.wiki.gg/wiki/Searing_Gorge_(Classic) |
+| Master Smith Burninate | ? | npc | 2 | Smith crafting fiery flux with helpers. | https://warcraft.wiki.gg/wiki/Searing_Gorge_(Classic) |
+| Slave Master Blackheart | ? | rare | 3 | Dark Iron rare listed in the old rare-spawn page. | https://warcraft.wiki.gg/wiki/User:FuzzicalLogic/Maps/Rare_Spawn_Locations |
 
-## Burning Steppes / Burning Steppes — uiMapID ? (36 per warcraft.wiki.gg, not Wowhead)
+## Burning Steppes / Burning Steppes — uiMapID 1428
 Choice: Blackrock Depths and Blackrock Spire bosses are put here (entrance in Blackrock Mountain). Raid rows: none verified.
 | EN name | FR name | kind | rarity | note | source URL |
 |---|---|---|---|---|---|
@@ -85,10 +121,13 @@ Choice: Blackrock Depths and Blackrock Spire bosses are put here (entrance in Bl
 | Emperor Dagran Thaurissan | Empereur Dagran Thaurissan | boss | 5 | Dark Iron ruler, final boss of Blackrock Depths | https://www.wowhead.com/classic/fr/npc=9019 |
 
 ## Doubts
-- No uiMapID on Wowhead pages; values 27/48/56/15/32/36 come from warcraft.wiki.gg UiMapID, not Wowhead.
 - Wowhead returned HTTP 403 after about 25 fetches, so FR names are missing ("?") for most rows. Retry later with https://www.wowhead.com/classic/fr/npc=<id> (the fr.wowhead.com host redirects to it).
 - Levels and rarities come from search snippets of Wowhead pages; some are retail or TBC pages, not classic (Smoldar, Zaricotl, Broken Tooth, Rekk'tilac, Deathmaw, Bannok, Dustbelcher Lord, Boss Galgosh, Barnabus). Check presence in WoW Forever.
 - Kackle (ID 210107) looks like Season of Discovery content; check it exists in Forever.
 - Not found or unverified: Ironforge, Gnomeregan, Thelsamar, Menethil Harbor, Thorium Point, Morgan's Vigil and Uldaman as place rows; other Gnomeregan bosses (Viscous Fallout, Electrocutioner 6000, Crowd Pummeler, Dark Iron Ambassador); Uldaman bosses besides Archaedas; Drakkisath, Pyroguard Emberseer; raid rows (Molten Core, Blackwing Lair, Onyxia) not sourced.
 - No Legendary candidate for Loch Modan, Wetlands, Searing Gorge; no Epic for Loch Modan/Wetlands beyond elites listed.
 - Mekkatorque, Magni, Grubbis, Archaedas, Rend, Dagran: fr pages opened and titles read (zone checked). Edan fr title also read.
+- uiMapIDs resolved from the Classic table on https://warcraft.wiki.gg/wiki/UiMapID. The older heading numbers (27/48/56/15/32/36) were retail IDs and are replaced.
+- New rows for Loch Modan, Wetlands and Searing Gorge come from the three warcraft.wiki.gg Classic zone pages; those pages list no rare mobs, so rare rows come from an old wiki user page (low confidence on levels, which are not quoted).
+- Loch Modan, Wetlands and Searing Gorge: no Legendary candidate found beyond rulers already carded elsewhere (Magni, Dagran). Wetlands has no named dungeon boss; Grim Batol and Dragonmaw Gates are elite areas, not instances.
+- Dun Morogh, Badlands and Burning Steppes were outside the thin-zone list and only had their uiMapID changed.
