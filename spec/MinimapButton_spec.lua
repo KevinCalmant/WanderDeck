@@ -140,6 +140,8 @@ describe("MinimapButton", function()
         function() return 0 / 0 end,
         function() return 198 end, -- secret
       }) do
+        local previous = MinimapButton._debug()
+        if previous then previous.point = nil end -- each case must set its own offset
         local button = withWidth(getWidth)
         assert.same({ "CENTER", _G.Minimap, "CENTER", 80, 0 }, button.point)
       end
@@ -156,6 +158,11 @@ describe("MinimapButton", function()
       for i = 2, 20 do packs[i] = {} end
       MinimapButton.refresh()
       assert.equals(20, button.badge.text)
+      assert.is_true(button.badge.shown)
+      for i = 1, 20 do packs[i] = nil end
+      MinimapButton.refresh()
+      assert.is_false(button.badge.shown) -- hidden again, not just never shown
+      assert.is_false(button.badgeBg.shown)
     end)
   end)
 
