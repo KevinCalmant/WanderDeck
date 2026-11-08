@@ -24,6 +24,9 @@ end
 
 local function step(char)
   local sample = Wow.readMovementSample(_G)
+  -- Cities count for the zone around them, so walking out of Stormwind into
+  -- Elwynn is one continuous walk, not a zone change.
+  if sample.zoneMapID then sample.zoneMapID = ns.Cards.cardZone(sample.zoneMapID) end
   local yards = StepTracker.measure(lastSample, sample, Config)
   lastSample = (not sample.blocked) and sample or nil
   if not yards or yards <= 0 then return end

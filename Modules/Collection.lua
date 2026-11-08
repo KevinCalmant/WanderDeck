@@ -51,10 +51,12 @@ end
 function Collection.openNext(char, rng, continentOf, config)
   local pack = char.packs[1]
   if not pack then return nil, "no-pack" end
-  local pool = ns.Cards.poolFor(pack.zoneMapID, continentOf(pack.zoneMapID))
+  -- Packs saved before a city was folded still open as their outdoor zone.
+  local zoneMapID = ns.Cards.cardZone(pack.zoneMapID)
+  local pool = ns.Cards.poolFor(zoneMapID, continentOf(zoneMapID))
   local cardIDs = ns.Cards.openPack(pool, rng, config)
   if #cardIDs == 0 then return nil, "empty-pool" end
   table.remove(char.packs, 1)
   local firstTime = Collection.add(char.collection, char.newCards, cardIDs, config.MAX_COPIES)
-  return { pack = pack, cardIDs = cardIDs, firstTime = firstTime, poolLevel = pool.level }, nil
+  return { pack = pack, zoneMapID = zoneMapID, cardIDs = cardIDs, firstTime = firstTime, poolLevel = pool.level }, nil
 end

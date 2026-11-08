@@ -1,4 +1,5 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
+  <Script file="ZoneGroups.lua"/>
   <Script file="EasternKingdoms\ElwynnForest.lua"/>
   <Script file="EasternKingdoms\Westfall.lua"/>
   <Script file="Loaded.lua"/>

@@ -130,6 +130,27 @@ describe("Cards", function()
     end)
   end)
 
+  describe("foldZone", function()
+    it("maps a city to its outdoor zone and leaves other zones alone", function()
+      Cards.foldZone(1453, 1429)
+      assert.equals(1429, Cards.cardZone(1453))
+      assert.equals(1429, Cards.cardZone(1429))
+      assert.equals(1436, Cards.cardZone(1436))
+      assert.is_nil(Cards.cardZone(nil))
+    end)
+
+    it("rejects bad IDs, self folds, duplicates and chains", function()
+      for _, bad in ipairs({ { 0, 1 }, { 1, 0 }, { 1.5, 2 }, { "1453", 1429 }, { 0 / 0, 1 } }) do
+        assert.has_error(function() Cards.foldZone(bad[1], bad[2]) end)
+      end
+      assert.has_error(function() Cards.foldZone(5, 5) end)
+      Cards.foldZone(1453, 1429)
+      assert.has_error(function() Cards.foldZone(1453, 1436) end) -- folded twice
+      assert.has_error(function() Cards.foldZone(1429, 9) end)    -- parent folded
+      assert.has_error(function() Cards.foldZone(7, 1453) end)    -- parent is a folded child
+    end)
+  end)
+
   describe("get", function()
     it("returns nil for unknown or non-string IDs", function()
       assert.is_nil(Cards.get("10:a"))
@@ -241,8 +262,16 @@ describe("Data", function()
     mocks.reset()
     ns = mocks.newNamespace()
     mocks.loadSource("Modules/Cards.lua", ns)
+    mocks.loadSource("Data/ZoneGroups.lua", ns)
     mocks.loadSource("Data/EasternKingdoms/ElwynnForest.lua", ns)
     mocks.loadSource("Data/EasternKingdoms/Westfall.lua", ns)
+  end)
+
+  it("folds Stormwind into Elwynn Forest and never registers a city as a zone", function()
+    assert.equals(1429, ns.Cards.cardZone(1453))
+    for _, zoneMapID in ipairs(ns.Cards.zoneIDs()) do
+      assert.equals(zoneMapID, ns.Cards.cardZone(zoneMapID), "a registered zone must not be folded")
+    end
   end)
 
   it("registers Elwynn Forest and Westfall", function()

@@ -19,6 +19,14 @@ Step counting and zone binding follow the Domain rules in `CLAUDE.md`: one count
 - A pack holds `CARDS_PER_PACK` cards (_tunable_, 5), all from the pack's zone pool (with the fallbacks from `CLAUDE.md`), and guarantees one card of Uncommon or better.
 - Earning a pack prints one chat line and updates a small counter on the minimap button. The opening happens on demand.
 
+### Zone grouping (user decision)
+
+A card set belongs to an **outdoor zone**. Cities and dungeons are not zones of their own: they belong to the outdoor zone around them.
+
+- **Cities**: walking in a city counts for the surrounding zone, and the city's cards are part of that zone's set. Stormwind City → Elwynn Forest, Ironforge → Dun Morogh, Darnassus → Teldrassil, Orgrimmar → Durotar, Undercity → Tirisfal Glades, Thunder Bluff → Mulgore. The mapping lives in `Data/ZoneGroups.lua` (`Cards.foldZone`); a new city gets a line there.
+- **Dungeons**: a dungeon's cards (bosses, places) go in the set of the zone that holds its entrance. The Deadmines → Westfall, Hall of Thanes → Dun Morogh. Walking inside a dungeon still earns no steps (only walking outdoors counts).
+- Never add a `Data/` file or a `registerZone` call for a city or a dungeon.
+
 ## 2. Cards
 
 A card is static data in `Data/<Continent>/<Zone>.lua`:

@@ -61,7 +61,7 @@ handleOpen = function()
     ns.print(reason == "no-pack" and L["No pack to open. Keep walking!"] or L["No cards available for this pack."])
     return
   end
-  local zoneName = Walker.zoneName(result.pack.zoneMapID)
+  local zoneName = Walker.zoneName(result.zoneMapID)
   -- The closure keeps a missing RevealFrame module inside the protection.
   local function copiesOf(cardID)
     local current = ns.GetDB()

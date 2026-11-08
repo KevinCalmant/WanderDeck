@@ -8,7 +8,7 @@ describe("Walker", function()
     ns, printed = mocks.newNamespace()
     for _, file in ipairs({
       "Utils/Wow.lua", "Modules/Config.lua", "Modules/Zone.lua", "Modules/StepTracker.lua",
-      "Modules/Packs.lua", "Modules/Slash.lua", "Modules/Walker.lua",
+      "Modules/Packs.lua", "Modules/Cards.lua", "Modules/Slash.lua", "Modules/Walker.lua",
     }) do
       mocks.loadSource(file, ns)
     end
@@ -154,6 +154,66 @@ describe("Walker", function()
       assert.same({ { zoneMapID = 1436, earnedAt = 1794158614 } }, char.packs)
       Walker.stop()
       _G.GetServerTime = nil
+    end)
+
+    it("counts walking from Stormwind into Elwynn as one walk in Elwynn", function()
+      ns.Cards.foldZone(1453, 1429)
+      local samples = {
+        { time = 1, x = 0, y = 0, instanceID = 0, zoneMapID = 1453 },
+        { time = 2, x = 5, y = 0, instanceID = 0, zoneMapID = 1429 },
+      }
+      local i = 0
+      ns.Wow.readMovementSample = function() i = i + 1 return samples[i] end
+      Walker.start()
+      Walker.tick()
+      Walker.tick()
+      assert.equals(5, char.stats.yards)
+      assert.same({ [1429] = 5 }, char.progress.byZone)
+      Walker.stop()
+    end)
+
+    describe("with Stormwind folded into Elwynn", function()
+      local function walk(samples)
+        ns.Cards.foldZone(1453, 1429)
+        local i = 0
+        ns.Wow.readMovementSample = function() i = i + 1 return samples[i] end
+        Walker.start()
+        for _ = 1, #samples do Walker.tick() end
+        Walker.stop()
+      end
+
+      it("still refuses a teleport from the city to its zone (speed cap)", function()
+        walk({
+          { time = 1, x = 0, y = 0, instanceID = 0, zoneMapID = 1453 },
+          { time = 1.5, x = 600, y = 0, instanceID = 0, zoneMapID = 1429 },
+        })
+        assert.equals(0, char.stats.yards)
+        assert.same({}, char.progress.byZone)
+      end)
+
+      it("still refuses a delta after a long gap (loading screen)", function()
+        walk({
+          { time = 1, x = 0, y = 0, instanceID = 0, zoneMapID = 1453 },
+          { time = 10, x = 5, y = 0, instanceID = 0, zoneMapID = 1429 },
+        })
+        assert.equals(0, char.stats.yards)
+      end)
+
+      it("still treats the city to an unrelated zone as a zone change", function()
+        walk({
+          { time = 1, x = 0, y = 0, instanceID = 0, zoneMapID = 1453 },
+          { time = 2, x = 5, y = 0, instanceID = 0, zoneMapID = 1436 },
+        })
+        assert.equals(0, char.stats.yards)
+      end)
+
+      it("still refuses a move between different instance IDs", function()
+        walk({
+          { time = 1, x = 0, y = 0, instanceID = 0, zoneMapID = 1453 },
+          { time = 2, x = 5, y = 0, instanceID = 1, zoneMapID = 1429 },
+        })
+        assert.equals(0, char.stats.yards)
+      end)
     end)
 
     it("stores 0 as the timestamp when GetServerTime is secret or throws", function()

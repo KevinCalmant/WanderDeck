@@ -87,6 +87,31 @@ function Cards.registerZone(zone)
   zones[zone.zoneMapID] = entry
 end
 
+local zoneParents = {} -- [childMapID] = outdoor zone uiMapID
+
+---Folds a city or other non-outdoor map into the outdoor zone around it, for
+---cards and packs: walking in Stormwind counts for Elwynn Forest. One level
+---only: a parent cannot itself be folded. Called by Data/ZoneGroups.lua.
+---@param childMapID number e.g. Stormwind City
+---@param parentMapID number e.g. Elwynn Forest
+function Cards.foldZone(childMapID, parentMapID)
+  assert(isMapID(childMapID) and isMapID(parentMapID), "foldZone needs two map IDs")
+  assert(childMapID ~= parentMapID, "a zone cannot fold into itself")
+  assert(not zoneParents[childMapID], "zone folded twice: "..childMapID)
+  assert(not zoneParents[parentMapID], "parent is itself folded: "..parentMapID)
+  for _, parent in pairs(zoneParents) do
+    assert(parent ~= childMapID, "child is already a parent: "..childMapID)
+  end
+  zoneParents[childMapID] = parentMapID
+end
+
+---The zone whose cards and packs a map belongs to: its fold parent, or itself.
+---@param zoneMapID any
+---@return any
+function Cards.cardZone(zoneMapID)
+  return zoneParents[zoneMapID] or zoneMapID
+end
+
 ---Called by Data/Loaded.lua with every zone Data/ ships. The client keeps
 ---loading files after one errors, so reaching Loaded.lua proves nothing:
 ---Data counts as loaded only when every expected zone registered. Until then,
@@ -248,6 +273,6 @@ end
 
 ---Test helper: forgets every registered zone.
 function Cards._reset()
-  byID, zones = {}, {}
+  byID, zones, zoneParents = {}, {}, {}
   Cards.dataLoaded = nil
 end
