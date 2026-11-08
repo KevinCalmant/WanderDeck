@@ -1,9 +1,10 @@
 local _, ns = ...
 
--- Sounds for opening a pack and revealing cards. Played through the client's
--- SOUNDKIT names: each event lists candidate names, the first one the client
--- has is played, and an event with none is skipped silently (check with
--- /wd sounds). Muted by /wd sound (settings.sound).
+-- Sounds for earning a pack (every STEPS_PER_PACK steps), opening one and
+-- revealing cards. Played through the client's SOUNDKIT names: each event
+-- lists candidate names, the first one the client has is played, and an event
+-- with none is skipped silently (check with /wd sounds). Muted by /wd sound
+-- (settings.sound).
 
 local L = ns.L
 
@@ -12,6 +13,8 @@ ns.Sound = Sound
 
 -- SOUNDKIT names, in order of preference (unverified on Forever).
 Sound.KEYS = {
+  -- Walking earned a pack: a loot pickup, else an item put in the bag.
+  earn = { "LOOT_WINDOW_COIN_SOUND", "PUT_DOWN_SMALL_CHAIN" },
   open = { "IG_BACKPACK_OPEN" },
   flip = { "IG_ABILITY_PAGE_TURN" },
   -- A card owned for the first time: a loot pickup sound.

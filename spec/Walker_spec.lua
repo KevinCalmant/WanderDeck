@@ -8,7 +8,7 @@ describe("Walker", function()
     ns, printed = mocks.newNamespace()
     for _, file in ipairs({
       "Utils/Wow.lua", "Modules/Config.lua", "Modules/Zone.lua", "Modules/StepTracker.lua",
-      "Modules/Packs.lua", "Modules/Cards.lua", "Modules/Slash.lua", "Modules/Walker.lua",
+      "Modules/Packs.lua", "Modules/Cards.lua", "Modules/Slash.lua", "Modules/Sound.lua", "Modules/Walker.lua",
     }) do
       mocks.loadSource(file, ns)
     end
@@ -154,6 +154,86 @@ describe("Walker", function()
       assert.same({ { zoneMapID = 1436, earnedAt = 1794158614 } }, char.packs)
       Walker.stop()
       _G.GetServerTime = nil
+    end)
+
+    describe("pack-earned sound", function()
+      local played
+
+      -- Walks `steps` yards in one zone over enough ticks to stay under the
+      -- speed cap; STEPS_PER_PACK is 10.
+      local function walk(steps)
+        local x, t, i = 0, 1, 0
+        ns.Wow.readMovementSample = function()
+          i = i + 1
+          if i > 1 then x, t = x + 5, t + 1 end
+          return { time = t, x = x, y = 0, instanceID = 0, zoneMapID = 1436 }
+        end
+        Walker.start()
+        for _ = 0, steps / 5 do Walker.tick() end
+        Walker.stop()
+      end
+
+      before_each(function()
+        played = {}
+        ns.Config.STEPS_PER_PACK, ns.Config.YARDS_PER_STEP = 10, 1
+        _G.SOUNDKIT = { LOOT_WINDOW_COIN_SOUND = 7 }
+        _G.PlaySound = function(kit, channel) played[#played + 1] = { kit, channel } end
+      end)
+
+      after_each(function()
+        _G.SOUNDKIT, _G.PlaySound = nil, nil
+      end)
+
+      it("plays once when the steps reach a pack", function()
+        walk(10)
+        assert.equals(1, #char.packs)
+        assert.same({ { 7, "SFX" } }, played)
+      end)
+
+      it("plays once per pack", function()
+        walk(20)
+        assert.equals(2, #char.packs)
+        assert.equals(2, #played)
+      end)
+
+      it("stays silent before the pack threshold", function()
+        walk(5)
+        assert.equals(0, #char.packs)
+        assert.same({}, played)
+      end)
+
+      it("stays silent at the pack limit, where no pack is stored", function()
+        for i = 1, ns.Config.MAX_UNOPENED_PACKS do char.packs[i] = { zoneMapID = 1436, earnedAt = 0 } end
+        walk(10)
+        assert.equals(ns.Config.MAX_UNOPENED_PACKS, #char.packs)
+        assert.same({}, played)
+      end)
+
+      it("stays silent when muted", function()
+        ns.GetDB = function() return { char = char, global = { settings = { sound = false } } } end
+        walk(10)
+        assert.equals(1, #char.packs)
+        assert.same({}, played)
+      end)
+
+      it("skips a missing or non-numeric SOUNDKIT entry and still stores the pack", function()
+        _G.SOUNDKIT = {}
+        walk(10)
+        _G.SOUNDKIT = { LOOT_WINDOW_COIN_SOUND = "7" }
+        walk(10)
+        assert.equals(2, #char.packs)
+        assert.same({}, played)
+      end)
+
+      it("keeps the pack when PlaySound throws", function()
+        _G.PlaySound = function() error("blocked") end
+        local refreshed = 0
+        ns.refreshUI = function() refreshed = refreshed + 1 end
+        walk(10)
+        assert.equals(1, #char.packs)
+        assert.equals(1, refreshed) -- the tick went on past the sound
+        ns.refreshUI = nil
+      end)
     end)
 
     it("counts walking from Stormwind into Elwynn as one walk in Elwynn", function()

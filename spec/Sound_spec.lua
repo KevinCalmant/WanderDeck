@@ -142,6 +142,7 @@ describe("Sound", function()
   it("lists present and missing sound names for /wd sounds", function()
     local lines = ns.Art.soundLines(env)
     assert.same({
+      "earn: LOOT_WINDOW_COIN_SOUND MISSING, PUT_DOWN_SMALL_CHAIN MISSING",
       "epic: UI_EPICLOOT_TOAST present",
       "flip: IG_ABILITY_PAGE_TURN present",
       "legendary: UI_LEGENDARY_LOOT_TOAST MISSING",

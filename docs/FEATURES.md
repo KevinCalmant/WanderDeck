@@ -17,7 +17,7 @@ Step counting and zone binding follow the Domain rules in `CLAUDE.md`: one count
 
 - One pack every `STEPS_PER_PACK` steps (_tunable_, start at 2 000). Unopened packs are capped at `MAX_UNOPENED_PACKS` (_tunable_, 20); past the cap, steps still count toward achievements but earn no pack.
 - A pack holds `CARDS_PER_PACK` cards (_tunable_, 5), all from the pack's zone pool (with the fallbacks from `CLAUDE.md`), and guarantees one card of Uncommon or better.
-- Earning a pack prints one chat line and updates a small counter on the minimap button. The opening happens on demand.
+- Earning a pack prints one chat line, plays a loot sound (muted with the other sounds) and updates a small counter on the minimap button. No sound at the pack cap, where no pack is stored. The opening happens on demand.
 
 ### Zone grouping (user decision)
 
