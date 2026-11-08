@@ -1,0 +1,7 @@
+.vscode/
+.release/
+Libs/
+.lua51/
+luac.out
+*.zip
+.DS_Store

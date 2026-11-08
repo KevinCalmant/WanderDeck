@@ -1,0 +1,24 @@
+package-as: WanderDeck
+
+enable-nolib-creation: no
+
+externals:
+  Libs/LibStub: https://repos.wowace.com/wow/ace3/trunk/LibStub
+  Libs/CallbackHandler-1.0: https://repos.wowace.com/wow/ace3/trunk/CallbackHandler-1.0
+  Libs/AceDB-3.0: https://repos.wowace.com/wow/ace3/trunk/AceDB-3.0
+
+ignore:
+  - .busted
+  - .editorconfig
+  - .luarc.json
+  - .vscode
+  - .github
+  - Developer
+  - docs
+  - scripts
+  - spec
+  - CLAUDE.md
+
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown

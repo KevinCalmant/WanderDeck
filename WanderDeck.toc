@@ -1,0 +1,21 @@
+## Interface: 16001
+## Title: WanderDeck
+## Notes: Walk the world, earn zone card packs, complete your binder.
+## Notes-frFR: Marchez, gagnez des paquets de cartes de zone, complétez votre classeur.
+## Version: @project-version@
+## Author: Kévin Calmant
+## SavedVariables: WanderDeckDB
+## LoadOnDemand: 0
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\AceDB-3.0\AceDB-3.0.xml
+
+init.lua
+locales.xml
+Utils\load_utils.xml
+Modules\load_modules.xml
+Core.lua
+#@do-not-package@
+Developer\load_developer.xml
+#@end-do-not-package@
