@@ -22,8 +22,30 @@ describe("Zone.resolve", function()
   before_each(function()
     mocks.reset()
     local ns = mocks.newNamespace()
+    mocks.loadSource("Utils/Wow.lua", ns)
     mocks.loadSource("Modules/Zone.lua", ns)
     Zone = ns.Zone
+  end)
+
+  it("defaults to the client's secret check when isSecret is omitted", function()
+    _G.issecretvalue = function(v) return v == 9001 end
+    assert.is_nil(Zone.resolve(9001, getMapInfo))
+  end)
+
+  it("refuses to run without any secret check", function()
+    local ns = mocks.newNamespace()
+    mocks.loadSource("Modules/Zone.lua", ns)
+    local ok, err = pcall(ns.Zone.resolve, 37, getMapInfo)
+    assert.is_false(ok)
+    assert.matches("Zone.resolve needs an isSecret function", err, 1, true)
+  end)
+
+  it("refuses a truthy isSecret that is not a function", function()
+    for _, bad in ipairs({ true, {}, "x" }) do
+      local ok, err = pcall(Zone.resolve, 37, getMapInfo, bad)
+      assert.is_false(ok)
+      assert.matches("Zone.resolve needs an isSecret function", err, 1, true)
+    end
   end)
 
   it("returns a zone map unchanged", function()
@@ -104,6 +126,7 @@ describe("Zone.resolve", function()
   it("uses Enum.UIMapType when the client provides it", function()
     _G.Enum = { UIMapType = { Continent = 20, Zone = 30 } }
     local ns = mocks.newNamespace()
+    mocks.loadSource("Utils/Wow.lua", ns)
     mocks.loadSource("Modules/Zone.lua", ns)
     local custom = { [1] = { mapType = 30, parentMapID = 2 } }
     assert.equals(1, ns.Zone.resolve(1, function(id) return custom[id] end))

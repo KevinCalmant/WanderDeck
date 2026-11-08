@@ -89,6 +89,12 @@ describe("Probe", function()
       end
     end)
 
+    it("rejects a valid label with a trailing newline or a chat code", function()
+      assert.is_nil(Probe.sanitizeLabel("taxi\n"))
+      assert.is_nil(Probe.sanitizeLabel("|cff00ff00taxi"))
+      assert.is_nil(Probe.sanitizeLabel("taxi|r"))
+    end)
+
     it("rejects non-ASCII and control bytes", function()
       assert.is_nil(Probe.sanitizeLabel("forêt"))
       assert.is_nil(Probe.sanitizeLabel("a\0b"))
@@ -134,6 +140,16 @@ describe("Probe", function()
 
     it("escapes WoW chat codes in strings", function()
       assert.equals('"||cffff0000red||r ||TInterface\\\\x:0||t"', Probe.describe("|cffff0000red|r |TInterface\\x:0|t", Wow.isSecret))
+    end)
+  end)
+
+  describe("escapeChat", function()
+    it("doubles every pipe, including already doubled ones", function()
+      assert.equals("||||", Probe.escapeChat("||"))
+    end)
+
+    it("escapes CRLF line breaks", function()
+      assert.equals("a\\r\\nb", Probe.escapeChat("a\r\nb"))
     end)
   end)
 
@@ -214,6 +230,29 @@ describe("Probe", function()
       local lines = Probe.collect(env, Wow.isSecret)
       assert.equals("C_Map.GetBestMapForUnit: <secret>", findLine(lines, "C_Map.GetBestMapForUnit"))
       assert.is_nil(findLine(lines, "Zone.resolve"))
+    end)
+
+    -- Real secrets report type "number": flag plain numbers so a missing
+    -- isSecret check would reach a comparison or a GetMapInfo call.
+    it("does not read map info for a number-typed secret map ID", function()
+      _G.issecretvalue = function(v) return v == 1429 end
+      local env = fullEnv()
+      local calls = 0
+      env.C_Map.GetMapInfo = function() calls = calls + 1 return nil end
+      local lines = Probe.collect(env, Wow.isSecret)
+      assert.equals("C_Map.GetBestMapForUnit: <secret>", findLine(lines, "C_Map.GetBestMapForUnit"))
+      assert.equals(0, calls)
+    end)
+
+    it("stops the map chain at a number-typed secret parent", function()
+      _G.issecretvalue = function(v) return v == 13 end
+      local env = fullEnv()
+      local requested = {}
+      local base = env.C_Map.GetMapInfo
+      env.C_Map.GetMapInfo = function(id) requested[#requested + 1] = id return base(id) end
+      local lines = Probe.collect(env, Wow.isSecret)
+      assert.truthy(findLine(lines, '  map[1] 1429 name="Elwynn Forest" mapType=3 parent=<secret>'))
+      for _, id in ipairs(requested) do assert.not_equals(13, id) end
     end)
 
     it("survives secret map info fields", function()

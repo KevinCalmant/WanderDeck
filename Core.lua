@@ -19,8 +19,7 @@ local eventFrame = CreateFrame("Frame")
 
 eventFrame:SetScript("OnEvent", function(self, event, loadedAddon)
   if event == "ADDON_LOADED" and loadedAddon == addonName then
-    -- A hand-edited file can leave a non-table here; AceDB expects a table or nil.
-    if type(_G.WanderDeckDB) ~= "table" then _G.WanderDeckDB = nil end
+    _G.WanderDeckDB = Schema.sanitizeRoot(_G.WanderDeckDB)
     db = LibStub("AceDB-3.0"):New("WanderDeckDB", defaultSavedVars, true)
     if Schema.sanitizeGlobal(db.global) == "newer" then
       ns.print("Saved data comes from a newer WanderDeck version; update the addon.")
