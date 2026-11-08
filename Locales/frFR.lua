@@ -64,9 +64,26 @@ L["Place"] = "Lieu"
 L["Quest"] = "Quête"
 L["Lore"] = "Histoire"
 
--- Card names: only the French client names I am sure of; the others fall
--- back to English until checked in game.
+-- Card names: French client names confirmed on fr.wowhead.com/classic (see
+-- docs/research/fr-names.md); the others fall back to English until checked.
 L["Hogger"] = "Lardeur"
+L["Young Wolf"] = "Jeune loup"
+L["Stonetusk Boar"] = "Sanglier Brocheroc"
+L["Kobold Vermin"] = "Vermine kobold"
+L["Forest Spider"] = "Araignée forestière"
+L["Riverpaw Runt"] = "Rivepatte chétif"
+L["Defias Thug"] = "Nervi défias"
+L["Fargodeep Mine"] = "Mine de Fargodeep"
+L["Jasperlode Mine"] = "Mine de Jasperlode"
+L["Marshal McBride"] = "Maréchal McBride"
+L["Marshal Dughan"] = "Maréchal Dughan"
+L["Gruff Swiftbite"] = "Gruff Mord-vite"
+L["Mother Fang"] = "Mère Croc"
+L["Princess"] = "Princesse"
+L["Harvest Watcher"] = "Gardien des moissons"
+L["Fleshripper"] = "Déchireur"
+L["Riverpaw Gnoll"] = "Gnoll Rivepatte"
+L["Defias Trapper"] = "Trappeur défias"
 L["Goldshire"] = "Comté-de-l'Or"
 L["Northshire Abbey"] = "Abbaye de Comté-du-Nord"
 L["Sentinel Hill"] = "Colline des Sentinelles"
