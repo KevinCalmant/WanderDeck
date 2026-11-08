@@ -13,8 +13,23 @@ local MinimapButton = {}
 ns.MinimapButton = MinimapButton
 
 local SIZE = 31
-local RADIUS = 80
+-- The button sits on the minimap's edge: half the minimap width plus this
+-- margin (the modern client's minimap is larger than the classic one, so the
+-- radius is read from the frame, not hard-coded).
+local EDGE_MARGIN = 10
+local FALLBACK_RADIUS = 80
 local ICON = "Interface\\Icons\\INV_Misc_Book_09"
+local ROUND_MASK = "Interface\\CharacterFrame\\TempPortraitAlphaMask"
+
+---Distance from the minimap center for a minimap of `width` pixels.
+---@param width any Minimap:GetWidth()
+---@return number
+function MinimapButton.radiusFor(width)
+  if ns.Wow.isSecret(width) or type(width) ~= "number" or not ns.Utils.isFiniteNonNegative(width) or width <= 0 then
+    return FALLBACK_RADIUS
+  end
+  return width / 2 + EDGE_MARGIN
+end
 
 ---Offset from the minimap center for an angle in degrees.
 ---@return number x, number y
@@ -54,7 +69,9 @@ end
 local function place()
   local s = settings()
   if not (button and s) then return end
-  local x, y = MinimapButton.offsetFor(s.minimapAngle, RADIUS)
+  local ok, width = pcall(Minimap.GetWidth, Minimap)
+  if not ok or ns.Wow.isSecret(width) then width = nil end
+  local x, y = MinimapButton.offsetFor(s.minimapAngle, MinimapButton.radiusFor(width))
   button:ClearAllPoints()
   button:SetPoint("CENTER", Minimap, "CENTER", x, y)
 end
@@ -114,11 +131,28 @@ local function build()
   border:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
   button:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
 
-  button.badgeBg = Draw.rect(button, "OVERLAY", C.attack)
-  button.badgeBg:SetSize(14, 14)
-  button.badgeBg:SetPoint("BOTTOMRIGHT", 2, -2)
-  button.badge = Draw.text(button, "GameFontHighlightSmall")
-  button.badge:SetPoint("CENTER", button.badgeBg, "CENTER", 0, 0)
+  -- Pack badge: a round gold-ringed red disc on its own frame above the
+  -- button border, with the outlined number font used on action buttons.
+  local badge = CreateFrame("Frame", nil, button)
+  badge:SetSize(18, 18)
+  badge:SetPoint("CENTER", button, "TOPRIGHT", -4, -4)
+  badge:SetFrameLevel(button:GetFrameLevel() + 5)
+  local ring = Draw.rect(badge, "BACKGROUND", C.gold)
+  ring:SetAllPoints()
+  local disc = Draw.rect(badge, "BORDER", { 0.80, 0.08, 0.06 })
+  disc:SetPoint("TOPLEFT", 2, -2)
+  disc:SetPoint("BOTTOMRIGHT", -2, 2)
+  pcall(function()
+    for _, texture in ipairs({ ring, disc }) do
+      local mask = badge:CreateMaskTexture()
+      mask:SetTexture(ROUND_MASK, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+      mask:SetAllPoints(texture)
+      texture:AddMaskTexture(mask)
+    end
+  end)
+  button.badgeBg = badge
+  button.badge = badge:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
+  button.badge:SetPoint("CENTER", badge, "CENTER", 0, 0)
 
   button:SetScript("OnClick", function(_, mouseButton)
     if mouseButton == "RightButton" then

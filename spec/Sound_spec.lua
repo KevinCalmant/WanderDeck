@@ -66,12 +66,86 @@ describe("Sound", function()
     assert.is_false(Sound.playBest({}, env))
   end)
 
+  describe("new cards", function()
+    before_each(function()
+      env.SOUNDKIT.LOOT_WINDOW_COIN_SOUND = 9
+    end)
+
+    it("plays the loot sound for a card owned for the first time", function()
+      assert.equals("new", Sound.eventFor(1, true))
+      assert.is_true(Sound.play(Sound.eventFor(2, true), env))
+      assert.same({ 9 }, played)
+    end)
+
+    it("plays the plain flip for a card already owned", function()
+      Sound.play(Sound.eventFor(2, false), env)
+      assert.same({ 2 }, played)
+    end)
+
+    it("keeps the Epic and Legendary sounds for new cards of those rarities", function()
+      assert.equals("epic", Sound.eventFor(4, true))
+      assert.equals("legendary", Sound.eventFor(5, true))
+    end)
+
+    it("uses the first candidate name the client has", function()
+      env.SOUNDKIT.UI_BONUS_LOOT_ROLL_END = 8
+      Sound.play("new", env)
+      assert.same({ 8 }, played)
+    end)
+
+    it("falls back past a first name that is not a number", function()
+      for _, bad in ipairs({ "8", {} }) do
+        played = {}
+        env.SOUNDKIT.UI_BONUS_LOOT_ROLL_END = bad
+        Sound.play("new", env)
+        assert.same({ 9 }, played)
+      end
+    end)
+
+    it("plays nothing on Reveal all when muted, or with nothing revealed", function()
+      ns.GetDB = function() return { global = { settings = { sound = false } } } end
+      assert.is_false(Sound.playReveal({ { rarity = 5, isNew = true } }, env))
+      ns.GetDB = function() return { global = { settings = { sound = true } } } end
+      assert.is_false(Sound.playReveal({}, env))
+      assert.same({}, played)
+    end)
+
+    it("handles odd rarities without error", function()
+      for _, rarity in ipairs({ 0, 6, "5" }) do
+        assert.equals("new", Sound.eventFor(rarity, true))
+        assert.equals("flip", Sound.eventFor(rarity, false))
+      end
+    end)
+
+    it("skips the sound when no candidate exists", function()
+      env.SOUNDKIT.LOOT_WINDOW_COIN_SOUND = nil
+      assert.is_false(Sound.play("new", env))
+      assert.same({}, played)
+    end)
+
+    it("stays silent when muted", function()
+      ns.GetDB = function() return { global = { settings = { sound = false } } } end
+      assert.is_false(Sound.play("new", env))
+      assert.same({}, played)
+    end)
+
+    it("plays one sound on Reveal all, new card over a plain flip, Epic over a new card", function()
+      Sound.playReveal({ { rarity = 1 }, { rarity = 2, isNew = true }, { rarity = 1, isNew = true } }, env)
+      assert.same({ 9 }, played)
+      played = {}
+      env.PlaySound = function(kit) played[#played + 1] = kit end
+      Sound.playReveal({ { rarity = 2, isNew = true }, { rarity = 4 } }, env)
+      assert.same({ 3 }, played)
+    end)
+  end)
+
   it("lists present and missing sound names for /wd sounds", function()
     local lines = ns.Art.soundLines(env)
     assert.same({
       "epic: UI_EPICLOOT_TOAST present",
       "flip: IG_ABILITY_PAGE_TURN present",
       "legendary: UI_LEGENDARY_LOOT_TOAST MISSING",
+      "new: UI_BONUS_LOOT_ROLL_END MISSING, LOOT_WINDOW_COIN_SOUND MISSING",
       "open: IG_BACKPACK_OPEN present",
     }, lines)
   end)

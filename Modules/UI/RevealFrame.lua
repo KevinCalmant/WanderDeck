@@ -56,7 +56,7 @@ local function build()
       if Reveal.flip(state, i) then
         local card = Cards.get(id)
         CardWidget.flip(w, card, { isNew = state.firstTime[id] })
-        ns.Sound.play(ns.Sound.eventForRarity(card.rarity))
+        ns.Sound.play(ns.Sound.eventFor(card.rarity, state.firstTime[id]))
         updateButtons()
       elseif state.revealed[i] and id then
         ns.CardDetail.show(Cards.get(id), RevealFrame.copiesOf and RevealFrame.copiesOf(id))
@@ -69,16 +69,16 @@ local function build()
   frame.revealAll:SetPoint("BOTTOM", 0, 18)
   frame.revealAll:SetScript("OnClick", function()
     if not state then return end
-    local rarities = {}
+    local reveals = {}
     for i, w in ipairs(widgets) do
       local id = state.cardIDs[i]
       if id and Reveal.flip(state, i) then
         local card = Cards.get(id)
         CardWidget.flip(w, card, { isNew = state.firstTime[id] })
-        rarities[#rarities + 1] = card.rarity
+        reveals[#reveals + 1] = { rarity = card.rarity, isNew = state.firstTime[id] }
       end
     end
-    ns.Sound.playBest(rarities)
+    ns.Sound.playReveal(reveals) -- one sound for the whole pack
     -- Cards beyond the widgets (CARDS_PER_PACK > MAX_CARDS) count as revealed
     -- too, so the reveal always finishes.
     Reveal.flipAll(state)

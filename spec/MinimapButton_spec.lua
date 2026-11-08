@@ -23,6 +23,22 @@ describe("MinimapButton", function()
     end
   end)
 
+  it("puts the button on the edge of a minimap of any size", function()
+    assert.equals(80, MinimapButton.radiusFor(140))
+    assert.equals(109, MinimapButton.radiusFor(198))
+  end)
+
+  it("falls back to a fixed radius for a missing or odd width", function()
+    for _, bad in ipairs({ "nil", 0, -5, 0 / 0, math.huge, "140" }) do
+      assert.equals(80, MinimapButton.radiusFor(bad ~= "nil" and bad or nil), tostring(bad))
+    end
+  end)
+
+  it("falls back for a secret width without comparing it", function()
+    _G.issecretvalue = function(v) return v == 198 end
+    assert.equals(80, MinimapButton.radiusFor(198))
+  end)
+
   it("returns angles from 0 to 360", function()
     local angle = MinimapButton.angleFor(0, -1)
     assert.is_true(close(angle, 270))
@@ -74,6 +90,72 @@ describe("MinimapButton", function()
       _G.issecretvalue = function(v) return v == 200 end
       MinimapButton.onDragUpdate(env({ 100, 100 }, { 100, 200 }, 1))
       assert.equals(220, settings.minimapAngle)
+    end)
+  end)
+
+  describe("built button", function()
+    local function stub()
+      local obj = { shown = false }
+      return setmetatable(obj, { __index = function(_, key)
+        if key == "Show" then return function(self) self.shown = true end end
+        if key == "Hide" then return function(self) self.shown = false end end
+        if key == "SetShown" then return function(self, v) self.shown = v and true or false end end
+        if key == "SetText" then return function(self, v) self.text = v end end
+        if key == "SetPoint" then return function(self, ...) self.point = { ... } end end
+        if key == "GetFrameLevel" then return function() return 1 end end
+        if key:match("^Create") then return function() return stub() end end
+        return function() end
+      end })
+    end
+
+    local packs
+
+    before_each(function()
+      _G.CreateFrame = function() return stub() end
+      packs = {}
+      ns.GetDB = function()
+        return { global = { settings = { minimapAngle = 0, minimapHidden = false } }, char = { packs = packs } }
+      end
+    end)
+
+    after_each(function()
+      _G.CreateFrame, _G.Minimap = nil, nil
+    end)
+
+    local function withWidth(getWidth)
+      _G.Minimap = { GetWidth = getWidth }
+      MinimapButton.init()
+      return MinimapButton._debug()
+    end
+
+    it("places the button on the edge of the minimap", function()
+      local button = withWidth(function() return 198 end)
+      assert.same({ "CENTER", _G.Minimap, "CENTER", 109, 0 }, button.point)
+    end)
+
+    it("falls back to radius 80 when the width throws, is NaN or is secret", function()
+      _G.issecretvalue = function(v) return v == 198 end
+      for _, getWidth in ipairs({
+        function() error("no anchor") end,
+        function() return 0 / 0 end,
+        function() return 198 end, -- secret
+      }) do
+        local button = withWidth(getWidth)
+        assert.same({ "CENTER", _G.Minimap, "CENTER", 80, 0 }, button.point)
+      end
+    end)
+
+    it("shows the pack count only when there are packs", function()
+      local button = withWidth(function() return 140 end)
+      assert.is_false(button.badge.shown)
+      assert.is_false(button.badgeBg.shown)
+      packs[1] = {}
+      MinimapButton.refresh()
+      assert.equals(1, button.badge.text)
+      assert.is_true(button.badge.shown)
+      for i = 2, 20 do packs[i] = {} end
+      MinimapButton.refresh()
+      assert.equals(20, button.badge.text)
     end)
   end)
 

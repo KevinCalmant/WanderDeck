@@ -36,8 +36,11 @@ function Art.soundLines(env)
   for event in pairs(ns.Sound.KEYS) do events[#events + 1] = event end
   table.sort(events)
   for _, event in ipairs(events) do
-    local key = ns.Sound.KEYS[event]
-    lines[#lines + 1] = event..": "..key.." "..(type(kit[key]) == "number" and "present" or "MISSING")
+    local parts = {}
+    for _, name in ipairs(ns.Sound.KEYS[event]) do
+      parts[#parts + 1] = name.." "..(type(kit[name]) == "number" and "present" or "MISSING")
+    end
+    lines[#lines + 1] = event..": "..table.concat(parts, ", ")
   end
   return lines
 end

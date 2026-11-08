@@ -1,28 +1,53 @@
 local _, ns = ...
 
--- Sounds for opening a pack and revealing cards, by rarity. Played through
--- the client's SOUNDKIT names: a name the client does not have is skipped
--- silently (check with /wd sounds). Muted by /wd sound (settings.sound).
+-- Sounds for opening a pack and revealing cards. Played through the client's
+-- SOUNDKIT names: each event lists candidate names, the first one the client
+-- has is played, and an event with none is skipped silently (check with
+-- /wd sounds). Muted by /wd sound (settings.sound).
 
 local L = ns.L
 
 local Sound = {}
 ns.Sound = Sound
 
--- SOUNDKIT names (unverified on Forever).
+-- SOUNDKIT names, in order of preference (unverified on Forever).
 Sound.KEYS = {
-  open = "IG_BACKPACK_OPEN",
-  flip = "IG_ABILITY_PAGE_TURN",
-  epic = "UI_EPICLOOT_TOAST",
-  legendary = "UI_LEGENDARY_LOOT_TOAST",
+  open = { "IG_BACKPACK_OPEN" },
+  flip = { "IG_ABILITY_PAGE_TURN" },
+  -- A card owned for the first time: a loot pickup sound.
+  new = { "UI_BONUS_LOOT_ROLL_END", "LOOT_WINDOW_COIN_SOUND" },
+  epic = { "UI_EPICLOOT_TOAST" },
+  legendary = { "UI_LEGENDARY_LOOT_TOAST" },
 }
 
----Sound event for revealing a card of `rarity` (1-5).
----@return string event "flip", "epic" or "legendary"
-function Sound.eventForRarity(rarity)
+-- One sound per reveal, the most important wins: Legendary > Epic > new card > flip.
+local PRIORITY = { flip = 1, new = 2, epic = 3, legendary = 4 }
+
+---Sound event for revealing one card.
+---@param rarity number 1-5
+---@param isNew boolean|nil owned for the first time
+---@return string event "flip", "new", "epic" or "legendary"
+function Sound.eventFor(rarity, isNew)
   if rarity == 5 then return "legendary" end
   if rarity == 4 then return "epic" end
+  if isNew then return "new" end
   return "flip"
+end
+
+---Kept for callers that only know the rarity.
+function Sound.eventForRarity(rarity)
+  return Sound.eventFor(rarity, false)
+end
+
+---The SOUNDKIT id of an event on this client, or nil.
+---@return number|nil kit, string|nil name
+function Sound.kitFor(event, env)
+  local kit = type(env.SOUNDKIT) == "table" and env.SOUNDKIT or nil
+  for _, name in ipairs(Sound.KEYS[event] or {}) do
+    local id = kit and kit[name]
+    if type(id) == "number" then return id, name end
+  end
+  return nil, nil
 end
 
 ---Plays `event` unless muted or unknown on this client.
@@ -34,20 +59,29 @@ function Sound.play(event, env)
   local db = ns.GetDB and ns.GetDB()
   local settings = db and db.global and db.global.settings
   if settings and settings.sound == false then return false end
-  local key = Sound.KEYS[event]
-  local kit = type(env.SOUNDKIT) == "table" and key and env.SOUNDKIT[key]
-  if type(kit) ~= "number" or type(env.PlaySound) ~= "function" then return false end
+  local kit = Sound.kitFor(event, env)
+  if not kit or type(env.PlaySound) ~= "function" then return false end
   return (pcall(env.PlaySound, kit, "SFX"))
 end
 
----Plays the sound for the best rarity among `rarities` (Reveal all).
-function Sound.playBest(rarities, env)
-  local best = 0
-  for _, rarity in ipairs(rarities) do
-    if rarity > best then best = rarity end
+---Plays one sound for several revealed cards (Reveal all): the most
+---important event among them.
+---@param reveals table[] { rarity = number, isNew = boolean }
+function Sound.playReveal(reveals, env)
+  local best
+  for _, reveal in ipairs(reveals) do
+    local event = Sound.eventFor(reveal.rarity, reveal.isNew)
+    if not best or PRIORITY[event] > PRIORITY[best] then best = event end
   end
-  if best > 0 then return Sound.play(Sound.eventForRarity(best), env) end
+  if best then return Sound.play(best, env) end
   return false
+end
+
+---Kept for callers that only know rarities.
+function Sound.playBest(rarities, env)
+  local reveals = {}
+  for i, rarity in ipairs(rarities) do reveals[i] = { rarity = rarity } end
+  return Sound.playReveal(reveals, env)
 end
 
 ns.Slash.register({
