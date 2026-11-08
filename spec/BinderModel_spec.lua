@@ -201,7 +201,55 @@ describe("BinderModel", function()
         { id = "10:b", kind = "creature", rarity = 1, name = "B", flavor = "" },
       } })
       local list = BinderModel.zoneList(ns.Cards.zoneIDs(), ns.Cards.zoneCards, { ["10:a"] = 2 })
-      assert.same({ { zoneMapID = 10, owned = 1, total = 2 } }, list)
+      assert.same({ { zoneMapID = 10, continentMapID = 0, name = "10", owned = 1, total = 2 } }, list)
+    end)
+
+    it("sorts by continent, then by name, then by ID", function()
+      local continents = { [1] = 1415, [2] = 1414, [3] = 1415, [4] = 1415 }
+      local names = { [1] = "Westfall", [2] = "Durotar", [3] = "Elwynn", [4] = "Elwynn" }
+      local list = BinderModel.zoneList({ 1, 2, 3, 4 }, function() return {} end, {}, {
+        continentOf = function(id) return continents[id] end,
+        nameOf = function(id) return names[id] end,
+      })
+      local order = {}
+      for i, z in ipairs(list) do order[i] = z.zoneMapID end
+      assert.same({ 2, 3, 4, 1 }, order)
+    end)
+
+    it("ignores a continent or name of the wrong type", function()
+      local list = BinderModel.zoneList({ 7 }, function() return {} end, {}, {
+        continentOf = function() return "1415" end, nameOf = function() return { "x" } end,
+      })
+      assert.equals(0, list[1].continentMapID)
+      assert.equals("7", list[1].name)
+    end)
+  end)
+
+  describe("zonePages", function()
+    local function zones(spec)
+      local list = {}
+      for _, z in ipairs(spec) do list[#list + 1] = { zoneMapID = z[1], continentMapID = z[2] } end
+      return list
+    end
+
+    it("never mixes two continents on one page and caps each page", function()
+      local pages = BinderModel.zonePages(zones({ { 1, 1414 }, { 2, 1414 }, { 3, 1414 }, { 4, 1415 } }), 2)
+      assert.equals(3, #pages)
+      assert.same({ 1414, 1414, 1415 }, { pages[1].continentMapID, pages[2].continentMapID, pages[3].continentMapID })
+      assert.same({ 2, 1, 1 }, { #pages[1].zones, #pages[2].zones, #pages[3].zones })
+    end)
+
+    it("treats a bad page size as 1 and an empty list as no page", function()
+      assert.equals(2, #BinderModel.zonePages(zones({ { 1, 1 }, { 2, 1 } }), 0))
+      assert.equals(2, #BinderModel.zonePages(zones({ { 1, 1 }, { 2, 1 } }), "x"))
+      assert.same({}, BinderModel.zonePages({}, 10))
+    end)
+
+    it("finds the page of a zone, or page 1", function()
+      local pages = BinderModel.zonePages(zones({ { 1, 1414 }, { 2, 1415 } }), 10)
+      assert.equals(2, BinderModel.pageOfZone(pages, 2))
+      assert.equals(1, BinderModel.pageOfZone(pages, 99))
+      assert.equals(1, BinderModel.pageOfZone(pages, nil))
     end)
   end)
 end)

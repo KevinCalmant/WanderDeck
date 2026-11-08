@@ -540,6 +540,46 @@ describe("UI frames", function()
       assert.equals("Zone 1429  1/16", zoneButtons[1].text)
     end)
 
+    it("lists all 40 shipped zones, one continent per zone page", function()
+      -- Elwynn and Westfall are loaded by before_each; add every other Data file.
+      local xml = assert(io.open("Data/load_data.xml")):read("*a")
+      for file in xml:gmatch('<Script file="([^"]+)"') do
+        if file ~= "Loaded.lua" and file ~= "EasternKingdoms\\ElwynnForest.lua" and file ~= "EasternKingdoms\\Westfall.lua" then
+          mocks.loadSource("Data/"..file:gsub("\\", "/"), ns)
+        end
+      end
+      ns.BinderFrame.toggle()
+      local frame, _, zoneButtons, view = ns.BinderFrame._debug()
+      local seen, continents = {}, {}
+      local function collect()
+        continents[#continents + 1] = frame.zonePageText.text
+        for _, b in ipairs(zoneButtons) do
+          if b.shown ~= false and b.zoneMapID then
+            assert.is_nil(seen[b.zoneMapID], "zone listed twice: "..b.zoneMapID)
+            seen[b.zoneMapID] = ns.Cards.continentOf(b.zoneMapID)
+          end
+        end
+      end
+      collect()
+      assert.is_false(frame.zonePrev.enabled)
+      while frame.zoneNext.enabled do
+        frame.zoneNext.scripts.OnClick()
+        collect()
+      end
+      local count = 0
+      for _ in pairs(seen) do count = count + 1 end
+      assert.equals(40, count)
+      assert.same({ "Zone 1414", "Zone 1415" }, continents)
+      -- Paging the list keeps the selected zone; picking one there selects it.
+      local selected = view.zoneMapID
+      assert.equals(1414, ns.Cards.continentOf(selected))
+      zoneButtons[1].scripts.OnClick(zoneButtons[1])
+      assert.equals(1415, ns.Cards.continentOf(view.zoneMapID))
+      frame.zonePrev.scripts.OnClick()
+      assert.is_false(frame.zonePrev.enabled)
+      assert.equals(1415, ns.Cards.continentOf(view.zoneMapID))
+    end)
+
     it("switches zone, filters, pages and searches without errors", function()
       char.collection = { ["1436:moonbrook"] = 1 }
       ns.BinderFrame.toggle()

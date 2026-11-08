@@ -116,16 +116,61 @@ function BinderModel.markSeen(newCards, shown)
   end
 end
 
----Zones for the binder's side list with their completion.
+---Zones for the binder's side list with their completion, grouped by
+---continent (lowest continent uiMapID first), then by display name.
 ---@param zoneIDs number[] Cards.zoneIDs()
 ---@param cardsOf fun(zoneMapID: number): table[] Cards.zoneCards
 ---@param collection table<string, number>
----@return table[] { zoneMapID, owned, total }
-function BinderModel.zoneList(zoneIDs, cardsOf, collection)
+---@param opts table|nil { continentOf = fun(id): number|nil, nameOf = fun(id): string }
+---@return table[] { zoneMapID, continentMapID, name, owned, total }
+function BinderModel.zoneList(zoneIDs, cardsOf, collection, opts)
+  opts = opts or {}
   local list = {}
   for _, zoneMapID in ipairs(zoneIDs) do
     local owned, total = ns.Collection.progress(collection, cardsOf(zoneMapID))
-    list[#list + 1] = { zoneMapID = zoneMapID, owned = owned, total = total }
+    local continent = opts.continentOf and opts.continentOf(zoneMapID)
+    local name = opts.nameOf and opts.nameOf(zoneMapID)
+    list[#list + 1] = {
+      zoneMapID = zoneMapID, owned = owned, total = total,
+      continentMapID = type(continent) == "number" and continent or 0,
+      name = type(name) == "string" and name or tostring(zoneMapID),
+    }
   end
+  table.sort(list, function(a, b)
+    if a.continentMapID ~= b.continentMapID then return a.continentMapID < b.continentMapID end
+    if a.name ~= b.name then return a.name < b.name end
+    return a.zoneMapID < b.zoneMapID
+  end)
   return list
+end
+
+---Splits the zone list into pages of at most perPage zones, never mixing
+---two continents on one page.
+---@param list table[] from BinderModel.zoneList (sorted by continent)
+---@param perPage number
+---@return table[] pages { continentMapID, zones = { ... } }
+function BinderModel.zonePages(list, perPage)
+  perPage = math.max(1, math.floor(tonumber(perPage) or 1))
+  local pages, current = {}, nil
+  for _, zone in ipairs(list) do
+    if not current or current.continentMapID ~= zone.continentMapID or #current.zones >= perPage then
+      current = { continentMapID = zone.continentMapID, zones = {} }
+      pages[#pages + 1] = current
+    end
+    current.zones[#current.zones + 1] = zone
+  end
+  return pages
+end
+
+---Index of the page that lists zoneMapID, or 1.
+---@param pages table[] from BinderModel.zonePages
+---@param zoneMapID number|nil
+---@return number
+function BinderModel.pageOfZone(pages, zoneMapID)
+  for i, page in ipairs(pages) do
+    for _, zone in ipairs(page.zones) do
+      if zone.zoneMapID == zoneMapID then return i end
+    end
+  end
+  return 1
 end

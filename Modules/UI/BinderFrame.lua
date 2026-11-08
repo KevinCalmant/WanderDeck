@@ -14,11 +14,13 @@ local COLUMNS, ROWS = 3, 3
 local PER_PAGE = COLUMNS * ROWS
 local GAP = 8
 local LIST_WIDTH = 180
-local MAX_ZONE_BUTTONS = 14
+local ZONE_TOP, ZONE_STEP = 50, 26
 local FILTER_LABELS = { all = "All", owned = "Owned", missing = "Missing", duplicates = "Duplicates" }
 
-local frame, widgets, zoneButtons, filterButtons
-local view = { zoneMapID = nil, filter = "all", rarity = nil, tag = nil, search = "", page = 1 }
+-- zonesPerPage is set by build() from the room above the pager row.
+local frame, widgets, zoneButtons, filterButtons, zonesPerPage
+-- zonePage nil: show the page of the selected zone.
+local view = { zoneMapID = nil, filter = "all", rarity = nil, tag = nil, search = "", page = 1, zonePage = nil }
 
 local function tagLabel(tag)
   if tag == nil then return L["All tags"] end
@@ -35,19 +37,31 @@ local function render()
   local c = char()
   if not c then return end
 
-  local zones = BinderModel.zoneList(Cards.zoneIDs(), Cards.zoneCards, c.collection)
+  local zones = BinderModel.zoneList(Cards.zoneIDs(), Cards.zoneCards, c.collection, {
+    continentOf = Cards.continentOf, nameOf = Walker.zoneName,
+  })
   if not view.zoneMapID and zones[1] then view.zoneMapID = zones[1].zoneMapID end
+  local pages = BinderModel.zonePages(zones, zonesPerPage)
+  local zonePage = view.zonePage or BinderModel.pageOfZone(pages, view.zoneMapID)
+  zonePage = math.max(1, math.min(zonePage, #pages))
+  view.zonePage = zonePage
+  local current = pages[zonePage] or { zones = {} }
   for i, button in ipairs(zoneButtons) do
-    local zone = zones[i]
+    local zone = current.zones[i]
     if zone then
       button.zoneMapID = zone.zoneMapID
-      button:SetText(Walker.zoneName(zone.zoneMapID).."  "..zone.owned.."/"..zone.total)
+      button:SetText(zone.name.."  "..zone.owned.."/"..zone.total)
       button:SetEnabled(zone.zoneMapID ~= view.zoneMapID)
       button:Show()
     else
       button:Hide()
     end
   end
+  -- Pages split by continent: the label names the page's continent.
+  frame.zonePageText:SetText(current.continentMapID and current.continentMapID ~= 0
+    and Walker.zoneName(current.continentMapID) or (zonePage.." / "..#pages))
+  frame.zonePrev:SetEnabled(zonePage > 1)
+  frame.zoneNext:SetEnabled(zonePage < #pages)
 
   for key, button in pairs(filterButtons) do button:SetEnabled(key ~= view.filter) end
   frame.rarity:SetText(view.rarity and L[Cards.RARITY_NAMES[view.rarity]] or L["All rarities"])
@@ -103,16 +117,29 @@ local function build()
   local pagerTop = GRID_TOP + gridHeight + PAGER_GAP
   frame = Window.create("WanderDeckBinder", L["Binder"], LIST_WIDTH + gridWidth + 70, pagerTop + PAGER_HEIGHT + 22)
 
+  -- As many zone buttons as fit above the pager row (the last one ends at
+  -- least 8 px above it); the zone pager shares that row.
+  zonesPerPage = math.max(1, math.floor((pagerTop - ZONE_TOP - PAGER_HEIGHT - 8) / ZONE_STEP) + 1)
   zoneButtons = {}
-  for i = 1, MAX_ZONE_BUTTONS do
+  for i = 1, zonesPerPage do
     local b = Window.button(frame, "", LIST_WIDTH)
-    b:SetPoint("TOPLEFT", 20, -50 - (i - 1) * 26)
+    b:SetPoint("TOPLEFT", 20, -ZONE_TOP - (i - 1) * ZONE_STEP)
     b:SetScript("OnClick", function(self)
       view.zoneMapID, view.page = self.zoneMapID, 1
       render()
     end)
     zoneButtons[i] = b
   end
+
+  frame.zonePrev = Window.button(frame, "<", 28)
+  frame.zonePrev:SetPoint("TOPLEFT", 20, -pagerTop)
+  frame.zonePrev:SetScript("OnClick", function() view.zonePage = (view.zonePage or 1) - 1 render() end)
+  frame.zoneNext = Window.button(frame, ">", 28)
+  frame.zoneNext:SetPoint("TOPLEFT", 20 + LIST_WIDTH - 28, -pagerTop)
+  frame.zoneNext:SetScript("OnClick", function() view.zonePage = (view.zonePage or 1) + 1 render() end)
+  frame.zonePageText = ns.Draw.text(frame, "GameFontHighlightSmall", ns.Draw.COLORS.parchment)
+  frame.zonePageText:SetPoint("TOP", frame, "TOPLEFT", 20 + LIST_WIDTH / 2, -pagerTop - 5)
+  frame.zonePageText:SetWidth(LIST_WIDTH - 64)
 
   local left = LIST_WIDTH + 40
   filterButtons = {}

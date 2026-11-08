@@ -247,6 +247,14 @@ function Cards.zoneIDs()
   return ids
 end
 
+---Continent uiMapID of a registered zone, or nil.
+---@param zoneMapID number
+---@return number|nil
+function Cards.continentOf(zoneMapID)
+  local zone = zones[zoneMapID]
+  return zone and zone.continentMapID
+end
+
 ---Cards of one zone, in data order.
 ---@return table[]
 function Cards.zoneCards(zoneMapID)
