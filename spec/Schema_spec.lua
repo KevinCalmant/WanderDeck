@@ -98,6 +98,140 @@ describe("Schema.sanitizeRoot", function()
   end)
 end)
 
+describe("Schema.sanitizeChar", function()
+  local Schema
+
+  before_each(function()
+    mocks.reset()
+    local ns = mocks.newNamespace()
+    mocks.loadSource("Modules/Schema.lua", ns)
+    Schema = ns.Schema
+  end)
+
+  it("creates missing sections", function()
+    local char = {}
+    Schema.sanitizeChar(char, 20)
+    assert.same({ stats = { yards = 0 }, progress = { total = 0, byZone = {} }, packs = {} }, char)
+  end)
+
+  it("replaces sections of the wrong type", function()
+    local char = { stats = 5, progress = "x", packs = true }
+    Schema.sanitizeChar(char, 20)
+    assert.same({ stats = { yards = 0 }, progress = { total = 0, byZone = {} }, packs = {} }, char)
+  end)
+
+  it("resets bad lifetime yards", function()
+    for _, bad in ipairs({ -1, 0 / 0, math.huge, "5", {} }) do
+      local char = { stats = { yards = bad } }
+      Schema.sanitizeChar(char, 20)
+      assert.equals(0, char.stats.yards)
+    end
+  end)
+
+  it("drops bad zone shares and recomputes the total", function()
+    local char = { progress = { total = 1e9, byZone = {
+      [1436] = 40, [1429] = 10.5,
+      [0] = 5, [-3] = 5, [1.5] = 5, ["1436"] = 5,
+      [12] = -1, [13] = 0 / 0, [14] = math.huge, [15] = "7",
+    } } }
+    Schema.sanitizeChar(char, 20)
+    assert.same({ [1436] = 40, [1429] = 10.5 }, char.progress.byZone)
+    assert.equals(50.5, char.progress.total)
+  end)
+
+  it("keeps valid packs, drops invalid ones and copies only known fields", function()
+    local char = { packs = {
+      { zoneMapID = 1436, earnedAt = 100, extra = "<script>" },
+      { zoneMapID = "1436", earnedAt = 100 },
+      { zoneMapID = 1.5, earnedAt = 100 },
+      { zoneMapID = 1436, earnedAt = -1 },
+      "pack",
+      { zoneMapID = 1429, earnedAt = 200 },
+    } }
+    Schema.sanitizeChar(char, 20)
+    assert.same({ { zoneMapID = 1436, earnedAt = 100 }, { zoneMapID = 1429, earnedAt = 200 } }, char.packs)
+  end)
+
+  it("drops zero shares, out-of-range map IDs and non-number keys", function()
+    local char = { progress = { byZone = {
+      [1436] = 10, [1429] = 0, [2 ^ 31] = 5, [1e300] = 5, [true] = 5, [{}] = 5,
+    } } }
+    Schema.sanitizeChar(char, 20)
+    assert.same({ [1436] = 10 }, char.progress.byZone)
+    assert.equals(10, char.progress.total)
+  end)
+
+  it("resets shares past MAX_ZONE_SHARES", function()
+    local byZone = {}
+    for i = 1, Schema.MAX_ZONE_SHARES + 1 do byZone[i] = 1 end
+    local char = { progress = { byZone = byZone } }
+    Schema.sanitizeChar(char, 20)
+    assert.same({}, char.progress.byZone)
+    assert.equals(0, char.progress.total)
+  end)
+
+  it("keeps exactly MAX_ZONE_SHARES shares", function()
+    local byZone = {}
+    for i = 1, Schema.MAX_ZONE_SHARES do byZone[i] = 1 end
+    local char = { progress = { byZone = byZone } }
+    Schema.sanitizeChar(char, 20)
+    assert.equals(Schema.MAX_ZONE_SHARES, char.progress.total)
+  end)
+
+  it("resets shares whose sum overflows", function()
+    local char = { progress = { byZone = { [1] = 1e308, [2] = 1e308 } } }
+    Schema.sanitizeChar(char, 20)
+    assert.same({}, char.progress.byZone)
+    assert.equals(0, char.progress.total)
+  end)
+
+  it("drops packs with out-of-range IDs or timestamps", function()
+    local char = { packs = {
+      { zoneMapID = 1e300, earnedAt = 1 },
+      { zoneMapID = 2 ^ 31, earnedAt = 1 },
+      { zoneMapID = 1436, earnedAt = 1e300 },
+      { zoneMapID = 1436, earnedAt = 0 / 0 },
+      { zoneMapID = 1436, earnedAt = 1794158614 },
+    } }
+    Schema.sanitizeChar(char, 20)
+    assert.same({ { zoneMapID = 1436, earnedAt = 1794158614 } }, char.packs)
+  end)
+
+  it("keeps a timestamp at MAX_TIMESTAMP and drops one above it", function()
+    local char = { packs = {
+      { zoneMapID = 1, earnedAt = Schema.MAX_TIMESTAMP },
+      { zoneMapID = 2, earnedAt = Schema.MAX_TIMESTAMP + 1 },
+    } }
+    Schema.sanitizeChar(char, 20)
+    assert.same({ { zoneMapID = 1, earnedAt = Schema.MAX_TIMESTAMP } }, char.packs)
+  end)
+
+  it("reads packs as a sequence, ignoring holes and named keys", function()
+    local char = { packs = {
+      [1] = { zoneMapID = 1, earnedAt = 1 },
+      [3] = { zoneMapID = 3, earnedAt = 3 },
+      a = { zoneMapID = 4, earnedAt = 4 },
+    } }
+    Schema.sanitizeChar(char, 20)
+    assert.same({ { zoneMapID = 1, earnedAt = 1 } }, char.packs)
+  end)
+
+  it("does not let invalid packs use up the limit", function()
+    local char = { packs = { "bad", "bad", { zoneMapID = 1, earnedAt = 1 }, { zoneMapID = 2, earnedAt = 2 } } }
+    Schema.sanitizeChar(char, 2)
+    assert.equals(2, #char.packs)
+  end)
+
+  it("trims packs to the limit", function()
+    local packs = {}
+    for i = 1, 30 do packs[i] = { zoneMapID = i, earnedAt = i } end
+    local char = { packs = packs }
+    Schema.sanitizeChar(char, 20)
+    assert.equals(20, #char.packs)
+    assert.equals(20, char.packs[20].zoneMapID)
+  end)
+end)
+
 describe("Schema.sanitizeGlobal", function()
   local Schema
 

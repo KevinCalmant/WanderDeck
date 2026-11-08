@@ -2,12 +2,18 @@ local addonName, ns = ...
 
 local Slash = ns.Slash
 local Schema = ns.Schema
+local Config = ns.Config
+local Walker = ns.Walker
 
 local defaultSavedVars = {
   global = {
     schemaVersion = Schema.CURRENT_VERSION,
   },
-  char = {},
+  char = {
+    stats = { yards = 0 },
+    progress = { total = 0, byZone = {} },
+    packs = {},
+  },
 }
 
 local db
@@ -24,7 +30,9 @@ eventFrame:SetScript("OnEvent", function(self, event, loadedAddon)
     if Schema.sanitizeGlobal(db.global) == "newer" then
       ns.print("Saved data comes from a newer WanderDeck version; update the addon.")
     end
+    Schema.sanitizeChar(db.char, Config.MAX_UNOPENED_PACKS)
     self:UnregisterEvent("ADDON_LOADED")
+    Walker.start()
   end
 end)
 

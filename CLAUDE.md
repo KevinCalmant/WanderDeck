@@ -51,6 +51,7 @@ Expected modules: `Config` (all tunables), `StepTracker` (position samples → s
 - **Steps** are derived from distance: sample `UnitPosition("player")` on a `C_Timer.NewTicker` (about 0.5 s), convert the moved distance in yards to steps with one constant (`YARDS_PER_STEP`). WoW has no step API.
 - **Only walking outdoors counts** (user decision). Discard the delta when the player is mounted, on a taxi, in a vehicle, dead or a ghost, inside an instance (`IsInInstance()`), when the position is unavailable or secret, when `UnitPosition`'s instanceID or the zone changed between samples, or when the delta exceeds `MAX_FOOT_SPEED` (yards per second, tunable) over the interval (teleport, portal, hearthstone, loading screen).
 - **Zone** means the zone-level map: take `C_Map.GetBestMapForUnit("player")` and walk `C_Map.GetMapInfo(id).parentMapID` up to the first map whose `mapType` is `Enum.UIMapType.Zone`. Subzones, micro-dungeons and floors roll up to their zone. Store the uiMapID, never the localized name.
+- **Zone binding** (user decision): one global counter per character. Each counted delta is also added to that zone's share of the current pack (`char.progress.byZone`). When the counter reaches `STEPS_PER_PACK`, the pack goes to the zone with the most steps in that share (tie: the current zone, else the lowest uiMapID); the share is then cleared and the overflow is credited to the current zone.
 - A **pack** is persisted as `{ zoneMapID, earnedAt }`; its cards are rolled when it is opened, and the result is written to SavedVariables in the same call.
 - A zone with no pool in `Data/` falls back to the pool of its continent, then to a generic pool, so walking never earns an empty pack.
 
@@ -80,5 +81,4 @@ Each rule above has a busted test; add one per discard reason and per fallback l
 
 ## Open decisions (ask the user before implementing)
 
-- Zone binding: one step counter per zone (walk N steps in Elwynn → Elwynn pack), or one global counter whose pack takes the zone where the threshold is crossed.
 - Card data: who writes the per-zone lists in `Data/`, and which zones ship in V1.

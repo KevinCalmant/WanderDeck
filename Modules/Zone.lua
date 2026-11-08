@@ -10,8 +10,16 @@ local MAP_TYPE_ZONE = UIMapType.Zone or 3
 -- Guards against a malformed or cyclic parent chain.
 local MAX_DEPTH = 10
 
----A plain number, or nil when `value` is secret or not a number. The secret
----check runs first: a secret number reports type "number" but throws on compare.
+local isMapID = ns.Utils.isMapID
+
+---A plain map ID, or nil when `value` is secret or not a valid map ID. The
+---secret check runs first: a secret number reports type "number" but throws on compare.
+local function plainMapID(value, isSecret)
+  if isSecret(value) or not isMapID(value) then return nil end
+  return value
+end
+
+---A plain number, or nil when `value` is secret or not a number.
 local function plainNumber(value, isSecret)
   if isSecret(value) or type(value) ~= "number" then return nil end
   return value
@@ -27,7 +35,7 @@ end
 local function resolve(mapID, getMapInfo, isSecret)
   isSecret = isSecret or (ns.Wow and ns.Wow.isSecret)
   assert(type(isSecret) == "function", "Zone.resolve needs an isSecret function")
-  local current = plainNumber(mapID, isSecret)
+  local current = plainMapID(mapID, isSecret)
   if not current or type(getMapInfo) ~= "function" then return nil end
 
   for _ = 1, MAX_DEPTH do
@@ -39,8 +47,8 @@ local function resolve(mapID, getMapInfo, isSecret)
     if mapType == MAP_TYPE_ZONE then return current end
     if mapType <= MAP_TYPE_CONTINENT then return nil end
 
-    local parent = plainNumber(info.parentMapID, isSecret)
-    if not parent or parent == 0 or parent == current then return nil end
+    local parent = plainMapID(info.parentMapID, isSecret)
+    if not parent or parent == current then return nil end
     current = parent
   end
   return nil

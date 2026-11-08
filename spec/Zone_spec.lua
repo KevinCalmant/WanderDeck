@@ -68,9 +68,10 @@ describe("Zone.resolve", function()
     assert.is_nil(Zone.resolve(424242, getMapInfo))
   end)
 
-  it("returns nil for a nil or non-number map ID", function()
-    assert.is_nil(Zone.resolve(nil, getMapInfo))
-    assert.is_nil(Zone.resolve("37", getMapInfo))
+  it("returns nil for a map ID that is not a positive int32 integer", function()
+    for _, bad in ipairs({ "nil", "37", 0 / 0, 0, -37, 37.5, 2 ^ 31, math.huge }) do
+      assert.is_nil(Zone.resolve(bad ~= "nil" and bad or nil, getMapInfo))
+    end
   end)
 
   it("returns nil without a map info function", function()
@@ -87,6 +88,19 @@ describe("Zone.resolve", function()
 
   it("stops when a map has no parent", function()
     assert.is_nil(Zone.resolve(700, getMapInfo))
+  end)
+
+  it("stops on a parent that is not a positive int32 integer, without looking it up", function()
+    for _, bad in ipairs({ 0, 0 / 0, 37.5, 2 ^ 31, math.huge, "37" }) do
+      local calls = 0
+      local function lookup(id)
+        calls = calls + 1
+        if id == 1 then return { mapType = 5, parentMapID = bad } end
+        return MAPS[id]
+      end
+      assert.is_nil(Zone.resolve(1, lookup))
+      assert.equals(1, calls)
+    end
   end)
 
   it("stops when a map has no mapType", function()

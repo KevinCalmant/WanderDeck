@@ -11,6 +11,9 @@ function M.newNamespace()
     L = setmetatable({}, { __index = function(_, key) return key end }),
     print = function(msg) printed[#printed + 1] = tostring(msg) end,
   }
+  -- Utils/General.lua is pure and loaded first by the client: preload it.
+  local chunk = assert(loadfile("Utils/General.lua"))
+  chunk("WanderDeck", ns)
   return ns, printed
 end
 

@@ -17,6 +17,7 @@
     "GetLocale",
     "GetBuildInfo",
     "GetServerTime",
+    "GetTime",
     "GetUnitSpeed",
     "UnitPosition",
     "UnitOnTaxi",

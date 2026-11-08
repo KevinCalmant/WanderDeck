@@ -13,7 +13,7 @@ Out of scope: leaderboards, duels, auctions. They need a trusted server, and an 
 
 ## 1. Packs
 
-Step counting and zone binding follow the Domain rules in `CLAUDE.md`.
+Step counting and zone binding follow the Domain rules in `CLAUDE.md`: one counter, and each pack goes to the zone where most of its steps were walked.
 
 - One pack every `STEPS_PER_PACK` steps (_tunable_, start at 2 000). Unopened packs are capped at `MAX_UNOPENED_PACKS` (_tunable_, 20); past the cap, steps still count toward achievements but earn no pack.
 - A pack holds `CARDS_PER_PACK` cards (_tunable_, 5), all from the pack's zone pool (with the fallbacks from `CLAUDE.md`), and guarantees one card of Uncommon or better.

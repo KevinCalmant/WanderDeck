@@ -1,6 +1,6 @@
 local _, ns = ...
 
-local type, pairs, floor, huge = type, pairs, math.floor, math.huge
+local type, pairs, ipairs, floor, huge = type, pairs, ipairs, math.floor, math.huge
 
 -- Bump with a migration step for every SavedVariables layout change.
 local CURRENT_VERSION = 1
@@ -81,7 +81,59 @@ local function sanitizeGlobal(global)
   return "ok"
 end
 
+local isFiniteNonNegative, isMapID = ns.Utils.isFiniteNonNegative, ns.Utils.isMapID
+
+-- A pack's share lists the zones walked since the last pack; real play stays
+-- far below this. A larger (hand-edited) share is reset.
+local MAX_ZONE_SHARES = 64
+-- Upper bound for a stored server time (seconds since epoch, 32-bit).
+local MAX_TIMESTAMP = 4294967295
+
+local function sanitizeShares(progress)
+  if type(progress.byZone) ~= "table" then progress.byZone = {} end
+  local total, count = 0, 0
+  for zone, yards in pairs(progress.byZone) do
+    if isMapID(zone) and isFiniteNonNegative(yards) and yards > 0 then
+      total, count = total + yards, count + 1
+    else
+      progress.byZone[zone] = nil
+    end
+  end
+  if count > MAX_ZONE_SHARES or total == huge then
+    progress.byZone, total = {}, 0
+  end
+  progress.total = total
+end
+
+---Sanitizes the character's walking data in place: stats, pack progress and
+---unopened packs. Invalid entries are dropped; the progress total is
+---recomputed from the per-zone shares instead of trusting the stored value.
+---@param char table AceDB `db.char`
+---@param maxPacks number Config.MAX_UNOPENED_PACKS
+local function sanitizeChar(char, maxPacks)
+  if type(char.stats) ~= "table" then char.stats = {} end
+  if not isFiniteNonNegative(char.stats.yards) then char.stats.yards = 0 end
+
+  if type(char.progress) ~= "table" then char.progress = {} end
+  sanitizeShares(char.progress)
+
+  local kept = {}
+  if type(char.packs) == "table" then
+    for _, pack in ipairs(char.packs) do
+      if #kept >= maxPacks then break end
+      if type(pack) == "table" and isMapID(pack.zoneMapID)
+        and isFiniteNonNegative(pack.earnedAt) and pack.earnedAt <= MAX_TIMESTAMP then
+        kept[#kept + 1] = { zoneMapID = pack.zoneMapID, earnedAt = pack.earnedAt }
+      end
+    end
+  end
+  char.packs = kept
+end
+
 ns.Schema = {
+  sanitizeChar = sanitizeChar,
+  MAX_ZONE_SHARES = MAX_ZONE_SHARES,
+  MAX_TIMESTAMP = MAX_TIMESTAMP,
   CURRENT_VERSION = CURRENT_VERSION,
   SECTIONS = SECTIONS,
   sanitizeRoot = function(sv) return sanitizeRoot(sv, false) end,

@@ -1,5 +1,9 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
+  <Script file="Config.lua"/>
   <Script file="Schema.lua"/>
   <Script file="Zone.lua"/>
+  <Script file="StepTracker.lua"/>
+  <Script file="Packs.lua"/>
   <Script file="Slash.lua"/>
+  <Script file="Walker.lua"/>
 </Ui>
