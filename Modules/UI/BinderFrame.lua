@@ -75,7 +75,8 @@ end
 
 local function build()
   local gridWidth = COLUMNS * CardWidget.WIDTH + (COLUMNS - 1) * GAP
-  local gridHeight = ROWS * CardWidget.HEIGHT + (ROWS - 1) * GAP
+  -- Rows get 6 extra pixels so a card's New tag never overlaps the card above.
+  local gridHeight = ROWS * CardWidget.HEIGHT + (ROWS - 1) * (GAP + 6) + 12
   frame = Window.create("WanderDeckBinder", L["Binder"], LIST_WIDTH + gridWidth + 70, gridHeight + 140)
 
   zoneButtons = {}
@@ -127,7 +128,7 @@ local function build()
   for i = 1, PER_PAGE do
     local col, row = (i - 1) % COLUMNS, math.floor((i - 1) / COLUMNS)
     local w = CardWidget.create(frame)
-    w:SetPoint("TOPLEFT", left + col * (CardWidget.WIDTH + GAP), -102 - row * (CardWidget.HEIGHT + GAP))
+    w:SetPoint("TOPLEFT", left + col * (CardWidget.WIDTH + GAP), -114 - row * (CardWidget.HEIGHT + GAP + 6))
     widgets[i] = w
   end
 
@@ -141,7 +142,7 @@ local function build()
   frame.next = Window.button(frame, ">", 40)
   frame.next:SetPoint("BOTTOMLEFT", left + gridWidth - 40, 20)
   frame.next:SetScript("OnClick", function() view.page = view.page + 1 render() end)
-  frame.pageText = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+  frame.pageText = ns.Draw.text(frame, "GameFontHighlight", ns.Draw.COLORS.parchment)
   frame.pageText:SetPoint("BOTTOMLEFT", left + gridWidth / 2 - 15, 26)
 end
 

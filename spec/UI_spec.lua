@@ -13,9 +13,10 @@ local function stubObject()
     if key == "IsShown" or key == "IsVisible" then return function(self) return self.shown end end
     if key == "SetShown" then return function(self, v) self.shown = v and true or false end end
     if key == "SetText" then return function(self, v) self.text = v end end
+    if key == "SetTexture" then return function(self, v) self.texture = v; self.textureCalls = (rawget(self, "textureCalls") or 0) + 1 end end
     if key == "GetText" then return function(self) return self.text or "" end end
     if key == "SetEnabled" then return function(self, v) self.enabled = v end end
-    if key == "CreateFontString" then return function() return stubObject() end end
+    if key:match("^Create") then return function() return stubObject() end end
     return function() end
   end })
 end
@@ -34,7 +35,7 @@ describe("UI frames", function()
     for _, file in ipairs({
       "Utils/Wow.lua", "Modules/Config.lua", "Modules/Zone.lua", "Modules/StepTracker.lua", "Modules/Packs.lua",
       "Modules/Cards.lua", "Modules/Collection.lua", "Modules/Reveal.lua", "Modules/BinderModel.lua",
-      "Modules/Slash.lua", "Modules/Walker.lua", "Modules/UI/Window.lua", "Modules/UI/CardWidget.lua",
+      "Modules/Slash.lua", "Modules/Walker.lua", "Modules/UI/Draw.lua", "Modules/UI/Window.lua", "Modules/UI/CardWidget.lua",
       "Modules/UI/RevealFrame.lua", "Modules/UI/BinderFrame.lua", "Modules/Opener.lua",
       "Data/EasternKingdoms/ElwynnForest.lua", "Data/EasternKingdoms/Westfall.lua",
     }) do
@@ -75,6 +76,45 @@ describe("UI frames", function()
       frame.revealAll.scripts.OnClick()
       assert.is_false(frame.revealAll.shown)
       assert.is_true(frame.openNext.shown)
+    end)
+
+    it("shows the card art, and a halo only on Epic and Legendary cards", function()
+      char.packs = { { zoneMapID = 1429, earnedAt = 1 } }
+      local result = ns.Collection.openNext(char, function(n) return n end, function() return nil end, ns.Config)
+      ns.RevealFrame.show(result, "Zone 1429", function() end, function() return 0 end)
+      local frame, widgets = ns.RevealFrame._debug()
+      frame.revealAll.scripts.OnClick()
+      assert.equals("Hogger", widgets[1].name.text)
+      assert.is_true(widgets[1].halo.shown)
+
+      char.packs = { { zoneMapID = 1429, earnedAt = 2 } }
+      open()
+      frame.revealAll.scripts.OnClick()
+      assert.equals("Young Wolf", widgets[1].name.text)
+      assert.is_false(widgets[1].halo.shown)
+    end)
+
+    it("hides art and halo on a face-down Legendary card, and finishes on Reveal all", function()
+      char.packs = { { zoneMapID = 1429, earnedAt = 1 } }
+      local result = ns.Collection.openNext(char, function(n) return n end, function() return nil end, ns.Config)
+      ns.RevealFrame.show(result, "Zone 1429", function() end, function() return 0 end)
+      local frame, widgets, state = ns.RevealFrame._debug()
+      assert.is_false(widgets[1].icon.shown)
+      assert.is_false(widgets[1].halo.shown)
+      assert.is_false(widgets[1].name.shown)
+      frame.revealAll.scripts.OnClick()
+      assert.is_true(ns.Reveal.isDone(state))
+      assert.equals("Interface\\Icons\\INV_Misc_Head_Gnoll_01", widgets[1].icon.texture)
+      assert.is_true(widgets[1].halo.shown)
+
+      -- Next pack reuses the widget: the Legendary face must not stay visible.
+      char.packs = { { zoneMapID = 1429, earnedAt = 2 } }
+      result = ns.Collection.openNext(char, function() return 1 end, function() return nil end, ns.Config)
+      ns.RevealFrame.show(result, "Zone 1429", function() end, function() return 0 end)
+      assert.is_false(widgets[1].halo.shown)
+      assert.is_false(widgets[1].icon.shown)
+      assert.is_false(widgets[1].name.shown)
+      assert.equals("?", widgets[1].back.text)
     end)
 
     it("marks first-time cards as New on the face", function()
@@ -204,6 +244,24 @@ describe("UI frames", function()
       assert.equals("?", widgets[1].back.text)
     end)
 
+    it("hides a Legendary card's art, name and halo when its slot turns into a missing card", function()
+      char.collection = { ["1429:hogger"] = 1 }
+      ns.BinderFrame.toggle()
+      local frame, widgets, _, view = ns.BinderFrame._debug()
+      view.rarity = 5
+      frame.search.scripts.OnTextChanged(frame.search)
+      assert.equals("Hogger", widgets[1].name.text)
+      assert.is_true(widgets[1].halo.shown)
+      local calls = widgets[1].icon.textureCalls
+
+      view.rarity, view.filter = nil, "missing"
+      frame.search.scripts.OnTextChanged(frame.search)
+      assert.is_false(widgets[1].icon.shown)
+      assert.is_false(widgets[1].name.shown)
+      assert.is_false(widgets[1].halo.shown)
+      assert.equals(calls, widgets[1].icon.textureCalls)
+    end)
+
     it("escapes hostile zone names on the buttons and the reveal subtitle", function()
       _G.C_Map = { GetMapInfo = function() return { name = "|cffff0000Evil|r |TInterface\\x:0|t\nnext" } end }
       ns.BinderFrame.toggle()
@@ -224,7 +282,7 @@ describe("UI frames", function()
       frame.search.text = "wolf<script>alert(1)</script>|Hitem:1|h[x]|h"
       frame.search.scripts.OnTextChanged(frame.search)
       for _, w in ipairs(widgets) do
-        for _, fs in ipairs({ w.name, w.kind, w.flavor, w.stats, w.newTag, w.copies, w.back }) do
+        for _, fs in ipairs({ w.name, w.kind, w.flavor, w.attack, w.defense, w.newTag, w.copies, w.back, w.backLabel }) do
           assert.is_nil(tostring(fs.text):find("script", 1, true))
         end
       end

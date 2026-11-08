@@ -85,6 +85,44 @@ describe("Cards", function()
       assert.same({}, Cards.zoneIDs())
     end)
 
+    it("uses the card icon, or the kind's icon when there is none", function()
+      local withIcon = card("10:a", 1)
+      withIcon.icon = "Ability_Hunter_Pet_Wolf"
+      Cards.registerZone({ zoneMapID = 10, continentMapID = 1, cards = { withIcon, card("10:b", 1, "place") } })
+      assert.equals("Interface\\Icons\\Ability_Hunter_Pet_Wolf", Cards.iconPath(Cards.get("10:a")))
+      assert.equals("Interface\\Icons\\INV_Misc_Map_01", Cards.iconPath(Cards.get("10:b")))
+    end)
+
+    it("rejects icons that are not a plain file name", function()
+      for _, bad in ipairs({
+        "", " ", "a b", "../x", "a/b", "Interface\\Icons\\x", "x|T", "x:20|t", "x.blp", string.rep("a", 65), 5, true,
+        "<script>alert(1)</script>", "INV_Misc_Map_01<script>alert(1)</script>",
+        "INV_Misc_Map_01|t|cffff0000x", "|TInterface\\x:0|tINV_Misc_Map_01", "INV_Misc_Map_01\n", "a\0b",
+      }) do
+        local c = card("10:a", 1)
+        c.icon = bad
+        local ok, err = pcall(Cards.registerZone, { zoneMapID = 10, continentMapID = 1, cards = { c } })
+        assert.is_false(ok, tostring(bad))
+        assert.matches("icon", err, 1, true)
+      end
+    end)
+
+    it("accepts an icon name of exactly 64 characters", function()
+      local c = card("10:a", 1)
+      c.icon = string.rep("a", 64)
+      Cards.registerZone({ zoneMapID = 10, continentMapID = 1, cards = { c } })
+      assert.equals(string.rep("a", 64), Cards.get("10:a").icon)
+    end)
+
+    it("gives every kind a valid default icon", function()
+      local cards = {}
+      for i, kind in ipairs(Cards.kinds()) do cards[i] = card("10:k"..i, 1, kind) end
+      Cards.registerZone({ zoneMapID = 10, continentMapID = 1, cards = cards })
+      for i in ipairs(cards) do
+        assert.matches("^[A-Za-z0-9_]+$", Cards.get("10:k"..i).icon)
+      end
+    end)
+
     it("rejects duplicate IDs and zones", function()
       Cards.registerZone({ zoneMapID = 10, continentMapID = 1, cards = { card("10:a", 1) } })
       rejects({ zoneMapID = 10, continentMapID = 1, cards = { card("10:b", 1) } })

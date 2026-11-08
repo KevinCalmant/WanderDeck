@@ -1,17 +1,13 @@
 local _, ns = ...
 
--- Shared window chrome: a movable backdrop frame with a title and a close
--- button, closed by Escape.
+-- Shared window chrome in the illustrated style: dark panel, double gold
+-- border, gold title, flat gold buttons. Movable, closed by Escape.
+
+local Draw = ns.Draw
+local C = Draw.COLORS
 
 local Window = {}
 ns.Window = Window
-
-local BACKDROP = {
-  bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-  edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-  tile = true, tileSize = 32, edgeSize = 32,
-  insets = { left = 11, right = 12, top = 12, bottom = 11 },
-}
 
 ---@param globalName string unique frame name, required for Escape to close it
 ---@param title string already localized
@@ -19,10 +15,9 @@ local BACKDROP = {
 ---@param height number
 ---@return table frame
 function Window.create(globalName, title, width, height)
-  local f = CreateFrame("Frame", globalName, UIParent, "BackdropTemplate")
+  local f = CreateFrame("Frame", globalName, UIParent)
   f:SetSize(width, height)
   f:SetPoint("CENTER")
-  f:SetBackdrop(BACKDROP)
   f:SetFrameStrata("DIALOG")
   f:SetToplevel(true)
   f:EnableMouse(true)
@@ -32,9 +27,18 @@ function Window.create(globalName, title, width, height)
   f:SetScript("OnDragStart", f.StartMoving)
   f:SetScript("OnDragStop", f.StopMovingOrSizing)
 
-  f.title = f:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-  f.title:SetPoint("TOP", 0, -18)
+  local bg = Draw.rect(f, "BACKGROUND", C.window, 0.96)
+  bg:SetAllPoints()
+  Draw.border(f, "BORDER", C.gold, 2, 0)
+  Draw.border(f, "BORDER", C.gold, 1, 5)
+
+  f.title = Draw.text(f, "GameFontNormalLarge", C.goldText)
+  f.title:SetPoint("TOP", 0, -16)
   f.title:SetText(title)
+  local rule = Draw.rect(f, "ARTWORK", C.gold, 0.6)
+  rule:SetPoint("TOPLEFT", 20, -38)
+  rule:SetPoint("TOPRIGHT", -20, -38)
+  rule:SetHeight(1)
 
   local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
   close:SetPoint("TOPRIGHT", -6, -6)
@@ -44,10 +48,22 @@ function Window.create(globalName, title, width, height)
   return f
 end
 
----A standard red button.
+---A flat button: dark fill, gold outline, gold text; brighter on hover. A
+---disabled button marks the current choice (white text).
 function Window.button(parent, label, width)
-  local b = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
+  local b = CreateFrame("Button", nil, parent)
   b:SetSize(width or 100, 22)
+  local fill = Draw.rect(b, "BACKGROUND", C.titleBar)
+  fill:SetAllPoints()
+  Draw.border(b, "BORDER", C.gold, 1, 0)
+  local hover = Draw.rect(b, "HIGHLIGHT", C.gold, 0.18)
+  hover:SetAllPoints()
+
+  local fs = b:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+  fs:SetPoint("CENTER")
+  b:SetFontString(fs)
+  b:SetNormalFontObject("GameFontNormalSmall")
+  b:SetDisabledFontObject("GameFontHighlightSmall")
   b:SetText(label)
   return b
 end

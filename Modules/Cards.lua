@@ -27,6 +27,17 @@ local KIND_STATS = {
   lore = { 6, 6 },
 }
 local RARITY_BONUS = { 0, 1, 2, 4, 6 }
+-- Card art: an icon file name under Interface\Icons (no path, no extension).
+local ICON_PATTERN = "^[A-Za-z0-9_]+$"
+local ICON_MAX_LENGTH = 64
+-- Art used when a card has no icon of its own (local: validated like card
+-- icons at registration, never changed at run time).
+local KIND_ICONS = {
+  creature = "INV_Misc_QuestionMark", rare = "INV_Misc_QuestionMark", elite = "INV_Misc_QuestionMark",
+  boss = "INV_Misc_QuestionMark", npc = "INV_Misc_QuestionMark", place = "INV_Misc_Map_01",
+  quest = "INV_Misc_Note_01", lore = "INV_Misc_Book_09",
+}
+Cards.ICON_PREFIX = "Interface\\Icons\\"
 local ID_PATTERN = "^([1-9]%d*):[a-z0-9_]+$"
 local ID_MAX_LENGTH = 64
 
@@ -56,11 +67,17 @@ function Cards.registerZone(zone)
     assert(RARITY_BONUS[card.rarity], where..": rarity must be 1-5")
     assert(type(card.name) == "string" and card.name ~= "", where..": name required")
     assert(type(card.flavor) == "string", where..": flavor required")
+    -- The resolved icon (the card's own, or its kind's default) is checked, so
+    -- a kind without a default fails here rather than at display time.
+    local icon = card.icon
+    if icon == nil then icon = KIND_ICONS[card.kind] end
+    assert(type(icon) == "string" and #icon <= ICON_MAX_LENGTH and icon:match(ICON_PATTERN),
+      where..": icon must be an Interface\\Icons file name (letters, digits, _)")
     seen[card.id] = true
 
     local registered = {
       id = card.id, zoneMapID = zone.zoneMapID, kind = card.kind, rarity = card.rarity,
-      name = card.name, flavor = card.flavor,
+      name = card.name, flavor = card.flavor, icon = icon,
     }
     registered.attack, registered.defense = Cards.stats(card.kind, card.rarity)
     entry.cards[#entry.cards + 1] = registered
@@ -91,6 +108,21 @@ end
 function Cards.stats(kind, rarity)
   local base, bonus = KIND_STATS[kind], RARITY_BONUS[rarity]
   return base[1] + bonus, base[2] + bonus
+end
+
+---Kinds a card can have (KIND_STATS keys), sorted. For tests and tools.
+function Cards.kinds()
+  local kinds = {}
+  for kind in pairs(KIND_STATS) do kinds[#kinds + 1] = kind end
+  table.sort(kinds)
+  return kinds
+end
+
+---Full texture path of a card's art.
+---@param card table registered card
+---@return string
+function Cards.iconPath(card)
+  return Cards.ICON_PREFIX..card.icon
 end
 
 ---@param cardID any
