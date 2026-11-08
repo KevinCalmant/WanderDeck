@@ -17,29 +17,17 @@ Sound.KEYS = {
   earn = { "LOOT_WINDOW_COIN_SOUND", "PUT_DOWN_SMALL_CHAIN" },
   open = { "IG_BACKPACK_OPEN" },
   flip = { "IG_ABILITY_PAGE_TURN" },
-  -- A card owned for the first time: a loot pickup sound.
-  new = { "UI_BONUS_LOOT_ROLL_END", "LOOT_WINDOW_COIN_SOUND" },
   epic = { "UI_EPICLOOT_TOAST" },
   legendary = { "UI_LEGENDARY_LOOT_TOAST" },
 }
 
--- One sound per reveal, the most important wins: Legendary > Epic > new card > flip.
-local PRIORITY = { flip = 1, new = 2, epic = 3, legendary = 4 }
-
----Sound event for revealing one card.
----@param rarity number 1-5
----@param isNew boolean|nil owned for the first time
----@return string event "flip", "new", "epic" or "legendary"
-function Sound.eventFor(rarity, isNew)
+---Sound event for revealing a card of `rarity` (1-5).
+---@param rarity number
+---@return string event "flip", "epic" or "legendary"
+function Sound.eventForRarity(rarity)
   if rarity == 5 then return "legendary" end
   if rarity == 4 then return "epic" end
-  if isNew then return "new" end
   return "flip"
-end
-
----Kept for callers that only know the rarity.
-function Sound.eventForRarity(rarity)
-  return Sound.eventFor(rarity, false)
 end
 
 ---The SOUNDKIT id of an event on this client, or nil.
@@ -67,24 +55,18 @@ function Sound.play(event, env)
   return (pcall(env.PlaySound, kit, "SFX"))
 end
 
----Plays one sound for several revealed cards (Reveal all): the most
----important event among them.
----@param reveals table[] { rarity = number, isNew = boolean }
-function Sound.playReveal(reveals, env)
-  local best
-  for _, reveal in ipairs(reveals) do
-    local event = Sound.eventFor(reveal.rarity, reveal.isNew)
-    if not best or PRIORITY[event] > PRIORITY[best] then best = event end
-  end
-  if best then return Sound.play(best, env) end
-  return false
-end
-
----Kept for callers that only know rarities.
+---Plays one sound for several revealed cards (Reveal all): the one for the
+---best rarity among them.
+---@param rarities number[]
+---@param env table|nil _G or a test stub
+---@return boolean played
 function Sound.playBest(rarities, env)
-  local reveals = {}
-  for i, rarity in ipairs(rarities) do reveals[i] = { rarity = rarity } end
-  return Sound.playReveal(reveals, env)
+  local best = 0
+  for _, rarity in ipairs(rarities) do
+    if type(rarity) == "number" and rarity > best then best = rarity end
+  end
+  if best > 0 then return Sound.play(Sound.eventForRarity(best), env) end
+  return false
 end
 
 ns.Slash.register({

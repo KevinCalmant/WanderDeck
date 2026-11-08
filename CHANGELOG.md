@@ -14,7 +14,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `/wd open` opens the oldest pack (5 cards, at least one Uncommon) into the collection; `/wd cards` shows collection progress per zone. A zone without cards draws from its continent, then from every card.
 - Minimap button: left-click opens the binder, right-click opens a pack, drag to move; badge with unopened packs and a progress tooltip. `/wd minimap` shows or hides it.
 - Tags and pins: from a card's detail window, pin it to the top of its binder page, mark it For trade, or add up to 5 tags of your own; the binder filters by tag.
-- Sounds on pack opening and card reveal (Epic and Legendary have their own, a card owned for the first time plays a loot sound); `/wd sound` mutes them. Developer `/wd sounds` checks which sounds exist on the client.
+- Sounds on pack opening and card reveal (Epic and Legendary have their own); `/wd sound` mutes them. Developer `/wd sounds` checks which sounds exist on the client.
 - Loot sound when walking earns a pack (every 2,000 steps); silent at the pack limit, muted by `/wd sound`.
 - Illustrated card style: gold double frame, title bar with rarity gem, art panel with a game icon per card, attack/defense medallions; flip-in animation on reveal and a pulsing halo on Epic and Legendary cards. Windows and buttons use the same dark-and-gold look, drawn without texture files.
 - Developer `/wd art` lists every card with its icon to spot icons missing on the client.

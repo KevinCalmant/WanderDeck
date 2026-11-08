@@ -153,16 +153,29 @@ describe("UI frames", function()
       assert.is_false(detail.shown)
     end)
 
-    it("plays the new-card sound once when a pack of new cards is revealed all at once", function()
+    it("plays no new-card sound: a pack of new cards revealed all at once plays one flip", function()
       local played = {}
-      _G.SOUNDKIT = { LOOT_WINDOW_COIN_SOUND = 9, IG_ABILITY_PAGE_TURN = 2 }
+      _G.SOUNDKIT = { LOOT_WINDOW_COIN_SOUND = 9, UI_BONUS_LOOT_ROLL_END = 8, IG_ABILITY_PAGE_TURN = 2 }
       _G.PlaySound = function(kit) played[#played + 1] = kit end
       char.packs = { { zoneMapID = 1429, earnedAt = 1 } }
-      open()
+      local result = open()
+      assert.is_true(result.firstTime[result.cardIDs[1]])
       local frame = ns.RevealFrame._debug()
       frame.revealAll.scripts.OnClick()
       _G.SOUNDKIT, _G.PlaySound = nil, nil
-      assert.same({ 9 }, played)
+      assert.same({ 2 }, played)
+    end)
+
+    it("plays the flip, not a new-card sound, when clicking a card owned for the first time", function()
+      local played = {}
+      _G.SOUNDKIT = { LOOT_WINDOW_COIN_SOUND = 9, UI_BONUS_LOOT_ROLL_END = 8, IG_ABILITY_PAGE_TURN = 2 }
+      _G.PlaySound = function(kit) played[#played + 1] = kit end
+      char.packs = { { zoneMapID = 1429, earnedAt = 1 } }
+      open()
+      local _, widgets = ns.RevealFrame._debug()
+      widgets[1].scripts.OnClick()
+      _G.SOUNDKIT, _G.PlaySound = nil, nil
+      assert.same({ 2 }, played)
     end)
 
     it("marks first-time cards as New on the face", function()
