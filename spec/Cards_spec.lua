@@ -449,10 +449,20 @@ describe("Data", function()
     end
   end)
 
-  it("ships 11 to 20 cards per zone", function()
+  it("ships about 120 cards per zone, with every rarity", function()
     for _, zoneMapID in ipairs(ns.Cards.zoneIDs()) do
       local count = #ns.Cards.zoneCards(zoneMapID)
-      assert.is_true(count >= 11 and count <= 20, zoneMapID..": "..count)
+      assert.is_true(count >= 100 and count <= 130, zoneMapID..": "..count)
+    end
+  end)
+
+  it("keeps exactly one Legendary per zone (generated cards never are)", function()
+    for _, zoneMapID in ipairs(ns.Cards.zoneIDs()) do
+      local legendary = 0
+      for _, c in ipairs(ns.Cards.zoneCards(zoneMapID)) do
+        if c.rarity == 5 then legendary = legendary + 1 end
+      end
+      assert.equals(1, legendary, tostring(zoneMapID))
     end
   end)
 

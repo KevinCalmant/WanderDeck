@@ -1,11 +1,18 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
   <Script file="ZoneGroups.lua"/>
   <Script file="EasternKingdoms\ElwynnForest.lua"/>
+  <Script file="Generated\ElwynnForest.lua"/>
   <Script file="EasternKingdoms\Westfall.lua"/>
+  <Script file="Generated\Westfall.lua"/>
   <Script file="EasternKingdoms\DunMorogh.lua"/>
+  <Script file="Generated\DunMorogh.lua"/>
   <Script file="EasternKingdoms\TirisfalGlades.lua"/>
+  <Script file="Generated\TirisfalGlades.lua"/>
   <Script file="Kalimdor\Teldrassil.lua"/>
+  <Script file="Generated\Teldrassil.lua"/>
   <Script file="Kalimdor\Durotar.lua"/>
+  <Script file="Generated\Durotar.lua"/>
   <Script file="Kalimdor\Mulgore.lua"/>
+  <Script file="Generated\Mulgore.lua"/>
   <Script file="Loaded.lua"/>
 </Ui>
