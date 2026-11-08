@@ -226,6 +226,15 @@ describe("BinderModel", function()
       assert.same({ 2, 3, 4, 1 }, order)
     end)
 
+    it("falls back to the map ID for an empty or blank name", function()
+      for _, blank in ipairs({ "", "   ", "\t" }) do
+        local list = BinderModel.zoneList({ 7 }, function() return {} end, {}, {
+          nameOf = function() return blank end,
+        })
+        assert.equals("7", list[1].name, string.format("%q", blank))
+      end
+    end)
+
     it("ignores a continent or name of the wrong type", function()
       local list = BinderModel.zoneList({ 7 }, function() return {} end, {}, {
         continentOf = function() return "1415" end, nameOf = function() return { "x" } end,

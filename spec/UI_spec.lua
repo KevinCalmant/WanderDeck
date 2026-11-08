@@ -624,6 +624,9 @@ describe("UI frames", function()
       local _, _, zoneButtons = ns.BinderFrame._debug()
       assert.truthy(zoneButtons[1].text:find("||cffff0000Evil||r ||TInterface\\x:0||t next", 1, true))
       assert.is_nil(zoneButtons[1].text:find("\n", 1, true))
+      local frame = ns.BinderFrame._debug()
+      assert.truthy(frame.zonePageText.text:find("||cffff0000Evil||r", 1, true))
+      assert.is_nil(frame.zonePageText.text:find("\n", 1, true))
 
       char.packs = { { zoneMapID = 1429, earnedAt = 1 } }
       ns.Slash.dispatch("open")
@@ -659,6 +662,33 @@ describe("UI frames", function()
       assert.equals("?", widgets[2].back.text)
       assert.same({}, char.newCards)
       assert.equals("Zone 1429  1/16", zoneButtons[1].text)
+    end)
+
+    it("opens with no registered zone without error", function()
+      ns.Cards.zoneIDs = function() return {} end
+      ns.BinderFrame.toggle()
+      local frame, _, zoneButtons = ns.BinderFrame._debug()
+      assert.is_true(frame.shown)
+      assert.equals("1 / 0", frame.zonePageText.text)
+      assert.is_false(frame.zonePrev.enabled)
+      assert.is_false(frame.zoneNext.enabled)
+      for _, b in ipairs(zoneButtons) do assert.is_false(b.shown) end
+    end)
+
+    it("clamps a stale zone page and starts on the selected zone's page when reopened", function()
+      ns.BinderFrame.toggle()
+      local frame, _, zoneButtons, view = ns.BinderFrame._debug()
+      for _, stale in ipairs({ 99, -5 }) do
+        view.zonePage = stale
+        frame.search.scripts.OnTextChanged(frame.search) -- re-render
+        assert.equals(1, view.zonePage)
+        assert.equals(1429, zoneButtons[1].zoneMapID)
+        assert.is_true(zoneButtons[1].shown)
+      end
+      view.zonePage = 7
+      ns.BinderFrame.toggle()
+      ns.BinderFrame.toggle()
+      assert.equals(1, view.zonePage)
     end)
 
     it("lists all 40 shipped zones, one continent per zone page", function()

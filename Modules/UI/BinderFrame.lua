@@ -19,7 +19,7 @@ local FILTER_LABELS = { all = "All", owned = "Owned", missing = "Missing", dupli
 
 -- zonesPerPage is set by build() from the room above the pager row.
 local frame, widgets, zoneButtons, filterButtons, zonesPerPage
--- zonePage nil: show the page of the selected zone.
+-- zonePage nil: show the page of the selected zone (reset on each opening).
 local view = { zoneMapID = nil, filter = "all", rarity = nil, tag = nil, search = "", page = 1, zonePage = nil }
 
 local function tagLabel(tag)
@@ -245,6 +245,8 @@ function BinderFrame.toggle()
     return
   end
   frame:Show()
+  -- Each opening starts on the page of the selected zone.
+  view.zonePage = nil
   local ok, err = pcall(render)
   if not ok then
     frame:Hide()

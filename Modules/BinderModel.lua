@@ -144,7 +144,7 @@ function BinderModel.zoneList(zoneIDs, cardsOf, collection, opts)
     list[#list + 1] = {
       zoneMapID = zoneMapID, owned = owned, total = total,
       continentMapID = type(continent) == "number" and continent or 0,
-      name = type(name) == "string" and name or tostring(zoneMapID),
+      name = type(name) == "string" and name:find("%S") and name or tostring(zoneMapID),
     }
   end
   table.sort(list, function(a, b)
