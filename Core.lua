@@ -13,6 +13,8 @@ local defaultSavedVars = {
     stats = { yards = 0 },
     progress = { total = 0, byZone = {} },
     packs = {},
+    collection = {},
+    newCards = {},
   },
 }
 
@@ -31,6 +33,7 @@ eventFrame:SetScript("OnEvent", function(self, event, loadedAddon)
       ns.print("Saved data comes from a newer WanderDeck version; update the addon.")
     end
     Schema.sanitizeChar(db.char, Config.MAX_UNOPENED_PACKS)
+    Schema.sanitizeCollection(db.char, ns.Cards.get, Config.MAX_COPIES, ns.Cards.dataLoaded == true)
     self:UnregisterEvent("ADDON_LOADED")
     Walker.start()
   end

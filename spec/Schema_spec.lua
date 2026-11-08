@@ -232,6 +232,85 @@ describe("Schema.sanitizeChar", function()
   end)
 end)
 
+describe("Schema.sanitizeCollection", function()
+  local Schema
+  local KNOWN = { ["1436:moonbrook"] = true, ["1429:hogger"] = true }
+  local function isKnown(id) return KNOWN[id] end
+
+  before_each(function()
+    mocks.reset()
+    local ns = mocks.newNamespace()
+    mocks.loadSource("Modules/Schema.lua", ns)
+    Schema = ns.Schema
+  end)
+
+  local function sanitize(char, maxCopies, dataLoaded)
+    if dataLoaded == nil then dataLoaded = true end
+    Schema.sanitizeCollection(char, isKnown, maxCopies, dataLoaded)
+  end
+
+  it("keeps unknown string IDs when Data did not finish loading", function()
+    local char = { collection = {
+      ["1429:hogger"] = 1, ["1429:princess"] = 2,
+      [""] = 1, [string.rep("a", 65)] = 1, [1436] = 1, [true] = 1,
+    } }
+    sanitize(char, 999, false)
+    assert.same({ ["1429:hogger"] = 1, ["1429:princess"] = 2 }, char.collection)
+  end)
+
+  it("keeps copy-count checks when Data did not finish loading", function()
+    local char = { collection = { ["1429:princess"] = 0, ["1429:x"] = 1.5 } }
+    sanitize(char, 999, false)
+    assert.same({}, char.collection)
+  end)
+
+  it("creates missing or wrong-type tables", function()
+    local char = { collection = 5, newCards = "x" }
+    sanitize(char, 999)
+    assert.same({}, char.collection)
+    assert.same({}, char.newCards)
+  end)
+
+  it("drops unknown card IDs, including known IDs with junk glued on", function()
+    local char = { collection = {
+      ["1436:moonbrook"] = 2, ["9999:fake"] = 1, ["1436:moonbrook<script>"] = 1,
+      [" 1429:hogger"] = 1, ["<script>1436:moonbrook"] = 1, [""] = 1, [string.rep("a", 500)] = 1,
+      [1436] = 1, [true] = 1,
+    } }
+    sanitize(char, 999)
+    assert.same({ ["1436:moonbrook"] = 2 }, char.collection)
+  end)
+
+  it("drops counts that are not whole numbers of at least 1", function()
+    for _, bad in ipairs({ 0, -1, 1.5, 0 / 0, math.huge, "2", true, {} }) do
+      local char = { collection = { ["1429:hogger"] = bad } }
+      sanitize(char, 999)
+      assert.same({}, char.collection)
+    end
+  end)
+
+  it("keeps a count at maxCopies and caps one above it", function()
+    local char = { collection = { ["1429:hogger"] = 999, ["1436:moonbrook"] = 1000 } }
+    sanitize(char, 999)
+    assert.same({ ["1429:hogger"] = 999, ["1436:moonbrook"] = 999 }, char.collection)
+  end)
+
+  it("drops the New flag of a card whose count was invalid", function()
+    local char = { collection = { ["1429:hogger"] = 0 }, newCards = { ["1429:hogger"] = true } }
+    sanitize(char, 999)
+    assert.same({}, char.newCards)
+  end)
+
+  it("keeps New flags only for owned cards with the value true", function()
+    local char = {
+      collection = { ["1429:hogger"] = 1, ["1436:moonbrook"] = 1 },
+      newCards = { ["1429:hogger"] = true, ["1436:moonbrook"] = "yes", ["9999:fake"] = true },
+    }
+    sanitize(char, 999)
+    assert.same({ ["1429:hogger"] = true }, char.newCards)
+  end)
+end)
+
 describe("Schema.sanitizeGlobal", function()
   local Schema
 

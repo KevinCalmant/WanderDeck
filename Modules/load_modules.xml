@@ -4,6 +4,9 @@
   <Script file="Zone.lua"/>
   <Script file="StepTracker.lua"/>
   <Script file="Packs.lua"/>
+  <Script file="Cards.lua"/>
+  <Script file="Collection.lua"/>
   <Script file="Slash.lua"/>
   <Script file="Walker.lua"/>
+  <Script file="Opener.lua"/>
 </Ui>

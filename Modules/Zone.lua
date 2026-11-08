@@ -54,7 +54,34 @@ local function resolve(mapID, getMapInfo, isSecret)
   return nil
 end
 
+---Walks up the map tree from `mapID` to its continent map. Any secret value
+---on the way yields nil.
+---@param mapID number|nil
+---@param getMapInfo fun(mapID: number): table|nil
+---@param isSecret? fun(value: any): boolean defaults to Wow.isSecret
+---@return number|nil continentMapID
+local function continentOf(mapID, getMapInfo, isSecret)
+  isSecret = isSecret or (ns.Wow and ns.Wow.isSecret)
+  assert(type(isSecret) == "function", "Zone.continentOf needs an isSecret function")
+  local current = plainMapID(mapID, isSecret)
+  if not current or type(getMapInfo) ~= "function" then return nil end
+
+  for _ = 1, MAX_DEPTH do
+    local info = getMapInfo(current)
+    if isSecret(info) or type(info) ~= "table" then return nil end
+    local mapType = plainNumber(info.mapType, isSecret)
+    if not mapType then return nil end
+    if mapType == MAP_TYPE_CONTINENT then return current end
+    if mapType < MAP_TYPE_CONTINENT then return nil end
+    local parent = plainMapID(info.parentMapID, isSecret)
+    if not parent or parent == current then return nil end
+    current = parent
+  end
+  return nil
+end
+
 ns.Zone = {
   resolve = resolve,
+  continentOf = continentOf,
   MAP_TYPE_ZONE = MAP_TYPE_ZONE,
 }

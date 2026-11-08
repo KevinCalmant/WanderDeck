@@ -15,6 +15,7 @@ init.lua
 locales.xml
 Utils\load_utils.xml
 Modules\load_modules.xml
+Data\load_data.xml
 Core.lua
 #@do-not-package@
 Developer\load_developer.xml

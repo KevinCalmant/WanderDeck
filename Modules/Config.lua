@@ -21,4 +21,12 @@ ns.Config = {
   MAX_TICK_FAILURES = 10,
   -- Unopened packs a character can hold; past it, walking earns no pack.
   MAX_UNOPENED_PACKS = 20,
+  -- Cards in one pack.
+  CARDS_PER_PACK = 5,
+  -- Relative drop weight per rarity (1 Common .. 5 Legendary) (guess).
+  RARITY_WEIGHTS = { 60, 25, 10, 4, 1 },
+  -- Every pack holds at least one card of this rarity or better (2 = Uncommon).
+  GUARANTEED_RARITY = 2,
+  -- Copies of one card a collection can hold.
+  MAX_COPIES = 999,
 }

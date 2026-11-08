@@ -61,6 +61,7 @@ Each rule above has a busted test; add one per discard reason and per fallback l
 
 - AceDB with `global` (settings) and `char` (step counters, unopened packs, collection). Bump `schemaVersion` and add a migration function for every layout change; a layout break is a major version.
 - SavedVariables are a user-editable file: run every loaded value through a schema sanitizer (type, range, known IDs) before use, as `BeaconState.lua` does in the reference repo, and drop card IDs that `Data/` no longer defines.
+- Unknown card IDs are deleted only when every zone in `Data/Loaded.lua`'s `EXPECTED_ZONES` registered (`Cards.dataLoaded`): the client keeps loading after a file errors, and a failed Data file must not wipe that zone from collections. Add each new zone to that list. Renaming a shipped card ID (including a uiMapID fix) needs a migration step that rewrites saved IDs, or players lose those cards.
 
 ## Commands
 
@@ -81,4 +82,4 @@ Each rule above has a busted test; add one per discard reason and per fallback l
 
 ## Open decisions (ask the user before implementing)
 
-- Card data: who writes the per-zone lists in `Data/`, and which zones ship in V1.
+- V1 zones are Elwynn Forest and Westfall (user decision). Card lists in `Data/` are drafted by Claude: the user reviews names, rarities and French names before release. Elwynn's uiMapID 1429 is still unverified on Forever.

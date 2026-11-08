@@ -137,6 +137,27 @@ describe("Zone.resolve", function()
     assert.is_nil(Zone.resolve(37, getMapInfo, function(v) return v == secretInfo end))
   end)
 
+  describe("continentOf", function()
+    it("walks up to the continent", function()
+      assert.equals(13, Zone.continentOf(9002, getMapInfo))
+      assert.equals(13, Zone.continentOf(37, getMapInfo))
+      assert.equals(13, Zone.continentOf(13, getMapInfo))
+    end)
+
+    it("returns nil above the continent, on cycles and on bad IDs", function()
+      assert.is_nil(Zone.continentOf(1, getMapInfo))
+      assert.is_nil(Zone.continentOf(500, getMapInfo))
+      for _, bad in ipairs({ 0, 0 / 0, 1.5, 2 ^ 31, "13" }) do
+        assert.is_nil(Zone.continentOf(bad, getMapInfo))
+      end
+    end)
+
+    it("returns nil on secret values", function()
+      _G.issecretvalue = function(v) return v == 13 end
+      assert.is_nil(Zone.continentOf(37, getMapInfo))
+    end)
+  end)
+
   it("uses Enum.UIMapType when the client provides it", function()
     _G.Enum = { UIMapType = { Continent = 20, Zone = 30 } }
     local ns = mocks.newNamespace()

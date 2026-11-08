@@ -130,8 +130,40 @@ local function sanitizeChar(char, maxPacks)
   char.packs = kept
 end
 
+-- Longest card ID kept when Data/ did not finish loading (Cards.lua uses 64).
+local MAX_CARD_ID_LENGTH = 64
+
+---Sanitizes the character's collection in place. Keeps only card IDs that
+---Data/ still defines, with a whole copy count from 1 to maxCopies; a New flag
+---survives only for a card that is still owned.
+---@param char table AceDB `db.char`
+---@param isKnownCard fun(cardID: any): any Cards.get
+---@param maxCopies number Config.MAX_COPIES
+---@param dataLoaded boolean false when a Data file failed: unknown string IDs are kept, not deleted
+local function sanitizeCollection(char, isKnownCard, maxCopies, dataLoaded)
+  local function keepID(cardID)
+    if isKnownCard(cardID) then return true end
+    return not dataLoaded and type(cardID) == "string" and cardID ~= "" and #cardID <= MAX_CARD_ID_LENGTH
+  end
+
+  if type(char.collection) ~= "table" then char.collection = {} end
+  for cardID, copies in pairs(char.collection) do
+    if not (keepID(cardID) and isFiniteNonNegative(copies) and copies >= 1 and copies == floor(copies)) then
+      char.collection[cardID] = nil
+    elseif copies > maxCopies then
+      char.collection[cardID] = maxCopies
+    end
+  end
+
+  if type(char.newCards) ~= "table" then char.newCards = {} end
+  for cardID, flag in pairs(char.newCards) do
+    if flag ~= true or char.collection[cardID] == nil then char.newCards[cardID] = nil end
+  end
+end
+
 ns.Schema = {
   sanitizeChar = sanitizeChar,
+  sanitizeCollection = sanitizeCollection,
   MAX_ZONE_SHARES = MAX_ZONE_SHARES,
   MAX_TIMESTAMP = MAX_TIMESTAMP,
   CURRENT_VERSION = CURRENT_VERSION,
