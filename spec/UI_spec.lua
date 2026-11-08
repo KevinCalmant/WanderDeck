@@ -67,7 +67,8 @@ describe("UI frames", function()
       assert.is_true(frame.shown)
       assert.equals("?", widgets[1].back.text)
       widgets[2].scripts.OnClick()
-      assert.equals("Young Wolf", widgets[2].name.text)
+      -- Missing-card protection: the pack holds distinct new cards in data order.
+      assert.equals("Stonetusk Boar", widgets[2].name.text)
       assert.equals("?", widgets[1].back.text)
     end)
 
@@ -135,7 +136,7 @@ describe("UI frames", function()
       assert.equals("Young Wolf", detail.title.text)
       assert.equals("Young Wolf", big.name.text)
       assert.equals("Its howl is more of a squeak, but the pack still listens.", flavor.text)
-      assert.equals("Copies owned: 4", owned.text)
+      assert.equals("Copies owned: 1", owned.text)
     end)
 
     it("flips a face-down card without opening the detail, even once the window exists", function()

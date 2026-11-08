@@ -15,7 +15,7 @@ Out of scope: leaderboards, duels, auctions. They need a trusted server, and an 
 
 Step counting and zone binding follow the Domain rules in `CLAUDE.md`: one counter, and each pack goes to the zone where most of its steps were walked.
 
-- One pack every `STEPS_PER_PACK` steps (_tunable_, start at 2 000). Unopened packs are capped at `MAX_UNOPENED_PACKS` (_tunable_, 20); past the cap, steps still count toward achievements but earn no pack.
+- One pack every `STEPS_PER_PACK` steps (_tunable_, 1 500 since zones grew to about 120 cards). Each draw has `NEW_CARD_BIAS` percent chance (_tunable_, 50) to pick among the cards of its rarity the player does not own yet, and a pack does not repeat a missing card. Unopened packs are capped at `MAX_UNOPENED_PACKS` (_tunable_, 20); past the cap, steps still count toward achievements but earn no pack.
 - A pack holds `CARDS_PER_PACK` cards (_tunable_, 5), all from the pack's zone pool (with the fallbacks from `CLAUDE.md`), and guarantees one card of Uncommon or better.
 - Earning a pack prints one chat line, plays a loot sound (muted with the other sounds) and updates a small counter on the minimap button. No sound at the pack cap, where no pack is stored. The opening happens on demand.
 

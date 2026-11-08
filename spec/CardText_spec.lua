@@ -24,6 +24,16 @@ describe("CardText", function()
       assert.equals("Linen Cloth (data)", CardText.name(card(), {}))
     end)
 
+    it("falls back to the English name when a translation is not clean text", function()
+      for _, bad in ipairs({ "Mineur kobold\226", "\226\128\174Mineur", "Mineur\194\133", " " }) do
+        ns.L["Linen Cloth"] = bad
+        assert.equals("Linen Cloth", CardText.name(card(), {}))
+      end
+      -- A pipe is escaped, not refused, like client text.
+      ns.L["Linen Cloth"] = "a|cffff0000b"
+      assert.equals("a||cffff0000b", CardText.name(card(), {}))
+    end)
+
     it("uses the client's item, quest and area names", function()
       local env = {
         C_Item = { GetItemNameByID = function(id) return id == 2589 and "Étoffe de lin" or nil end },
@@ -127,6 +137,30 @@ describe("CardText", function()
       assert.equals(1, requests)
       env.C_Item.RequestLoadItemDataByID = function() error("x") end
       assert.equals("Linen Cloth (data)", CardText.name(card({ itemID = 4343 }), env))
+    end)
+  end)
+
+  describe("flavor", function()
+    it("uses the card's own flavor when it has one", function()
+      ns.L["Hand-written."] = "Écrit à la main."
+      assert.equals("Écrit à la main.", CardText.flavor(card({ flavor = "Hand-written." })))
+    end)
+
+    it("translates every creature type into French", function()
+      _G.GetLocale = function() return "frFR" end
+      local fr = mocks.newNamespace()
+      mocks.loadSource("Locales/enUS.lua", fr)
+      mocks.loadSource("Locales/frFR.lua", fr)
+      for creatureType in pairs(ns.Cards.CREATURE_TYPES) do
+        assert.is_string(rawget(fr.L, creatureType), creatureType)
+      end
+      assert.equals("Niveau", rawget(fr.L, "Level"))
+    end)
+
+    it("builds one from level and creature type", function()
+      assert.equals("Level 5 · Beast", CardText.flavor(card({ level = 5, creatureType = "Beast" })))
+      assert.equals("Level 12", CardText.flavor(card({ level = 12 })))
+      assert.equals("", CardText.flavor(card()))
     end)
   end)
 

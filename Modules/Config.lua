@@ -7,8 +7,9 @@ ns.Config = {
   SAMPLE_INTERVAL = 0.5,
   -- Yards walked per counted step (guess).
   YARDS_PER_STEP = 1,
-  -- Steps needed to earn one pack (guess).
-  STEPS_PER_PACK = 2000,
+  -- Steps needed to earn one pack (guess; lowered from 2000 when zones grew
+  -- to about 120 cards).
+  STEPS_PER_PACK = 1500,
   -- Fastest plausible on-foot speed, yards per second. Base run speed is about
   -- 7; sprint-type buffs can push it higher. A faster delta is a teleport,
   -- portal or loading screen and is discarded (guess, refine with /wd watch).
@@ -27,6 +28,9 @@ ns.Config = {
   RARITY_WEIGHTS = { 60, 25, 10, 4, 1 },
   -- Every pack holds at least one card of this rarity or better (2 = Uncommon).
   GUARANTEED_RARITY = 2,
+  -- Percent chance that a draw picks among the cards of its rarity the player
+  -- does not own yet (guess).
+  NEW_CARD_BIAS = 50,
   -- Copies of one card a collection can hold.
   MAX_COPIES = 999,
 }

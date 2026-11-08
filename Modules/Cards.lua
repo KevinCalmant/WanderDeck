@@ -47,8 +47,75 @@ local ID_MAX_LENGTH = 64
 local NAME_MAX_LENGTH = 64
 local FLAVOR_MAX_LENGTH = 200
 
+local validateAll    -- defined below, used by registerZone and addCards
 local byID = {}       -- [cardID] = card
 local zones = {}      -- [zoneMapID] = { continentMapID, cards = { card, ... } }
+
+local CREATURE_TYPES = {
+  Beast = true, Humanoid = true, Undead = true, Demon = true, Elemental = true,
+  Dragonkin = true, Giant = true, Mechanical = true, Critter = true,
+}
+Cards.CREATURE_TYPES = CREATURE_TYPES
+local MAX_LEVEL = 63
+
+---Validates one card and returns its registered form. A malformed entry is a
+---developer error and fails loudly.
+local function validateCard(card, zoneMapID, i, seen)
+  local where = "card #"..i.." of zone "..zoneMapID
+  assert(type(card) == "table", where..": must be a table")
+  assert(type(card.id) == "string" and #card.id <= ID_MAX_LENGTH, where..": id must be a string of at most "..ID_MAX_LENGTH.." chars")
+  local prefix = card.id:match(ID_PATTERN)
+  assert(prefix and tonumber(prefix) == zoneMapID, where..": id must be '<zoneMapID>:<slug>'")
+  assert(not byID[card.id] and not seen[card.id], "duplicate card id: "..card.id)
+  assert(KIND_STATS[card.kind], where..": unknown kind")
+  assert(RARITY_BONUS[card.rarity], where..": rarity must be 1-5")
+  -- Card text reaches FontStrings and chat: no "|" codes, no control
+  -- characters, bounded length, and a name that is not blank.
+  -- Same text rules as client strings (Utils.isCleanText): data may be
+  -- generated from an external database.
+  assert(type(card.name) == "string" and card.name:find("%S") and #card.name <= NAME_MAX_LENGTH
+    and not card.name:find("|", 1, true) and ns.Utils.isCleanText(card.name),
+    where..": name must be 1-"..NAME_MAX_LENGTH.." chars of clean UTF-8, no | or control characters")
+  -- Flavor is optional: without it, CardText builds one from level and type.
+  assert(card.flavor == nil or (type(card.flavor) == "string" and #card.flavor <= FLAVOR_MAX_LENGTH
+    and not card.flavor:find("|", 1, true) and ns.Utils.isCleanText(card.flavor)),
+    where..": flavor must be at most "..FLAVOR_MAX_LENGTH.." chars of clean UTF-8, no | or control characters")
+  -- The resolved icon (the card's own, or its kind's default) is checked, so
+  -- a kind without a default fails here rather than at display time.
+  local icon = card.icon
+  if icon == nil then icon = KIND_ICONS[card.kind] end
+  assert(type(icon) == "string" and #icon <= ICON_MAX_LENGTH and icon:match(ICON_PATTERN),
+    where..": icon must be an Interface\\Icons file name (letters, digits, _)")
+  local refs = 0
+  for _, field in ipairs(REF_FIELDS) do
+    if card[field] ~= nil then
+      assert(isMapID(card[field]), where..": "..field.." must be a positive whole number")
+      refs = refs + 1
+    end
+  end
+  assert(refs <= 1, where..": at most one of itemID, questID, areaID")
+  assert(card.npcID == nil or isMapID(card.npcID), where..": npcID must be a positive whole number")
+  assert(card.level == nil or (isMapID(card.level) and card.level <= MAX_LEVEL), where..": level must be 1-"..MAX_LEVEL)
+  assert(card.creatureType == nil or CREATURE_TYPES[card.creatureType] == true, where..": unknown creatureType")
+  seen[card.id] = true
+
+  local registered = {
+    id = card.id, zoneMapID = zoneMapID, kind = card.kind, rarity = card.rarity,
+    name = card.name, flavor = card.flavor, icon = icon,
+    itemID = card.itemID, questID = card.questID, areaID = card.areaID,
+    npcID = card.npcID, level = card.level, creatureType = card.creatureType,
+  }
+  registered.attack, registered.defense = Cards.stats(card.kind, card.rarity)
+  return registered
+end
+
+---Validates a list of cards; returns them registered, or fails without
+---registering any.
+function validateAll(zoneMapID, cards)
+  local seen, out = {}, {}
+  for i, card in ipairs(cards) do out[i] = validateCard(card, zoneMapID, i, seen) end
+  return out
+end
 
 ---Registers one zone's cards. Called by Data files at load; a malformed entry
 ---is a developer error and fails loudly.
@@ -59,51 +126,34 @@ function Cards.registerZone(zone)
   assert(not zones[zone.zoneMapID], "zone registered twice: "..tostring(zone.zoneMapID))
   assert(type(zone.cards) == "table" and #zone.cards > 0, "zone needs cards")
 
-  -- Validate every card before registering any, so a bad entry leaves no
-  -- half-registered zone behind.
-  local entry, seen = { continentMapID = zone.continentMapID, cards = {} }, {}
-  for i, card in ipairs(zone.cards) do
-    local where = "card #"..i.." of zone "..zone.zoneMapID
-    assert(type(card) == "table", where..": must be a table")
-    assert(type(card.id) == "string" and #card.id <= ID_MAX_LENGTH, where..": id must be a string of at most "..ID_MAX_LENGTH.." chars")
-    local prefix = card.id:match(ID_PATTERN)
-    assert(prefix and tonumber(prefix) == zone.zoneMapID, where..": id must be '<zoneMapID>:<slug>'")
-    assert(not byID[card.id] and not seen[card.id], "duplicate card id: "..card.id)
-    assert(KIND_STATS[card.kind], where..": unknown kind")
-    assert(RARITY_BONUS[card.rarity], where..": rarity must be 1-5")
-    -- Card text reaches FontStrings and chat: no "|" codes, no control
-    -- characters, bounded length, and a name that is not blank.
-    assert(type(card.name) == "string" and card.name:find("%S") and #card.name <= NAME_MAX_LENGTH
-      and not card.name:find("[%c|]"), where..": name must be 1-"..NAME_MAX_LENGTH.." chars, no | or control characters")
-    assert(type(card.flavor) == "string" and #card.flavor <= FLAVOR_MAX_LENGTH and not card.flavor:find("[%c|]"),
-      where..": flavor must be at most "..FLAVOR_MAX_LENGTH.." chars, no | or control characters")
-    -- The resolved icon (the card's own, or its kind's default) is checked, so
-    -- a kind without a default fails here rather than at display time.
-    local icon = card.icon
-    if icon == nil then icon = KIND_ICONS[card.kind] end
-    assert(type(icon) == "string" and #icon <= ICON_MAX_LENGTH and icon:match(ICON_PATTERN),
-      where..": icon must be an Interface\\Icons file name (letters, digits, _)")
-    local refs = 0
-    for _, field in ipairs(REF_FIELDS) do
-      if card[field] ~= nil then
-        assert(isMapID(card[field]), where..": "..field.." must be a positive whole number")
-        refs = refs + 1
-      end
-    end
-    assert(refs <= 1, where..": at most one of itemID, questID, areaID")
-    seen[card.id] = true
-
-    local registered = {
-      id = card.id, zoneMapID = zone.zoneMapID, kind = card.kind, rarity = card.rarity,
-      name = card.name, flavor = card.flavor, icon = icon,
-      itemID = card.itemID, questID = card.questID, areaID = card.areaID,
-    }
-    registered.attack, registered.defense = Cards.stats(card.kind, card.rarity)
-    entry.cards[#entry.cards + 1] = registered
-  end
-
+  local entry = { continentMapID = zone.continentMapID, cards = validateAll(zone.zoneMapID, zone.cards) }
   for _, registered in ipairs(entry.cards) do byID[registered.id] = registered end
   zones[zone.zoneMapID] = entry
+end
+
+local batches = {} -- ["<zoneMapID>:<batch>"] = true once a batch registered
+
+---Adds a named batch of cards to a zone already registered (generated card
+---files call this after the zone's hand-written file). Same validation, all
+---or nothing. Data/Loaded.lua lists the expected batches: a batch that fails
+---or is missing keeps Data from counting as loaded, so saved cards of that
+---batch are never deleted.
+---@param zoneMapID number
+---@param cards table[]
+---@param batch string lowercase letters, digits, _ (e.g. "generated")
+function Cards.addCards(zoneMapID, cards, batch)
+  assert(isMapID(zoneMapID) and zones[zoneMapID], "addCards needs a registered zone: "..tostring(zoneMapID))
+  assert(type(cards) == "table" and #cards > 0, "addCards needs cards")
+  assert(type(batch) == "string" and #batch <= 32 and batch:match("^[a-z0-9_]+$"), "addCards needs a batch name")
+  local key = zoneMapID..":"..batch
+  assert(not batches[key], "batch added twice: "..key)
+  local added = validateAll(zoneMapID, cards)
+  local list = zones[zoneMapID].cards
+  for _, registered in ipairs(added) do
+    byID[registered.id] = registered
+    list[#list + 1] = registered
+  end
+  batches[key] = true
 end
 
 local zoneParents = {} -- [childMapID] = outdoor zone uiMapID
@@ -137,13 +187,25 @@ end
 ---saved card IDs the registry does not know may belong to a failed file and
 ---must not be deleted.
 ---@param expectedZones number[]
+---@param expectedBatches string[]|nil "<zoneMapID>:<batch>" keys of addCards batches
 ---@return boolean loaded
-function Cards.markLoaded(expectedZones)
+function Cards.markLoaded(expectedZones, expectedBatches)
   for _, zoneMapID in ipairs(expectedZones) do
     if not zones[zoneMapID] then return false end
   end
+  for _, key in ipairs(expectedBatches or {}) do
+    if not batches[key] then return false end
+  end
   Cards.dataLoaded = true
   return true
+end
+
+---"<zoneMapID>:<batch>" keys of every batch added, sorted. For tests.
+function Cards.batchKeys()
+  local keys = {}
+  for key in pairs(batches) do keys[#keys + 1] = key end
+  table.sort(keys)
+  return keys
 end
 
 ---@param kind string
@@ -257,12 +319,23 @@ local function availableRarity(pool, rarity, minRarity)
   return nil
 end
 
-local function drawCard(pool, minRarity, config, rng)
+-- Missing-card protection: with NEW_CARD_BIAS percent chance, a draw picks
+-- among the cards of the rolled rarity the player does not own yet (and has
+-- not drawn earlier in this pack), so a large zone stays completable.
+local function drawCard(pool, minRarity, config, rng, isOwned, drawn)
   local rarity = Cards.rollRarity(config.RARITY_WEIGHTS, minRarity, rng)
   if not rarity then return nil end
   rarity = availableRarity(pool, rarity, minRarity)
   if not rarity then return nil end
   local bucket = pool.byRarity[rarity]
+  local bias = config.NEW_CARD_BIAS
+  if isOwned and type(bias) == "number" and bias > 0 then
+    local missing = {}
+    for _, card in ipairs(bucket) do
+      if not isOwned(card.id) and not drawn[card.id] then missing[#missing + 1] = card end
+    end
+    if #missing > 0 and rng(100) <= bias then return missing[rng(#missing)] end
+  end
   return bucket[rng(#bucket)]
 end
 
@@ -271,20 +344,22 @@ end
 ---@param pool table from Cards.poolFor
 ---@param rng fun(n: number): number e.g. math.random
 ---@param config table ns.Config
+---@param isOwned fun(cardID: string): boolean|nil enables the missing-card protection
 ---@return string[] cardIDs empty when the pool is empty
-function Cards.openPack(pool, rng, config)
-  local ids = {}
+function Cards.openPack(pool, rng, config, isOwned)
+  local ids, drawn = {}, {}
   if pool.size == 0 or not (config.CARDS_PER_PACK >= 1) then return ids end
   local best = 0
   for i = 1, config.CARDS_PER_PACK do
-    local card = drawCard(pool, 1, config, rng)
+    local card = drawCard(pool, 1, config, rng, isOwned, drawn)
     if not card then return {} end -- degenerate weights: no pack rather than an error
     ids[i] = card.id
+    drawn[card.id] = true
     if card.rarity > best then best = card.rarity end
   end
   local guaranteed = config.GUARANTEED_RARITY
   if RARITY_BONUS[guaranteed] and best < guaranteed then
-    local card = drawCard(pool, guaranteed, config, rng)
+    local card = drawCard(pool, guaranteed, config, rng, isOwned, drawn)
     if card then ids[#ids] = card.id end
   end
   return ids
@@ -292,6 +367,6 @@ end
 
 ---Test helper: forgets every registered zone.
 function Cards._reset()
-  byID, zones, zoneParents = {}, {}, {}
+  byID, zones, zoneParents, batches = {}, {}, {}, {}
   Cards.dataLoaded = nil
 end

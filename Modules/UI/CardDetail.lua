@@ -156,7 +156,7 @@ function CardDetail.show(card, copies, opts)
   frame.title:SetText(ns.CardText.name(card))
   frame.title:SetTextColor(CardWidget.rarityRGB(card.rarity))
   CardWidget.showCard(big, card)
-  flavor:SetText(L[card.flavor])
+  flavor:SetText(ns.CardText.flavor(card))
   -- Only a whole positive count is shown (anything else hides the line).
   if type(copies) == "number" and copies >= 1 and copies == math.floor(copies) and copies < math.huge then
     owned:SetText(L["Copies owned:"].." "..copies)

@@ -54,7 +54,8 @@ function Collection.openNext(char, rng, continentOf, config)
   -- Packs saved before a city was folded still open as their outdoor zone.
   local zoneMapID = ns.Cards.cardZone(pack.zoneMapID)
   local pool = ns.Cards.poolFor(zoneMapID, continentOf(zoneMapID))
-  local cardIDs = ns.Cards.openPack(pool, rng, config)
+  local function isOwned(cardID) return (char.collection[cardID] or 0) > 0 end
+  local cardIDs = ns.Cards.openPack(pool, rng, config, isOwned)
   if #cardIDs == 0 then return nil, "empty-pool" end
   table.remove(char.packs, 1)
   local firstTime = Collection.add(char.collection, char.newCards, cardIDs, config.MAX_COPIES)

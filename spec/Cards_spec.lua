@@ -68,7 +68,7 @@ describe("Cards", function()
       rejects(zoneWith(c))
       for _, rarity in ipairs({ 0, 6, 1.5, "1" }) do rejects(zoneWith(card("10:a", rarity))) end
       c = card("10:a", 1); c.name = ""; rejects(zoneWith(c))
-      c = card("10:a", 1); c.flavor = nil; rejects(zoneWith(c))
+      c = card("10:a", 1); c.flavor = 5; rejects(zoneWith(c))
     end)
 
     it("rejects names and flavor with chat codes, control characters, blanks or excess length", function()
@@ -103,6 +103,69 @@ describe("Cards", function()
       local both = card("11:a", 1)
       both.itemID, both.questID = 1, 2
       rejects(zoneWith(both))
+    end)
+
+    it("accepts a card without flavor, with npcID, level and creature type", function()
+      local c = card("10:a", 1)
+      c.flavor, c.npcID, c.level, c.creatureType = nil, 299, 2, "Beast"
+      Cards.registerZone({ zoneMapID = 10, continentMapID = 1, cards = { c } })
+      local got = Cards.get("10:a")
+      assert.same({ 299, 2, "Beast" }, { got.npcID, got.level, got.creatureType })
+    end)
+
+    it("refuses names and flavor that are not clean UTF-8", function()
+      local function zoneWith(x) return { zoneMapID = 10, continentMapID = 1, cards = { x } } end
+      for _, bad in ipairs({ "Wolf\226", "Wolf\194\133", "\226\128\174Wolf", "Wo\226\128\139lf", "\239\187\191Wolf" }) do
+        local c = card("10:a", 1)
+        c.name = bad
+        rejects(zoneWith(c))
+        c = card("10:a", 1)
+        c.flavor = "A fine wolf. "..bad
+        rejects(zoneWith(c))
+      end
+    end)
+
+    it("accepts level 1 and 63", function()
+      for i, level in ipairs({ 1, 63 }) do
+        local c = card("1"..i..":a", 1)
+        c.level = level
+        Cards.registerZone({ zoneMapID = 10 + i, continentMapID = 1, cards = { c } })
+      end
+    end)
+
+    it("refuses bad npcID, level and creature type", function()
+      local function zoneWith(x) return { zoneMapID = 10, continentMapID = 1, cards = { x } } end
+      for _, case in ipairs({
+        { npcID = 0 }, { npcID = 1.5 }, { npcID = "299" }, { npcID = 0 / 0 }, { npcID = math.huge }, { npcID = -1 }, { npcID = 2 ^ 31 },
+        { level = 0 }, { level = 64 }, { level = 2.5 }, { level = "5" }, { level = -1 }, { level = 0 / 0 }, { level = math.huge },
+        { creatureType = "Dragon" }, { creatureType = "beast" }, { creatureType = 1 },
+        { creatureType = "Beast<script>alert(1)</script>" }, { creatureType = "<script>Beast" },
+        { creatureType = "Beast " }, { creatureType = "" }, { creatureType = "Level" },
+      }) do
+        local c = card("10:a", 1)
+        for k, v in pairs(case) do c[k] = v end
+        rejects(zoneWith(c))
+      end
+    end)
+
+    describe("addCards", function()
+      it("appends validated cards to a registered zone", function()
+        Cards.registerZone({ zoneMapID = 10, continentMapID = 1, cards = { card("10:a", 1) } })
+        Cards.addCards(10, { card("10:b", 2), card("10:c", 3) }, "extra")
+        assert.equals(3, #Cards.zoneCards(10))
+        assert.truthy(Cards.get("10:c"))
+        assert.equals(3, Cards.poolFor(10).size)
+      end)
+
+      it("refuses an unknown zone, a duplicate ID, a foreign ID, and adds nothing on a bad card", function()
+        Cards.registerZone({ zoneMapID = 10, continentMapID = 1, cards = { card("10:a", 1) } })
+        assert.has_error(function() Cards.addCards(11, { card("11:a", 1) }, "x") end)
+        assert.has_error(function() Cards.addCards(10, { card("10:a", 1) }, "x") end)
+        assert.has_error(function() Cards.addCards(10, { card("11:x", 1) }, "x") end)
+        assert.has_error(function() Cards.addCards(10, { card("10:ok", 1), card("10:bad", 9) }, "x") end)
+        assert.is_nil(Cards.get("10:ok"))
+        assert.equals(1, #Cards.zoneCards(10))
+      end)
     end)
 
     it("accepts a 64-character name and a 200-character flavor", function()
@@ -290,6 +353,50 @@ describe("Cards", function()
       assert.same({ "10:c", "10:c" }, Cards.openPack(Cards.poolFor(10), lowest, config))
     end)
 
+    describe("missing-card protection", function()
+      local function zone()
+        Cards.registerZone({ zoneMapID = 10, continentMapID = 1, cards = {
+          card("10:c1", 1), card("10:c2", 1), card("10:c3", 1), card("10:u", 2),
+        } })
+        return Cards.poolFor(10)
+      end
+      local config = { CARDS_PER_PACK = 3, RARITY_WEIGHTS = { 60, 25, 10, 4, 1 }, GUARANTEED_RARITY = 1, NEW_CARD_BIAS = 50 }
+
+      it("picks a card the player does not own when the bias roll succeeds", function()
+        local owned = { ["10:c1"] = true, ["10:c2"] = true }
+        -- rng returns 1: rarity Common, bias roll 1 <= 50, first missing card.
+        local ids = Cards.openPack(zone(), function() return 1 end, config, function(id) return owned[id] end)
+        assert.equals("10:c3", ids[1])
+      end)
+
+      it("does not repeat a missing card within the same pack while others are missing", function()
+        local ids = Cards.openPack(zone(), function() return 1 end, config, function() return false end)
+        assert.same({ "10:c1", "10:c2", "10:c3" }, ids)
+      end)
+
+      it("draws from the whole rarity when the bias roll fails", function()
+        local owned = { ["10:c1"] = true }
+        -- Draws in order: rarity roll (1 = Common), bias roll (100 > 50: no
+        -- bias), then the pick in the whole Common bucket (1).
+        local sequence, calls = { 1, 100, 1 }, 0
+        local rng = function() calls = calls + 1; return sequence[calls] end
+        local ids = Cards.openPack(zone(), rng, { CARDS_PER_PACK = 1, RARITY_WEIGHTS = config.RARITY_WEIGHTS, GUARANTEED_RARITY = 1, NEW_CARD_BIAS = 50 }, function(id) return owned[id] end)
+        assert.equals("10:c1", ids[1])
+      end)
+
+      it("is off without an ownership check or with a bias of 0", function()
+        local pool = zone()
+        local noBias = { CARDS_PER_PACK = 2, RARITY_WEIGHTS = config.RARITY_WEIGHTS, GUARANTEED_RARITY = 1, NEW_CARD_BIAS = 0 }
+        assert.same({ "10:c1", "10:c1" }, Cards.openPack(pool, function() return 1 end, noBias, function() return false end))
+        assert.same({ "10:c1", "10:c1", "10:c1" }, Cards.openPack(pool, function() return 1 end, config))
+      end)
+
+      it("falls back to the whole rarity when every card of it is owned", function()
+        local ids = Cards.openPack(zone(), function() return 1 end, config, function() return true end)
+        assert.same({ "10:c1", "10:c1", "10:c1" }, ids)
+      end)
+    end)
+
     it("returns nothing for an empty pool", function()
       assert.same({}, Cards.openPack(Cards.poolFor(10), lowest, CONFIG))
     end)
@@ -329,7 +436,7 @@ describe("Data", function()
     mocks.loadSource("Locales/frFR.lua", fr)
     for _, zoneMapID in ipairs(ns.Cards.zoneIDs()) do
       for _, c in ipairs(ns.Cards.zoneCards(zoneMapID)) do
-        assert.is_string(rawget(fr.L, c.flavor), c.id)
+        if c.flavor then assert.is_string(rawget(fr.L, c.flavor), c.id) end
       end
     end
   end)
@@ -386,7 +493,67 @@ describe("Data", function()
     for _, id in ipairs(fresh.Cards.EXPECTED_ZONES) do expected[#expected + 1] = id end
     table.sort(expected)
     assert.same(fresh.Cards.zoneIDs(), expected)
+    local expectedBatches = {}
+    for _, key in ipairs(fresh.Cards.EXPECTED_BATCHES) do expectedBatches[#expectedBatches + 1] = key end
+    table.sort(expectedBatches)
+    assert.same(fresh.Cards.batchKeys(), expectedBatches)
     assert.is_true(fresh.Cards.dataLoaded)
+  end)
+
+  describe("generated batches", function()
+    local function fresh()
+      mocks.reset()
+      local n = mocks.newNamespace()
+      mocks.loadSource("Modules/Cards.lua", n)
+      n.Cards.registerZone({ zoneMapID = 10, continentMapID = 1, cards = {
+        { id = "10:a", kind = "creature", rarity = 1, name = "A", flavor = "" },
+      } })
+      return n
+    end
+    local good = { id = "10:g", kind = "creature", rarity = 1, name = "G", level = 5, creatureType = "Beast" }
+    local bad = { id = "10:b", kind = "creature", rarity = 1, name = "B", level = 0 }
+
+    it("is loaded once every expected zone and batch registered", function()
+      local n = fresh()
+      n.Cards.addCards(10, { good }, "generated")
+      assert.is_true(n.Cards.markLoaded({ 10 }, { "10:generated" }))
+    end)
+
+    it("stays not loaded when a batch throws, keeping its saved cards", function()
+      local n = fresh()
+      assert.has_error(function() n.Cards.addCards(10, { good, bad }, "generated") end)
+      assert.is_false(n.Cards.markLoaded({ 10 }, { "10:generated" }))
+      assert.is_nil(n.Cards.dataLoaded)
+    end)
+
+    it("stays not loaded when a batch is missing", function()
+      local n = fresh()
+      assert.is_false(n.Cards.markLoaded({ 10 }, { "10:generated" }))
+    end)
+
+    it("refuses a batch before its zone, a bad or repeated batch name, and bad arguments", function()
+      mocks.reset()
+      local n = mocks.newNamespace()
+      mocks.loadSource("Modules/Cards.lua", n)
+      assert.has_error(function() n.Cards.addCards(10, { good }, "generated") end)
+      n = fresh()
+      assert.has_error(function() n.Cards.addCards(10, { good }, nil) end)
+      for _, name in ipairs({ "", "Generated", "gen-1", "a b", string.rep("a", 33), 5 }) do
+        assert.has_error(function() n.Cards.addCards(10, { good }, name) end, nil, tostring(name))
+      end
+      n.Cards.addCards(10, { good }, "generated")
+      assert.has_error(function()
+        n.Cards.addCards(10, { { id = "10:h", kind = "creature", rarity = 1, name = "H" } }, "generated")
+      end)
+      for _, zone in ipairs({ "10", 10.5, 0 / 0 }) do
+        assert.has_error(function() n.Cards.addCards(zone, { good }, "other") end)
+      end
+      assert.has_error(function() n.Cards.addCards(10, {}, "other") end)
+      assert.has_error(function()
+        n.Cards.addCards(10, { { id = "10:d", kind = "creature", rarity = 1, name = "D" },
+          { id = "10:d", kind = "creature", rarity = 1, name = "D" } }, "other")
+      end)
+    end)
   end)
 
   it("stays not loaded when a Data file failed before Loaded.lua", function()
@@ -423,16 +590,22 @@ describe("Data", function()
       for key, value in pairs(localeNS.L) do
         assert.is_nil(value:find("|", 1, true), locale..": "..key)
         assert.is_nil(value:find("%c"), locale..": control character in "..key)
+        assert.is_true(localeNS.Utils.isCleanText(value), locale..": not clean UTF-8: "..key)
         assert.is_true(#value <= 200, locale..": too long: "..key)
       end
     end
   end)
 
   it("keeps card text free of chat escape codes", function()
+    local fresh_isClean = ns.Utils.isCleanText
     for _, zoneMapID in ipairs(ns.Cards.zoneIDs()) do
       for _, c in ipairs(ns.Cards.zoneCards(zoneMapID)) do
         assert.is_nil(c.name:find("|", 1, true), c.id)
-        assert.is_nil(c.flavor:find("|", 1, true), c.id)
+        if c.flavor then
+          assert.is_nil(c.flavor:find("|", 1, true), c.id)
+          assert.is_true(fresh_isClean(c.flavor), c.id)
+        end
+        assert.is_true(fresh_isClean(c.name), c.id)
       end
     end
   end)

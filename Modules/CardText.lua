@@ -89,7 +89,22 @@ end
 ---@return string
 function CardText.name(card, env)
   local ok, name = pcall(clientName, card, env or _G)
-  return (ok and clientText(name)) or ns.L[card.name]
+  -- A translation goes through the same checks as client text; a bad one
+  -- falls back to the validated English name.
+  return (ok and clientText(name)) or clientText(ns.L[card.name]) or card.name
+end
+
+---Flavor text for a card: its own (localized) text, or one built from its
+---facts for generated cards, e.g. "Level 5 · Beast" ("Niveau 5 · Bête").
+---@param card table registered card
+---@return string
+function CardText.flavor(card)
+  local L = ns.L
+  if card.flavor then return L[card.flavor] end
+  local parts = {}
+  if card.level then parts[#parts + 1] = L["Level"].." "..card.level end
+  if card.creatureType then parts[#parts + 1] = L[card.creatureType] end
+  return table.concat(parts, " · ")
 end
 
 ---Texture for a card's art: the client's item icon (a file ID) for an item
