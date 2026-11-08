@@ -55,6 +55,7 @@ local function render()
 
   for i, w in ipairs(widgets) do
     local entry = shown[i]
+    w.entry = entry
     if not entry then
       w:Hide()
     elseif entry.copies > 0 then
@@ -73,11 +74,17 @@ local function render()
   if frame:IsVisible() then BinderModel.markSeen(c.newCards, shown) end
 end
 
+local GRID_TOP = 114
+-- Rows get 6 extra pixels so a card's New tag never overlaps the card above.
+local ROW_STEP = CardWidget.HEIGHT + GAP + 6
+local PAGER_GAP = 18
+local PAGER_HEIGHT = 22
+
 local function build()
   local gridWidth = COLUMNS * CardWidget.WIDTH + (COLUMNS - 1) * GAP
-  -- Rows get 6 extra pixels so a card's New tag never overlaps the card above.
-  local gridHeight = ROWS * CardWidget.HEIGHT + (ROWS - 1) * (GAP + 6) + 12
-  frame = Window.create("WanderDeckBinder", L["Binder"], LIST_WIDTH + gridWidth + 70, gridHeight + 140)
+  local gridHeight = (ROWS - 1) * ROW_STEP + CardWidget.HEIGHT
+  local pagerTop = GRID_TOP + gridHeight + PAGER_GAP
+  frame = Window.create("WanderDeckBinder", L["Binder"], LIST_WIDTH + gridWidth + 70, pagerTop + PAGER_HEIGHT + 22)
 
   zoneButtons = {}
   for i = 1, MAX_ZONE_BUTTONS do
@@ -128,7 +135,12 @@ local function build()
   for i = 1, PER_PAGE do
     local col, row = (i - 1) % COLUMNS, math.floor((i - 1) / COLUMNS)
     local w = CardWidget.create(frame)
-    w:SetPoint("TOPLEFT", left + col * (CardWidget.WIDTH + GAP), -114 - row * (CardWidget.HEIGHT + GAP + 6))
+    w:SetPoint("TOPLEFT", left + col * (CardWidget.WIDTH + GAP), -GRID_TOP - row * ROW_STEP)
+    -- Owned cards open the detail window; missing cards stay silhouettes.
+    w:SetScript("OnClick", function(self)
+      local entry = self.entry
+      if type(entry) == "table" and entry.copies > 0 then ns.CardDetail.show(entry.card, entry.copies) end
+    end)
     widgets[i] = w
   end
 
@@ -136,14 +148,15 @@ local function build()
   frame.empty:SetPoint("TOPLEFT", left, -130)
   frame.empty:SetText(L["No cards match."])
 
+  -- Pager row, PAGER_GAP below the last card row.
   frame.prev = Window.button(frame, "<", 40)
-  frame.prev:SetPoint("BOTTOMLEFT", left, 20)
+  frame.prev:SetPoint("TOPLEFT", left, -pagerTop)
   frame.prev:SetScript("OnClick", function() view.page = view.page - 1 render() end)
   frame.next = Window.button(frame, ">", 40)
-  frame.next:SetPoint("BOTTOMLEFT", left + gridWidth - 40, 20)
+  frame.next:SetPoint("TOPLEFT", left + gridWidth - 40, -pagerTop)
   frame.next:SetScript("OnClick", function() view.page = view.page + 1 render() end)
   frame.pageText = ns.Draw.text(frame, "GameFontHighlight", ns.Draw.COLORS.parchment)
-  frame.pageText:SetPoint("BOTTOMLEFT", left + gridWidth / 2 - 15, 26)
+  frame.pageText:SetPoint("TOP", frame, "TOPLEFT", left + gridWidth / 2, -pagerTop - 4)
 end
 
 ---Test hook: the frame, card widgets, zone buttons and view state.

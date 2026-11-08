@@ -13,6 +13,7 @@
   <Script file="UI\Draw.lua"/>
   <Script file="UI\Window.lua"/>
   <Script file="UI\CardWidget.lua"/>
+  <Script file="UI\CardDetail.lua"/>
   <Script file="UI\RevealFrame.lua"/>
   <Script file="UI\BinderFrame.lua"/>
   <Script file="Opener.lua"/>

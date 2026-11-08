@@ -63,7 +63,11 @@ handleOpen = function()
   end
   local zoneName = Walker.zoneName(result.pack.zoneMapID)
   -- The closure keeps a missing RevealFrame module inside the protection.
-  local ok, err = pcall(function() return ns.RevealFrame.show(result, zoneName, handleOpen, packsLeft) end)
+  local function copiesOf(cardID)
+    local current = ns.GetDB()
+    return current and current.char.collection[cardID]
+  end
+  local ok, err = pcall(function() return ns.RevealFrame.show(result, zoneName, handleOpen, packsLeft, copiesOf) end)
   if not ok then
     Opener.reportError(err)
     printResult(result, zoneName, packsLeft())

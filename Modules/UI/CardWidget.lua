@@ -27,6 +27,11 @@ function CardWidget.rarityRGB(rarity)
   return tonumber(hex:sub(3, 4), 16) / 255, tonumber(hex:sub(5, 6), 16) / 255, tonumber(hex:sub(7, 8), 16) / 255
 end
 
+---Localized kind of a card ("Créature rare", "Lieu", ...).
+function CardWidget.kindLabel(card)
+  return L[KIND_LABELS[card.kind] or ""]
+end
+
 local function setShown(parts, shown)
   for _, part in ipairs(parts) do
     if shown then part:Show() else part:Hide() end
@@ -118,27 +123,23 @@ function CardWidget.create(parent)
   local art = Draw.rect(w, "ARTWORK", C.art)
   art:SetPoint("TOPLEFT", 5, -24)
   art:SetPoint("TOPRIGHT", -5, -24)
-  art:SetHeight(58)
+  art:SetHeight(80)
   local artLine = Draw.rect(w, "ARTWORK", C.gold)
   artLine:SetPoint("TOPLEFT", art, "BOTTOMLEFT")
   artLine:SetPoint("TOPRIGHT", art, "BOTTOMRIGHT")
   artLine:SetHeight(1)
 
   w.icon = w:CreateTexture(nil, "OVERLAY")
-  w.icon:SetSize(44, 44)
+  w.icon:SetSize(62, 62)
   w.icon:SetPoint("CENTER", art, "CENTER", 0, 0)
   w.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
 
+  -- Kind and rarity on two short lines, so long French labels fit. The
+  -- flavor text lives in the detail window (CardDetail), not on the card.
   w.kind = Draw.text(w, "GameFontDisableSmall", C.muted)
-  w.kind:SetPoint("TOP", art, "BOTTOM", 0, -4)
-
-  w.flavor = Draw.text(w, "GameFontHighlightSmall", C.parchment)
-  w.flavor:SetPoint("TOP", art, "BOTTOM", 0, -18)
-  w.flavor:SetWidth(W - 18)
-  w.flavor:SetHeight(40)
-  w.flavor:SetJustifyH("CENTER")
-  w.flavor:SetJustifyV("TOP")
-  w.flavor:SetWordWrap(true)
+  w.kind:SetPoint("TOP", art, "BOTTOM", 0, -5)
+  w.rarityLabel = Draw.text(w, "GameFontDisableSmall", C.muted)
+  w.rarityLabel:SetPoint("TOP", w.kind, "BOTTOM", 0, -2)
 
   local atkDisc, atk = medallion(w, C.attack, "BOTTOMLEFT", 8)
   local defDisc, def = medallion(w, C.defense, "BOTTOMRIGHT", -8)
@@ -150,7 +151,7 @@ function CardWidget.create(parent)
   w.newTag = Draw.text(w, "GameFontGreenSmall")
   w.newTag:SetPoint("BOTTOMLEFT", w, "TOPLEFT", 2, 1)
 
-  w.faceParts = { titleBar, titleLine, w.name, w.gem, art, artLine, w.icon, w.kind, w.flavor, atkDisc, atk, defDisc, def }
+  w.faceParts = { titleBar, titleLine, w.name, w.gem, art, artLine, w.icon, w.kind, w.rarityLabel, atkDisc, atk, defDisc, def }
 
   -- Face down / silhouette.
   local backPanel = Draw.rect(w, "ARTWORK", C.titleBar)
@@ -199,8 +200,9 @@ function CardWidget.showCard(w, card, opts)
   w.name:SetText(L[card.name])
   w.icon:SetTexture(Cards.iconPath(card))
   w.icon:SetDesaturated(false)
-  w.kind:SetText(L[KIND_LABELS[card.kind] or ""].." - "..L[Cards.RARITY_NAMES[card.rarity]])
-  w.flavor:SetText(L[card.flavor])
+  w.kind:SetText(CardWidget.kindLabel(card))
+  w.rarityLabel:SetText(L[Cards.RARITY_NAMES[card.rarity]])
+  w.rarityLabel:SetTextColor(r, g, b)
   w.attack:SetText(card.attack)
   w.defense:SetText(card.defense)
   setShown(w.faceParts, true)

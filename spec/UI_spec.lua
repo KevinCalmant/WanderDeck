@@ -13,6 +13,7 @@ local function stubObject()
     if key == "IsShown" or key == "IsVisible" then return function(self) return self.shown end end
     if key == "SetShown" then return function(self, v) self.shown = v and true or false end end
     if key == "SetText" then return function(self, v) self.text = v end end
+    if key == "SetPoint" then return function(self, ...) self.point = { ... } end end
     if key == "SetTexture" then return function(self, v) self.texture = v; self.textureCalls = (rawget(self, "textureCalls") or 0) + 1 end end
     if key == "GetText" then return function(self) return self.text or "" end end
     if key == "SetEnabled" then return function(self, v) self.enabled = v end end
@@ -35,7 +36,7 @@ describe("UI frames", function()
     for _, file in ipairs({
       "Utils/Wow.lua", "Modules/Config.lua", "Modules/Zone.lua", "Modules/StepTracker.lua", "Modules/Packs.lua",
       "Modules/Cards.lua", "Modules/Collection.lua", "Modules/Reveal.lua", "Modules/BinderModel.lua",
-      "Modules/Slash.lua", "Modules/Walker.lua", "Modules/UI/Draw.lua", "Modules/UI/Window.lua", "Modules/UI/CardWidget.lua",
+      "Modules/Slash.lua", "Modules/Walker.lua", "Modules/UI/Draw.lua", "Modules/UI/Window.lua", "Modules/UI/CardWidget.lua", "Modules/UI/CardDetail.lua",
       "Modules/UI/RevealFrame.lua", "Modules/UI/BinderFrame.lua", "Modules/Opener.lua",
       "Data/EasternKingdoms/ElwynnForest.lua", "Data/EasternKingdoms/Westfall.lua",
     }) do
@@ -115,6 +116,38 @@ describe("UI frames", function()
       assert.is_false(widgets[1].icon.shown)
       assert.is_false(widgets[1].name.shown)
       assert.equals("?", widgets[1].back.text)
+    end)
+
+    it("opens the detail window on a second click, not before the flip", function()
+      char.packs = { { zoneMapID = 1429, earnedAt = 1 } }
+      local result = ns.Collection.openNext(char, function() return 1 end, function() return nil end, ns.Config)
+      ns.RevealFrame.show(result, "Zone 1429", function() end, function() return 0 end,
+        function(id) return char.collection[id] end)
+      local _, widgets = ns.RevealFrame._debug()
+      widgets[1].scripts.OnClick()
+      assert.is_nil(ns.CardDetail._debug())
+      widgets[1].scripts.OnClick()
+      local detail, big, flavor, owned = ns.CardDetail._debug()
+      assert.is_true(detail.shown)
+      assert.equals("Young Wolf", detail.title.text)
+      assert.equals("Young Wolf", big.name.text)
+      assert.equals("Its howl is more of a squeak, but the pack still listens.", flavor.text)
+      assert.equals("Copies owned: 4", owned.text)
+    end)
+
+    it("flips a face-down card without opening the detail, even once the window exists", function()
+      char.packs = { { zoneMapID = 1429, earnedAt = 1 } }
+      local result = ns.Collection.openNext(char, function() return 1 end, function() return nil end, ns.Config)
+      ns.RevealFrame.show(result, "Zone 1429", function() end, function() return 0 end)
+      local _, widgets, state = ns.RevealFrame._debug()
+      widgets[1].scripts.OnClick()
+      widgets[1].scripts.OnClick()
+      local detail, _, _, owned = ns.CardDetail._debug()
+      assert.is_false(owned.shown) -- no copiesOf given: no count line
+      ns.CardDetail.hide()
+      widgets[2].scripts.OnClick()
+      assert.is_true(state.revealed[2])
+      assert.is_false(detail.shown)
     end)
 
     it("marks first-time cards as New on the face", function()
@@ -262,6 +295,63 @@ describe("UI frames", function()
       assert.equals(calls, widgets[1].icon.textureCalls)
     end)
 
+    it("opens the detail of an owned card on click, and nothing for a missing card", function()
+      char.collection = { ["1429:young_wolf"] = 3 }
+      ns.BinderFrame.toggle()
+      local _, widgets = ns.BinderFrame._debug()
+      widgets[2].scripts.OnClick(widgets[2]) -- missing Stonetusk Boar
+      assert.is_nil(ns.CardDetail._debug())
+      widgets[1].scripts.OnClick(widgets[1])
+      local detail, _, flavor, owned = ns.CardDetail._debug()
+      assert.is_true(detail.shown)
+      assert.equals("Young Wolf", detail.title.text)
+      assert.equals("Its howl is more of a squeak, but the pack still listens.", flavor.text)
+      assert.equals("Copies owned: 3", owned.text)
+    end)
+
+    it("does not open a missing or empty slot once the detail window exists", function()
+      char.collection = { ["1429:young_wolf"] = 1 }
+      ns.BinderFrame.toggle()
+      local frame, widgets, _, view = ns.BinderFrame._debug()
+      widgets[1].scripts.OnClick(widgets[1])
+      local detail = ns.CardDetail._debug()
+      ns.CardDetail.hide()
+
+      view.filter = "missing" -- slot 1 now holds a missing card
+      frame.search.scripts.OnTextChanged(frame.search)
+      widgets[1].scripts.OnClick(widgets[1])
+      assert.is_false(detail.shown)
+      assert.equals("Young Wolf", detail.title.text)
+
+      view.filter = "duplicates" -- no duplicates: every slot is empty
+      frame.search.scripts.OnTextChanged(frame.search)
+      widgets[1].scripts.OnClick(widgets[1])
+      assert.is_false(detail.shown)
+    end)
+
+    it("shows the copies line only for a whole positive count", function()
+      local hogger = ns.Cards.get("1429:hogger")
+      for _, bad in ipairs({ 0, -1, 1.5, 0 / 0, math.huge, "3|cffff0000x|r" }) do
+        ns.CardDetail.show(hogger, 2) -- a visible line first: a bad value must hide it
+        ns.CardDetail.show(hogger, bad)
+        local _, _, _, owned = ns.CardDetail._debug()
+        assert.is_false(owned.shown, tostring(bad))
+      end
+      ns.CardDetail.show(hogger, nil)
+      assert.is_false(select(4, ns.CardDetail._debug()).shown)
+      ns.CardDetail.show(hogger, 2)
+      assert.equals("Copies owned: 2", select(4, ns.CardDetail._debug()).text)
+    end)
+
+    it("keeps the pager below the last card row", function()
+      ns.BinderFrame.toggle()
+      local frame, widgets = ns.BinderFrame._debug()
+      local lastRowTop = -widgets[9].point[3] -- TOPLEFT x, y
+      local lastRowBottom = lastRowTop + ns.CardWidget.HEIGHT
+      local pagerTop = -frame.prev.point[3]
+      assert.is_true(pagerTop >= lastRowBottom + 12, "pager overlaps the cards")
+    end)
+
     it("escapes hostile zone names on the buttons and the reveal subtitle", function()
       _G.C_Map = { GetMapInfo = function() return { name = "|cffff0000Evil|r |TInterface\\x:0|t\nnext" } end }
       ns.BinderFrame.toggle()
@@ -282,7 +372,7 @@ describe("UI frames", function()
       frame.search.text = "wolf<script>alert(1)</script>|Hitem:1|h[x]|h"
       frame.search.scripts.OnTextChanged(frame.search)
       for _, w in ipairs(widgets) do
-        for _, fs in ipairs({ w.name, w.kind, w.flavor, w.attack, w.defense, w.newTag, w.copies, w.back, w.backLabel }) do
+        for _, fs in ipairs({ w.name, w.kind, w.rarityLabel, w.attack, w.defense, w.newTag, w.copies, w.back, w.backLabel }) do
           assert.is_nil(tostring(fs.text):find("script", 1, true))
         end
       end

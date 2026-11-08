@@ -49,11 +49,15 @@ local function build()
   for i = 1, MAX_CARDS do
     local w = CardWidget.create(frame)
     w:SetPoint("TOPLEFT", 25 + (i - 1) * (CardWidget.WIDTH + GAP), -74)
+    -- First click flips the card; a click on a revealed card shows its detail.
     w:SetScript("OnClick", function()
-      if state and Reveal.flip(state, i) then
-        local id = state.cardIDs[i]
+      if not state then return end
+      local id = state.cardIDs[i]
+      if Reveal.flip(state, i) then
         CardWidget.flip(w, Cards.get(id), { isNew = state.firstTime[id] })
         updateButtons()
+      elseif state.revealed[i] and id then
+        ns.CardDetail.show(Cards.get(id), RevealFrame.copiesOf and RevealFrame.copiesOf(id))
       end
     end)
     widgets[i] = w
@@ -90,7 +94,9 @@ local broken
 ---@param zoneName string already escaped for display
 ---@param openNext fun() opens the next pack
 ---@param packsLeft fun(): number
-function RevealFrame.show(result, zoneName, openNext, packsLeft)
+---@param copiesOf fun(cardID: string): number|nil copies owned, for the detail window
+function RevealFrame.show(result, zoneName, openNext, packsLeft, copiesOf)
+  RevealFrame.copiesOf = copiesOf
   if broken then error("WanderDeck reveal frame failed to build earlier", 0) end
   if not frame then
     local ok, err = pcall(build)
