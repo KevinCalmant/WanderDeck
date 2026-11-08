@@ -22,6 +22,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Missing-card protection: each card of a pack has a 50% chance to be one of its rarity you do not own yet, so zones of ~120 cards stay completable.
 - Cards can carry an item, quest or area ID: their name (and an item's icon) then comes from the game, in your language.
 - Illustrated card style: gold double frame, title bar with rarity gem, art panel with a game icon per card, attack/defense medallions; flip-in animation on reveal and a pulsing halo on Epic and Legendary cards. Windows and buttons use the same dark-and-gold look, drawn without texture files.
+- Epic and Legendary reveal effects in the pack window: a burst in the rarity color, sparks, a light sweep across the card and a pop; Legendary is bigger and adds turning rays. The binder stays still. Developer `/wd fx [mix|epic|legendary]` opens a fake pack (never saved) to watch them.
 - Developer `/wd art` lists every card with its icon to spot icons missing on the client.
 - Pack opening window: cards start face down, click to flip or Reveal all, then Open next.
 - Binder (`/wd binder`): zones with completion, 3x3 card grid, missing cards as silhouettes, filters (owned, missing, duplicates), rarity filter, name search, paging; viewing a card clears its New tag.

@@ -99,6 +99,117 @@ describe("UI frames", function()
       assert.is_false(widgets[1].halo.shown)
     end)
 
+    describe("Epic and Legendary reveal effects", function()
+      local function spy(widget)
+        local played = {}
+        for rarity, group in pairs(widget.revealFx.groups) do
+          rawset(group, "Play", function() played[#played + 1] = rarity end)
+          rawset(group, "Stop", function() played[#played + 1] = "stop" end)
+        end
+        return played
+      end
+
+      it("plays the Legendary effect when a Legendary card flips, in its rarity color", function()
+        char.packs = { { zoneMapID = 1429, earnedAt = 1 } }
+        local result = ns.Collection.openNext(char, function(n) return n end, function() return nil end, ns.Config)
+        ns.RevealFrame.show(result, "Zone 1429", function() end, function() return 0 end)
+        local _, widgets = ns.RevealFrame._debug()
+        local played = spy(widgets[1])
+        local colors = {}
+        rawset(widgets[1].revealFx.burst, "SetColorTexture", function(_, r, g, b) colors = { r, g, b } end)
+        widgets[1].scripts.OnClick()
+        assert.equals("Hogger", widgets[1].name.text)
+        assert.equals(5, played[#played])
+        assert.same({ ns.CardWidget.rarityRGB(5) }, colors)
+      end)
+
+      it("plays no effect for a card below Epic", function()
+        char.packs = { { zoneMapID = 1429, earnedAt = 1 } }
+        open()
+        local _, widgets = ns.RevealFrame._debug()
+        local played = spy(widgets[1])
+        widgets[1].scripts.OnClick()
+        assert.equals("Young Wolf", widgets[1].name.text)
+        for _, p in ipairs(played) do assert.equals("stop", p) end
+      end)
+
+      it("plays the Epic effect with Reveal all, and stops it when the widget shows the next pack", function()
+        ns.Cards.registerZone({ zoneMapID = 1, continentMapID = 1415, cards = {
+          { id = "1:epic", kind = "boss", rarity = 4, name = "Epic Boss", flavor = "" },
+        } })
+        local epic = ns.Cards.get("1:epic")
+        local _, widgets = ns.RevealFrame._debug()
+        if not widgets then
+          char.packs = { { zoneMapID = 1429, earnedAt = 1 } }
+          open()
+          _, widgets = ns.RevealFrame._debug()
+        end
+        local played = spy(widgets[2])
+        assert.is_true(ns.CardWidget.flip(widgets[2], epic, {}))
+        assert.equals(4, played[#played])
+        ns.CardWidget.showBack(widgets[2])
+        assert.equals("stop", played[#played])
+      end)
+
+      it("keeps the effects off the binder: its widgets have none and flip returns false", function()
+        local w = ns.CardWidget.create(_G.UIParent)
+        assert.is_nil(rawget(w, "revealFx"))
+        ns.Cards.registerZone({ zoneMapID = 2, continentMapID = 1415, cards = {
+          { id = "2:legend", kind = "boss", rarity = 5, name = "Legend", flavor = "" },
+        } })
+        assert.is_false(ns.CardWidget.flip(w, ns.Cards.get("2:legend"), {}))
+      end)
+
+      it("plays an effect only for rarity 4 and 5, and never errors on a bad rarity", function()
+        local w = ns.CardWidget.create(_G.UIParent, { revealFx = true })
+        local played = spy(w)
+        for _, rarity in ipairs({ 1, 2, 3, 6, 0, -1, 4.5 }) do
+          local card = { id = "x", kind = "boss", rarity = rarity, name = "X", icon = "INV_Misc_Coin_01", attack = 1, defense = 1 }
+          assert.is_false(ns.CardWidget.flip(w, card, {}), tostring(rarity))
+        end
+        for _, p in ipairs(played) do assert.equals("stop", p) end
+        for _, rarity in ipairs({ 4, 5 }) do
+          local card = { id = "x", kind = "boss", rarity = rarity, name = "X", icon = "INV_Misc_Coin_01", attack = 1, defense = 1 }
+          assert.is_true(ns.CardWidget.flip(w, card, {}))
+          assert.equals(rarity, played[#played])
+        end
+      end)
+
+      it("still flips the card when the client cannot build the effects", function()
+        ns.Cards.registerZone({ zoneMapID = 3, continentMapID = 1415, cards = {
+          { id = "3:legend", kind = "boss", rarity = 5, name = "Legend", flavor = "" },
+        } })
+        for _, missing in ipairs({ "CreateAnimationGroup", "SetClipsChildren", "SetRotation" }) do
+          _G.CreateFrame = function()
+            local obj = stubObject()
+            rawset(obj, missing, function() error(missing.." unavailable") end)
+            rawset(obj, "CreateTexture", function()
+              local t = stubObject()
+              rawset(t, missing, function() error(missing.." unavailable") end)
+              return t
+            end)
+            return obj
+          end
+          local w = ns.CardWidget.create(_G.UIParent, { revealFx = true })
+          assert.is_nil(rawget(w, "revealFx"), missing)
+          -- A real frame has no flipAnim/haloAnim when their pcall failed; the
+          -- permissive stub would answer with a function instead.
+          if rawget(w, "flipAnim") == nil then rawset(w, "flipAnim", false) end
+          if rawget(w, "haloAnim") == nil then rawset(w, "haloAnim", false) end
+          assert.is_false(ns.CardWidget.flip(w, ns.Cards.get("3:legend"), {}), missing)
+          assert.equals("Legend", w.name.text)
+          ns.CardWidget.showBack(w)
+          assert.equals("?", w.back.text)
+        end
+      end)
+
+      it("defines a stronger effect for Legendary than for Epic", function()
+        local epic, legendary = ns.CardWidget.FX[4], ns.CardWidget.FX[5]
+        assert.is_true(legendary.burst > epic.burst and legendary.sparks > epic.sparks)
+        assert.is_true(legendary.rays and not epic.rays)
+      end)
+    end)
+
     it("hides art and halo on a face-down Legendary card, and finishes on Reveal all", function()
       char.packs = { { zoneMapID = 1429, earnedAt = 1 } }
       local result = ns.Collection.openNext(char, function(n) return n end, function() return nil end, ns.Config)
