@@ -146,11 +146,34 @@ describe("CardText", function()
       assert.equals("Écrit à la main.", CardText.flavor(card({ flavor = "Hand-written." })))
     end)
 
+    it("falls back to the English flavor when the translation is not clean text", function()
+      for _, bad in ipairs({
+        "Valid\ntext",
+        "Valid \226\128\174text", "Valid\194\160text", string.rep("a", 201), "   ", "",
+      }) do
+        ns.L["Hand-written."] = bad
+        assert.equals("Hand-written.", CardText.flavor(card({ flavor = "Hand-written." })), bad)
+      end
+    end)
+
+    it("doubles every | of a translation so color codes and links show as plain text", function()
+      ns.L["Hand-written."] = "Valid text|cff00ff00x"
+      assert.equals("Valid text||cff00ff00x", CardText.flavor(card({ flavor = "Hand-written." })))
+      ns.L["Hand-written."] = "|Hitem:1|h[x]|hValid text"
+      assert.equals("||Hitem:1||h[x]||hValid text", CardText.flavor(card({ flavor = "Hand-written." })))
+    end)
+
+    it("shows a markup-looking translation as plain text, never as an escape code", function()
+      ns.L["Hand-written."] = "<script>alert(1)</script>"
+      assert.equals("<script>alert(1)</script>", CardText.flavor(card({ flavor = "Hand-written." })))
+      ns.L["Hand-written."] = string.rep("a", 200)
+      assert.equals(string.rep("a", 200), CardText.flavor(card({ flavor = "Hand-written." })))
+    end)
+
     it("translates every creature type into French", function()
       _G.GetLocale = function() return "frFR" end
       local fr = mocks.newNamespace()
-      mocks.loadSource("Locales/enUS.lua", fr)
-      mocks.loadSource("Locales/frFR.lua", fr)
+      mocks.loadLocales(fr)
       for creatureType in pairs(ns.Cards.CREATURE_TYPES) do
         assert.is_string(rawget(fr.L, creatureType), creatureType)
       end

@@ -11,17 +11,21 @@ local CardText = {}
 ns.CardText = CardText
 
 local NAME_MAX_LENGTH = 64
+local FLAVOR_MAX_LENGTH = 200
 
 -- Items already asked for this session: an item that never loads (bad ID)
 -- is not requested again on every render.
 local requested = {}
 
----Client text made safe for a FontString or chat line, or nil: not secret,
----a string with a non-space, at most NAME_MAX_LENGTH bytes, well-formed
----UTF-8 without control or invisible characters; then "|" is doubled.
-local function clientText(value)
+---Client or translated text made safe for a FontString or chat line, or nil:
+---not secret, a string with a non-space, at most maxLength bytes (default
+---NAME_MAX_LENGTH), well-formed UTF-8 without control or invisible
+---characters; then "|" is doubled.
+local function clientText(value, maxLength)
   if ns.Wow.isSecret(value) or type(value) ~= "string" then return nil end
-  if not value:find("%S") or #value > NAME_MAX_LENGTH or not ns.Utils.isCleanText(value) then return nil end
+  if not value:find("%S") or #value > (maxLength or NAME_MAX_LENGTH) or not ns.Utils.isCleanText(value) then
+    return nil
+  end
   return (value:gsub("|", "||"))
 end
 
@@ -100,7 +104,9 @@ end
 ---@return string
 function CardText.flavor(card)
   local L = ns.L
-  if card.flavor then return L[card.flavor] end
+  -- A translation goes through the same checks as names; a bad one falls back
+  -- to the English flavor, already validated by Cards.
+  if card.flavor then return clientText(L[card.flavor], FLAVOR_MAX_LENGTH) or card.flavor end
   local parts = {}
   if card.level then parts[#parts + 1] = L["Level"].." "..card.level end
   if card.creatureType then parts[#parts + 1] = L[card.creatureType] end

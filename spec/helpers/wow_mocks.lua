@@ -47,6 +47,18 @@ function M.loadAllData(ns)
   end
 end
 
+---Loads every locale file listed in locales.xml, in order, so a split
+---frFR_*.lua file cannot slip past the locale checks.
+---@param ns table namespace from newNamespace
+function M.loadLocales(ns)
+  local handle = assert(io.open("locales.xml"))
+  local xml = handle:read("*a")
+  handle:close()
+  for file in xml:gmatch('<Script file="([^"]+)"') do
+    M.loadSource((file:gsub("\\", "/")), ns)
+  end
+end
+
 ---A stand-in for a Midnight secret value: any use besides passing it around
 ---(tostring, comparison, math, indexing) raises, like the real client.
 function M.newSecret()

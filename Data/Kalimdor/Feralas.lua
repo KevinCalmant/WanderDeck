@@ -1,0 +1,31 @@
+local _, ns = ...
+
+-- Feralas, with its dungeons folded in. uiMapID 1444 from the Classic UiMapID table
+-- (warcraft.wiki.gg/wiki/UiMapID); Kalimdor 1414 from memory. Not yet probed on Forever.
+-- Candidates and sources: docs/research/06-central-southern-kalimdor.md.
+ns.Cards.registerZone({
+  zoneMapID = 1444,
+  continentMapID = 1414,
+  cards = {
+    { id = "1444:general_shandris_feathermoon", kind = "npc", rarity = 5, name = "General Shandris Feathermoon", icon = "Spell_Nature_MoonGlow",
+      flavor = "The night elf general who defends the fortress on the island." },
+    { id = "1444:alzzin_the_wildshaper", kind = "boss", rarity = 4, name = "Alzzin the Wildshaper", icon = "Spell_Nature_Rejuvenation",
+      flavor = "A satyr boss who rules the eastern wing of Dire Maul." },
+    { id = "1444:prince_tortheldrin", kind = "boss", rarity = 4, name = "Prince Tortheldrin", icon = "Spell_Shadow_ShadowWordPain",
+      flavor = "A hostile elven noble who holds the western wing of Dire Maul." },
+    { id = "1444:dire_maul", kind = "place", rarity = 3, name = "Dire Maul", icon = "INV_Sword_04",
+      flavor = "A ruined elven city that now serves as a dungeon in Feralas." },
+    { id = "1444:king_gordok", kind = "boss", rarity = 3, name = "King Gordok", icon = "INV_Misc_Bandana_03",
+      flavor = "The ogre ruler of the northern wing of Dire Maul." },
+    { id = "1444:lady_szallah", kind = "rare", rarity = 3, name = "Lady Szallah", icon = "Ability_Hunter_Pet_Cat",
+      flavor = "A rare of the jungle, listed among the zone's elusive spawns." },
+    { id = "1444:camp_mojache", kind = "place", rarity = 2, name = "Camp Mojache", icon = "INV_Misc_Head_Tauren_01",
+      flavor = "A tauren camp in the jungle of the western part of the zone." },
+    { id = "1444:feathermoon_stronghold", kind = "place", rarity = 2, name = "Feathermoon Stronghold", icon = "Spell_Holy_ElunesGrace",
+      flavor = "A night elf island fortress watching over the coast." },
+    { id = "1444:gorilla", kind = "creature", rarity = 1, name = "Gorilla", icon = "Ability_Hunter_Pet_Bear",
+      flavor = "A jungle ape that roams the green hills." },
+    { id = "1444:yeti", kind = "creature", rarity = 1, name = "Yeti", icon = "Ability_Hunter_Pet_Bear",
+      flavor = "A shaggy beast of the high ground, white and heavy." },
+  },
+})
