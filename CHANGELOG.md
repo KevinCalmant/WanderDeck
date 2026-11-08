@@ -9,6 +9,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Addon skeleton: TOC for WoW Forever (Interface 16001), AceDB saved variables, `/wd` slash command.
 - Step tracking: walking on foot outdoors counts steps; mounted, taxi, vehicle, dead, instance and teleport moves are ignored.
 - Pack earning: one counter per character; each pack goes to the zone where most of its steps were walked.
+- Cards for the five starting zones: Dun Morogh (17, with Ironforge, Gnomeregan and the Hall of Thanes), Tirisfal Glades (16, with Undercity and the Scarlet Monastery), Teldrassil (14, with Darnassus), Durotar (14, with Orgrimmar and Ragefire Chasm) and Mulgore (15, with Thunder Bluff).
 - Cards for Elwynn Forest (16) and Westfall (15), with five rarities and attack/defense derived from kind and rarity.
 - `/wd open` opens the oldest pack (5 cards, at least one Uncommon) into the collection; `/wd cards` shows collection progress per zone. A zone without cards draws from its continent, then from every card.
 - Minimap button: left-click opens the binder, right-click opens a pack, drag to move; badge with unopened packs and a progress tooltip. `/wd minimap` shows or hides it.

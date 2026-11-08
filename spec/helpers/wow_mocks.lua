@@ -35,6 +35,18 @@ function M.loadSource(relPath, ns)
   return ns
 end
 
+---Loads every Data file listed in Data/load_data.xml, in order, except
+---Loaded.lua (tests that need the "loaded" marker load it themselves).
+---@param ns table namespace with Modules/Cards.lua already loaded
+function M.loadAllData(ns)
+  local handle = assert(io.open("Data/load_data.xml"))
+  local xml = handle:read("*a")
+  handle:close()
+  for file in xml:gmatch('<Script file="([^"]+)"') do
+    if file ~= "Loaded.lua" then M.loadSource("Data/"..file:gsub("\\", "/"), ns) end
+  end
+end
+
 ---A stand-in for a Midnight secret value: any use besides passing it around
 ---(tostring, comparison, math, indexing) raises, like the real client.
 function M.newSecret()

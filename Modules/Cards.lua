@@ -40,6 +40,8 @@ local KIND_ICONS = {
 Cards.ICON_PREFIX = "Interface\\Icons\\"
 local ID_PATTERN = "^([1-9]%d*):[a-z0-9_]+$"
 local ID_MAX_LENGTH = 64
+local NAME_MAX_LENGTH = 64
+local FLAVOR_MAX_LENGTH = 200
 
 local byID = {}       -- [cardID] = card
 local zones = {}      -- [zoneMapID] = { continentMapID, cards = { card, ... } }
@@ -65,8 +67,12 @@ function Cards.registerZone(zone)
     assert(not byID[card.id] and not seen[card.id], "duplicate card id: "..card.id)
     assert(KIND_STATS[card.kind], where..": unknown kind")
     assert(RARITY_BONUS[card.rarity], where..": rarity must be 1-5")
-    assert(type(card.name) == "string" and card.name ~= "", where..": name required")
-    assert(type(card.flavor) == "string", where..": flavor required")
+    -- Card text reaches FontStrings and chat: no "|" codes, no control
+    -- characters, bounded length, and a name that is not blank.
+    assert(type(card.name) == "string" and card.name:find("%S") and #card.name <= NAME_MAX_LENGTH
+      and not card.name:find("[%c|]"), where..": name must be 1-"..NAME_MAX_LENGTH.." chars, no | or control characters")
+    assert(type(card.flavor) == "string" and #card.flavor <= FLAVOR_MAX_LENGTH and not card.flavor:find("[%c|]"),
+      where..": flavor must be at most "..FLAVOR_MAX_LENGTH.." chars, no | or control characters")
     -- The resolved icon (the card's own, or its kind's default) is checked, so
     -- a kind without a default fails here rather than at display time.
     local icon = card.icon

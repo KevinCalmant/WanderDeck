@@ -83,4 +83,4 @@ Each rule above has a busted test; add one per discard reason and per fallback l
 
 ## Open decisions (ask the user before implementing)
 
-- V1 zones are Elwynn Forest and Westfall (user decision). Card lists in `Data/` are drafted by Claude: the user reviews names, rarities and French names before release. Elwynn's uiMapID 1429 is still unverified on Forever.
+- Shipped zones: Elwynn Forest, Westfall, then the five starting zones (Dun Morogh, Tirisfal Glades, Teldrassil, Durotar, Mulgore). Next zones come from the candidates in `docs/research/` (sources, rarities and doubts per row; French names in `fr-names.md`). Card lists in `Data/` are drafted by Claude: the user reviews names, rarities and French names before release. uiMapIDs come from the Classic table on warcraft.wiki.gg; only Westfall (1436) is confirmed in game so far, and Kalimdor's continent ID 1414 is from memory.

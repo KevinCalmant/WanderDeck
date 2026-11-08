@@ -2,5 +2,10 @@
   <Script file="ZoneGroups.lua"/>
   <Script file="EasternKingdoms\ElwynnForest.lua"/>
   <Script file="EasternKingdoms\Westfall.lua"/>
+  <Script file="EasternKingdoms\DunMorogh.lua"/>
+  <Script file="EasternKingdoms\TirisfalGlades.lua"/>
+  <Script file="Kalimdor\Teldrassil.lua"/>
+  <Script file="Kalimdor\Durotar.lua"/>
+  <Script file="Kalimdor\Mulgore.lua"/>
   <Script file="Loaded.lua"/>
 </Ui>

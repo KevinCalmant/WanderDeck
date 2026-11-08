@@ -71,6 +71,27 @@ describe("Cards", function()
       c = card("10:a", 1); c.flavor = nil; rejects(zoneWith(c))
     end)
 
+    it("rejects names and flavor with chat codes, control characters, blanks or excess length", function()
+      local function zoneWith(c) return { zoneMapID = 10, continentMapID = 1, cards = { c } } end
+      for _, badName in ipairs({ "   ", "<x>|cffff0000Evil|r", "Hogger\n", "a\0b", "a\rb", "a\tb", string.rep("a", 65) }) do
+        local c = card("10:a", 1)
+        c.name = badName
+        rejects(zoneWith(c))
+      end
+      for _, badFlavor in ipairs({ "line|r", "two\nlines", string.rep("a", 201) }) do
+        local c = card("10:a", 1)
+        c.flavor = badFlavor
+        rejects(zoneWith(c))
+      end
+    end)
+
+    it("accepts a 64-character name and a 200-character flavor", function()
+      local c = card("10:a", 1)
+      c.name, c.flavor = string.rep("a", 64), string.rep("b", 200)
+      Cards.registerZone({ zoneMapID = 10, continentMapID = 1, cards = { c } })
+      assert.truthy(Cards.get("10:a"))
+    end)
+
     it("accepts an ID at exactly 64 characters", function()
       Cards.registerZone({ zoneMapID = 10, continentMapID = 1, cards = { card("10:"..string.rep("a", 61), 1) } })
       assert.truthy(Cards.get("10:"..string.rep("a", 61)))
@@ -262,20 +283,50 @@ describe("Data", function()
     mocks.reset()
     ns = mocks.newNamespace()
     mocks.loadSource("Modules/Cards.lua", ns)
-    mocks.loadSource("Data/ZoneGroups.lua", ns)
-    mocks.loadSource("Data/EasternKingdoms/ElwynnForest.lua", ns)
-    mocks.loadSource("Data/EasternKingdoms/Westfall.lua", ns)
+    mocks.loadAllData(ns)
   end)
 
-  it("folds Stormwind into Elwynn Forest and never registers a city as a zone", function()
-    assert.equals(1429, ns.Cards.cardZone(1453))
+  it("folds every city into a shipped zone and never registers a city as a zone", function()
+    assert.equals(1429, ns.Cards.cardZone(1453)) -- Stormwind -> Elwynn
+    assert.equals(1426, ns.Cards.cardZone(1455)) -- Ironforge -> Dun Morogh
+    assert.equals(1438, ns.Cards.cardZone(1457)) -- Darnassus -> Teldrassil
+    assert.equals(1411, ns.Cards.cardZone(1454)) -- Orgrimmar -> Durotar
+    assert.equals(1420, ns.Cards.cardZone(1458)) -- Undercity -> Tirisfal
+    assert.equals(1412, ns.Cards.cardZone(1456)) -- Thunder Bluff -> Mulgore
     for _, zoneMapID in ipairs(ns.Cards.zoneIDs()) do
       assert.equals(zoneMapID, ns.Cards.cardZone(zoneMapID), "a registered zone must not be folded")
     end
   end)
 
-  it("registers Elwynn Forest and Westfall", function()
-    assert.same({ 1429, 1436 }, ns.Cards.zoneIDs())
+  it("registers the two first zones and the five starting zones", function()
+    assert.same({ 1411, 1412, 1420, 1426, 1429, 1436, 1438 }, ns.Cards.zoneIDs())
+  end)
+
+  it("translates every card's flavor text into French", function()
+    _G.GetLocale = function() return "frFR" end
+    local fr = mocks.newNamespace()
+    mocks.loadSource("Locales/enUS.lua", fr)
+    mocks.loadSource("Locales/frFR.lua", fr)
+    for _, zoneMapID in ipairs(ns.Cards.zoneIDs()) do
+      for _, c in ipairs(ns.Cards.zoneCards(zoneMapID)) do
+        assert.is_string(rawget(fr.L, c.flavor), c.id)
+      end
+    end
+  end)
+
+  it("folds cities only into zones that ship cards", function()
+    local zones = {}
+    for _, id in ipairs(ns.Cards.zoneIDs()) do zones[id] = true end
+    for _, city in ipairs({ 1453, 1455, 1457, 1454, 1458, 1456 }) do
+      assert.is_true(zones[ns.Cards.cardZone(city)] == true, tostring(city))
+    end
+  end)
+
+  it("ships 11 to 20 cards per zone", function()
+    for _, zoneMapID in ipairs(ns.Cards.zoneIDs()) do
+      local count = #ns.Cards.zoneCards(zoneMapID)
+      assert.is_true(count >= 11 and count <= 20, zoneMapID..": "..count)
+    end
   end)
 
   it("gives every zone at least one card of each rarity", function()
@@ -351,6 +402,8 @@ describe("Data", function()
       mocks.loadSource("Locales/frFR.lua", localeNS)
       for key, value in pairs(localeNS.L) do
         assert.is_nil(value:find("|", 1, true), locale..": "..key)
+        assert.is_nil(value:find("%c"), locale..": control character in "..key)
+        assert.is_true(#value <= 200, locale..": too long: "..key)
       end
     end
   end)
