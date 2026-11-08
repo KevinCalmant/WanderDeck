@@ -9,11 +9,11 @@ Structure, tooling and conventions follow the author's previous addon, MythicDun
 ## Target: World of Warcraft: Forever
 
 - Forever (internal name Camelot) is Blizzard's Classic+ game, launched 2026-11-04: vanilla continents, level cap 60, no flying mounts. It runs on the **modern Mainline client**, so it uses the same API family as Retail Midnight, not the Classic Era API.
-- TOC: `## Interface: 16001` (warcraft.wiki.gg/wiki/TOC_format, "Forever" row). The file may carry the suffix `_Forever.toc` (alias of `_Camelot.toc`). Confirm the live value in game with `/dump select(4, GetBuildInfo())` and update the TOC when it differs.
+- TOC: `## Interface: 16001`, confirmed on the live client by `/wd probe`. The file may carry the suffix `_Forever.toc` (alias of `_Camelot.toc`). Re-check with `/dump select(4, GetBuildInfo())` after each game patch.
 - Install folder (community guides, unverified): `World of Warcraft/_forever_/Interface/AddOns/<Addon>`.
 - Midnight **secret values** are active: comparing, doing math on, indexing or using as a table key a secret value throws. Guard any unit-derived value with `type(issecretvalue) == "function" and issecretvalue(v)`. The combat log (`COMBAT_LOG_EVENT_UNFILTERED`) is unavailable.
 - Globals reported removed on beta builds, with replacements: `GetSpellInfo` → `C_Spell.GetSpellInfo`, `GetItemInfo` → `C_Item.GetItemInfo`, `GetAddOnMetadata` → `C_AddOns.GetAddOnMetadata`, talent APIs → `C_Traits`.
-- Sources on Forever's addon API are pre-launch fan guides (wowforeverguides.com). Treat any API not proven by the in-game probe (see Domain rules) as unconfirmed.
+- Sources on Forever's addon API are pre-launch fan guides (wowforeverguides.com). Treat any API not listed in the probe results (see Domain rules) as unconfirmed.
 - Libraries are fetched by the packager (`.pkgmeta` externals) into `Libs/`: LibStub, CallbackHandler-1.0, AceDB-3.0. Add another Ace lib only when a module needs it.
 
 ## Layout
@@ -44,9 +44,12 @@ Expected modules: `Config` (all tunables), `StepTracker` (position samples → s
 
 ## Domain rules
 
-- **Probe first.** No source confirms that `UnitPosition`, `C_Map.GetBestMapForUnit`, `C_Map.GetPlayerMapPosition`, `C_Map.GetMapInfo` or `UnitOnTaxi` work on Forever, or whether they return secret values or nil in instances. Before building `StepTracker`, ship a Developer command (`/wd probe`) that prints each call's return values and `issecretvalue` result, have the user run it outdoors, on a taxi and in a dungeon, and record the results in this section.
-- **Steps** are derived from distance: sample the player position on a `C_Timer.NewTicker` (about 0.5 s), convert the moved distance in yards to steps with one constant (`YARDS_PER_STEP`). WoW has no step API.
-- A sample **counts** only when the player moves on foot under their own control. Discard the delta when on a taxi, in a vehicle, dead or a ghost, when the position is unavailable, when the zone changed between samples, or when the delta exceeds the plausible max speed for the interval (teleport, portal, hearthstone, loading screen).
+- **Probe results** (`/wd probe`, build 1.60.1.70862, Interface 16001 live, `WOW_PROJECT_ID` 18; outdoors in Westfall, on foot, in combat). The probe only ran in this one situation; re-run it before relying on any other.
+  - Plain (not secret): `UnitPosition` (y, x in yards, instanceID 0 on Eastern Kingdoms), `C_Map.GetBestMapForUnit` (1436), `C_Map.GetMapInfo` chain (1436 Zone → 1415 Continent → 947 World), `C_Map.GetPlayerMapPosition`, `C_Map.GetWorldPosFromMapPos`, `UnitOnTaxi`, `IsMounted`, `IsFlying`, `UnitInVehicle`, `UnitIsDeadOrGhost`, `IsIndoors`, `IsInInstance`. Still plain while `InCombatLockdown()` is true.
+  - **Secret: `GetUnitSpeed`**. Never use it; derive speed from position deltas.
+  - Untested: the `true` case of the movement checks, and walking distance per second (`/wd watch` not run yet).
+- **Steps** are derived from distance: sample `UnitPosition("player")` on a `C_Timer.NewTicker` (about 0.5 s), convert the moved distance in yards to steps with one constant (`YARDS_PER_STEP`). WoW has no step API.
+- **Only walking outdoors counts** (user decision). Discard the delta when the player is mounted, on a taxi, in a vehicle, dead or a ghost, inside an instance (`IsInInstance()`), when the position is unavailable or secret, when `UnitPosition`'s instanceID or the zone changed between samples, or when the delta exceeds `MAX_FOOT_SPEED` (yards per second, tunable) over the interval (teleport, portal, hearthstone, loading screen).
 - **Zone** means the zone-level map: take `C_Map.GetBestMapForUnit("player")` and walk `C_Map.GetMapInfo(id).parentMapID` up to the first map whose `mapType` is `Enum.UIMapType.Zone`. Subzones, micro-dungeons and floors roll up to their zone. Store the uiMapID, never the localized name.
 - A **pack** is persisted as `{ zoneMapID, earnedAt }`; its cards are rolled when it is opened, and the result is written to SavedVariables in the same call.
 - A zone with no pool in `Data/` falls back to the pool of its continent, then to a generic pool, so walking never earns an empty pack.
@@ -78,6 +81,4 @@ Each rule above has a busted test; add one per discard reason and per fallback l
 ## Open decisions (ask the user before implementing)
 
 - Zone binding: one step counter per zone (walk N steps in Elwynn → Elwynn pack), or one global counter whose pack takes the zone where the threshold is crossed.
-- Whether mounted travel counts as steps.
-- Behaviour inside instances, depending on the probe results.
 - Card data: who writes the per-zone lists in `Data/`, and which zones ship in V1.
