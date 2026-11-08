@@ -67,7 +67,7 @@ Each rule above has a busted test; add one per discard reason and per fallback l
 ## Commands
 
 - `busted` runs the unit tests (config in `.busted`, helpers on `spec/helpers/?.lua`). Without a system Lua, install one locally: `pip install hererocks && hererocks .lua51 -l5.1 -rlatest && .lua51/bin/luarocks install busted`.
-- `scripts/generate-cards.py <azerothcore db_world folder>` regenerates `Data/Generated/*.lua` (about 104 cards per zone, facts only: names, IDs, levels, types) from the AzerothCore world database (AGPL-3.0; downloaded as untrusted text, never executed). Change the script, not the generated files; every new generated file needs its `"<zone>:generated"` entry in `Data/Loaded.lua`. Its tests: `python3 -I scripts/test_generate_cards.py`.
+- `scripts/generate-cards.py <azerothcore db_world folder>` regenerates `Data/Generated/*.lua` (about 104 cards per zone, facts only: names, IDs, levels, types) from the AzerothCore world database (AGPL-3.0; downloaded as untrusted text, never executed; the user approved extracting facts from it on 2026-11-08). Change the script, not the generated files; every new generated file needs its `"<zone>:generated"` entry in `Data/Loaded.lua`. Its tests: `python3 -I scripts/test_generate_cards.py`.
 - `scripts/fetch-libs.sh` copies LibStub, CallbackHandler and AceDB from the Ace3 GitHub mirror into the git-ignored `Libs/`; run it once before loading the addon in game.
 - `/wd probe [label]` and `/wd watch [label]` (Developer only) report the position, map and movement APIs and save each run in `WanderDeckDB.global.probes`.
 - Develop by symlinking the repo into the Forever `Interface/AddOns/<Addon>` folder and running `/reload` in game.
