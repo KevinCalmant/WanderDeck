@@ -30,7 +30,8 @@ local function passesFilter(filter, copies)
   return true
 end
 
----Cards of one zone as binder entries, in data order.
+---Cards of one zone as binder entries, rarest first (data order within a
+---rarity).
 ---@param cards table[] Cards.zoneCards(zoneMapID)
 ---@param collection table<string, number>
 ---@param newCards table<string, boolean>
@@ -47,7 +48,9 @@ function BinderModel.entries(cards, collection, newCards, opts)
   local tags, pinned = opts.tags or {}, opts.pinned or {}
 
   local pinnedEntries, others = {}, {}
-  for _, card in ipairs(cards) do
+  local order = {}
+  for index, card in ipairs(cards) do
+    order[card] = index
     local copies = collection[card.id] or 0
     local keep = passesFilter(filter, copies)
       and (opts.rarity == nil or card.rarity == opts.rarity)
@@ -66,6 +69,14 @@ function BinderModel.entries(cards, collection, newCards, opts)
       list[#list + 1] = entry
     end
   end
+  -- Rarest first, data order within a rarity (table.sort is not stable).
+  local function rarerFirst(a, b)
+    local ra, rb = tonumber(a.card.rarity) or 0, tonumber(b.card.rarity) or 0
+    if ra ~= rb then return ra > rb end
+    return order[a.card] < order[b.card]
+  end
+  table.sort(pinnedEntries, rarerFirst)
+  table.sort(others, rarerFirst)
   for _, entry in ipairs(others) do pinnedEntries[#pinnedEntries + 1] = entry end
   return pinnedEntries
 end

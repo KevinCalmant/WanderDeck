@@ -289,6 +289,7 @@ describe("UI frames", function()
       local said = {}
       ns.print = function(msg) said[#said + 1] = msg end
       ns.CardWidget.showCard = function() error("draw failed") end
+      ns.CardWidget.showMissing = function() error("draw failed") end
       ns.Slash.dispatch("binder")
       local frame = ns.BinderFrame._debug()
       assert.is_false(frame.shown)
@@ -328,9 +329,18 @@ describe("UI frames", function()
   end)
 
   describe("binder", function()
+    -- Cards show rarest first; these tests look at Elwynn's Commons (Young
+    -- Wolf, then Stonetusk Boar), so they open the binder on rarity 1.
+    local function openCommons()
+      ns.BinderFrame.toggle()
+      local frame, _, _, view = ns.BinderFrame._debug()
+      view.rarity = 1
+      frame.search.scripts.OnTextChanged(frame.search) -- re-render
+    end
+
     it("does not show a missing card's name in a slot that held an owned card", function()
       char.collection = { ["1429:young_wolf"] = 1 }
-      ns.BinderFrame.toggle()
+      openCommons()
       local frame, widgets = ns.BinderFrame._debug()
       assert.equals("Young Wolf", widgets[1].name.text)
       -- Missing filter: the first slot now holds a missing card.
@@ -361,7 +371,7 @@ describe("UI frames", function()
 
     it("opens the detail of an owned card on click, and nothing for a missing card", function()
       char.collection = { ["1429:young_wolf"] = 3 }
-      ns.BinderFrame.toggle()
+      openCommons()
       local _, widgets = ns.BinderFrame._debug()
       widgets[2].scripts.OnClick(widgets[2]) -- missing Stonetusk Boar
       assert.is_nil(ns.CardDetail._debug())
@@ -375,7 +385,7 @@ describe("UI frames", function()
 
     it("does not open a missing or empty slot once the detail window exists", function()
       char.collection = { ["1429:young_wolf"] = 1 }
-      ns.BinderFrame.toggle()
+      openCommons()
       local frame, widgets, _, view = ns.BinderFrame._debug()
       widgets[1].scripts.OnClick(widgets[1])
       local detail = ns.CardDetail._debug()
@@ -410,7 +420,7 @@ describe("UI frames", function()
     describe("tags and pins", function()
       local function openDetail()
         char.collection = { ["1429:young_wolf"] = 1, ["1429:stonetusk_boar"] = 1 }
-        ns.BinderFrame.toggle()
+        openCommons()
         local frame, widgets, _, view = ns.BinderFrame._debug()
         widgets[2].scripts.OnClick(widgets[2]) -- Stonetusk Boar
         local _, _, _, _, controls = ns.CardDetail._debug()
@@ -528,7 +538,7 @@ describe("UI frames", function()
     it("shows owned cards face up, missing ones as silhouettes, and clears New", function()
       char.collection = { ["1429:young_wolf"] = 2 }
       char.newCards = { ["1429:young_wolf"] = true }
-      ns.BinderFrame.toggle()
+      openCommons()
       local frame, widgets, zoneButtons, view = ns.BinderFrame._debug()
       assert.is_true(frame.shown)
       assert.equals(1429, view.zoneMapID)
@@ -602,7 +612,7 @@ describe("UI frames", function()
       _G.HideUIPanel = function() error("HideUIPanel must not be used") end
       local ok, err = pcall(function()
         char.collection = { ["1429:young_wolf"] = 1 }
-        ns.BinderFrame.toggle()
+        openCommons()
         local frame, widgets = ns.BinderFrame._debug()
         assert.is_true(frame.shown)
         widgets[1].scripts.OnClick(widgets[1])

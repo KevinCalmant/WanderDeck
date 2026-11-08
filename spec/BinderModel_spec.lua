@@ -48,13 +48,23 @@ describe("BinderModel", function()
   describe("entries", function()
     local collection = { ["10:a"] = 1, ["10:c"] = 3 }
 
-    it("lists every card in data order by default", function()
-      assert.same({ "10:a", "10:b", "10:c", "10:d" }, ids(BinderModel.entries(CARDS, collection, {})))
+    it("lists every card rarest first by default", function()
+      assert.same({ "10:d", "10:c", "10:b", "10:a" }, ids(BinderModel.entries(CARDS, collection, {})))
+    end)
+
+    it("keeps data order within a rarity, even for many cards", function()
+      local many = {}
+      for i = 1, 40 do many[i] = card("10:x"..i, i % 2 + 1) end
+      local out = ids(BinderModel.entries(many, {}, {}))
+      local expected = {}
+      for i = 1, 40 do if i % 2 == 1 then expected[#expected + 1] = "10:x"..i end end
+      for i = 1, 40 do if i % 2 == 0 then expected[#expected + 1] = "10:x"..i end end
+      assert.same(expected, out)
     end)
 
     it("filters owned, missing and duplicates", function()
-      assert.same({ "10:a", "10:c" }, ids(BinderModel.entries(CARDS, collection, {}, { filter = "owned" })))
-      assert.same({ "10:b", "10:d" }, ids(BinderModel.entries(CARDS, collection, {}, { filter = "missing" })))
+      assert.same({ "10:c", "10:a" }, ids(BinderModel.entries(CARDS, collection, {}, { filter = "owned" })))
+      assert.same({ "10:d", "10:b" }, ids(BinderModel.entries(CARDS, collection, {}, { filter = "missing" })))
       assert.same({ "10:c" }, ids(BinderModel.entries(CARDS, collection, {}, { filter = "duplicates" })))
     end)
 
@@ -114,12 +124,12 @@ describe("BinderModel", function()
       assert.same({ "10:c" }, ids(BinderModel.entries(CARDS, collection, {}, { search = "croc", localize = localize })))
     end)
 
-    it("puts pinned owned cards first, keeping data order within each group", function()
-      local pinned = { ["10:c"] = true, ["10:b"] = true } -- 10:b is missing: ignored
+    it("puts pinned owned cards first, rarest first within each group", function()
+      local pinned = { ["10:a"] = true, ["10:b"] = true } -- 10:b is missing: ignored
       local entries = BinderModel.entries(CARDS, collection, {}, { pinned = pinned })
-      assert.same({ "10:c", "10:a", "10:b", "10:d" }, ids(entries))
+      assert.same({ "10:a", "10:d", "10:c", "10:b" }, ids(entries))
       assert.is_true(entries[1].pinned)
-      assert.is_false(entries[3].pinned)
+      assert.is_false(entries[2].pinned)
     end)
 
     it("filters by tag, owned cards only", function()
@@ -131,8 +141,8 @@ describe("BinderModel", function()
 
     it("carries copies and the New flag", function()
       local entries = BinderModel.entries(CARDS, collection, { ["10:c"] = true }, { filter = "owned" })
-      assert.same({ 1, 3 }, { entries[1].copies, entries[2].copies })
-      assert.same({ false, true }, { entries[1].isNew, entries[2].isNew })
+      assert.same({ 3, 1 }, { entries[1].copies, entries[2].copies })
+      assert.same({ true, false }, { entries[1].isNew, entries[2].isNew })
     end)
   end)
 

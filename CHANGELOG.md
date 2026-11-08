@@ -11,6 +11,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Pack earning: one counter per character; each pack goes to the zone where most of its steps were walked.
 - About 120 cards per zone: creatures, NPCs, elites, rares, dungeon bosses, quests and items generated from the AzerothCore world database by `scripts/generate-cards.py`, on top of the hand-written cards.
 - Cards for the 33 other outdoor zones of Eastern Kingdoms and Kalimdor (40 in all): 9-10 hand-written cards each, with one Legendary, plus generated cards up to about 120 per zone. Deadwind Pass, Moonglade and a few high-level zones have fewer.
+- Binder cards are sorted rarest first (pinned cards still lead).
 - Binder zone list in pages, one continent at a time, sorted by name; `<` and `>` under the list switch pages (it showed only 14 zones before).
 - Translated flavor text goes through the same checks as names; a bad translation falls back to English.
 - Cards for the five starting zones: Dun Morogh (17, with Ironforge, Gnomeregan and the Hall of Thanes), Tirisfal Glades (16, with Undercity and the Scarlet Monastery), Teldrassil (14, with Darnassus), Durotar (14, with Orgrimmar and Ragefire Chasm) and Mulgore (15, with Thunder Bluff).
