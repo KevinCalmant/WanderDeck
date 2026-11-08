@@ -35,15 +35,18 @@ describe("UI frames", function()
     _G.C_Map = { GetMapInfo = function(id) return { name = "Zone "..id, mapType = 3, parentMapID = 1415 } end }
     for _, file in ipairs({
       "Utils/Wow.lua", "Modules/Config.lua", "Modules/Zone.lua", "Modules/StepTracker.lua", "Modules/Packs.lua",
-      "Modules/Cards.lua", "Modules/Collection.lua", "Modules/Reveal.lua", "Modules/BinderModel.lua",
-      "Modules/Slash.lua", "Modules/Walker.lua", "Modules/UI/Draw.lua", "Modules/UI/Window.lua", "Modules/UI/CardWidget.lua", "Modules/UI/CardDetail.lua",
+      "Modules/Cards.lua", "Modules/Collection.lua", "Modules/Tags.lua", "Modules/Reveal.lua", "Modules/BinderModel.lua",
+      "Modules/Slash.lua", "Modules/Sound.lua", "Modules/Walker.lua", "Modules/UI/Draw.lua", "Modules/UI/Window.lua", "Modules/UI/CardWidget.lua", "Modules/UI/CardDetail.lua",
       "Modules/UI/RevealFrame.lua", "Modules/UI/BinderFrame.lua", "Modules/Opener.lua",
       "Data/EasternKingdoms/ElwynnForest.lua", "Data/EasternKingdoms/Westfall.lua",
     }) do
       mocks.loadSource(file, ns)
     end
-    char = { stats = { yards = 0 }, progress = { total = 0, byZone = {} }, packs = {}, collection = {}, newCards = {} }
-    ns.GetDB = function() return { char = char } end
+    char = {
+      stats = { yards = 0 }, progress = { total = 0, byZone = {} }, packs = {},
+      collection = {}, newCards = {}, tags = {}, pinned = {},
+    }
+    ns.GetDB = function() return { char = char, global = { settings = { sound = true } } } end
   end)
 
   after_each(function()
@@ -341,6 +344,87 @@ describe("UI frames", function()
       assert.is_false(select(4, ns.CardDetail._debug()).shown)
       ns.CardDetail.show(hogger, 2)
       assert.equals("Copies owned: 2", select(4, ns.CardDetail._debug()).text)
+    end)
+
+    describe("tags and pins", function()
+      local function openDetail()
+        char.collection = { ["1429:young_wolf"] = 1, ["1429:stonetusk_boar"] = 1 }
+        ns.BinderFrame.toggle()
+        local frame, widgets, _, view = ns.BinderFrame._debug()
+        widgets[2].scripts.OnClick(widgets[2]) -- Stonetusk Boar
+        local _, _, _, _, controls = ns.CardDetail._debug()
+        return frame, widgets, view, controls
+      end
+
+      it("pins a card from the detail window and shows it first with a Pinned label", function()
+        local _, widgets, _, controls = openDetail()
+        assert.equals("Pin", controls.pin.text)
+        controls.pin.scripts.OnClick()
+        assert.same({ ["1429:stonetusk_boar"] = true }, char.pinned)
+        assert.equals("Unpin", controls.pin.text)
+        assert.equals("Stonetusk Boar", widgets[1].name.text)
+        assert.equals("Pinned", widgets[1].pinTag.text)
+        assert.is_true(widgets[1].pinTag.shown)
+        assert.is_false(widgets[2].pinTag.shown)
+      end)
+
+      it("adds a typed tag, refuses a bad one, and removes it with its chip", function()
+        local _, _, _, controls = openDetail()
+        controls.input.text = "  Deck FEU "
+        controls.input.scripts.OnEnterPressed(controls.input)
+        assert.same({ ["1429:stonetusk_boar"] = { ["deck feu"] = true } }, char.tags)
+        assert.equals("deck feu  x", controls.chips[1].text)
+        assert.equals("", controls.input.text)
+
+        local said = {}
+        ns.print = function(msg) said[#said + 1] = msg end
+        controls.input.text = "|cffff0000x"
+        controls.input.scripts.OnEnterPressed(controls.input)
+        assert.equals(1, #said)
+        assert.same({ ["1429:stonetusk_boar"] = { ["deck feu"] = true } }, char.tags)
+
+        controls.chips[1].scripts.OnClick(controls.chips[1])
+        assert.same({}, char.tags)
+        assert.is_false(controls.chips[1].shown)
+      end)
+
+      it("refuses #trade typed in the tag box", function()
+        local _, _, _, controls = openDetail()
+        local said = {}
+        ns.print = function(msg) said[#said + 1] = msg end
+        controls.input.text = "#trade"
+        controls.input.scripts.OnEnterPressed(controls.input)
+        assert.same({}, char.tags)
+        assert.equals(1, #said)
+      end)
+
+      it("marks a card For trade and filters the binder by that tag", function()
+        local frame, widgets, view, controls = openDetail()
+        controls.trade.scripts.OnClick()
+        assert.equals("Not for trade", controls.trade.text)
+        frame.tag.scripts.OnClick()
+        assert.equals(ns.Tags.TRADE, view.tag)
+        assert.equals("For trade", frame.tag.text)
+        assert.equals("Stonetusk Boar", widgets[1].name.text)
+        assert.is_false(widgets[2].shown)
+      end)
+
+      it("hides the tag controls for a card that is not owned", function()
+        ns.CardDetail.show(ns.Cards.get("1429:hogger"), nil)
+        local _, _, _, _, controls = ns.CardDetail._debug()
+        assert.is_false(controls.pin.shown)
+        assert.is_false(controls.input.shown)
+      end)
+
+      it("shows a player tag with pipes escaped on the filter button", function()
+        char.collection = { ["1429:young_wolf"] = 1 }
+        char.tags = { ["1429:young_wolf"] = { ["a|b"] = true } } -- slipped past the sanitizer
+        ns.BinderFrame.toggle()
+        local frame = ns.BinderFrame._debug()
+        frame.tag.scripts.OnClick() -- For trade
+        frame.tag.scripts.OnClick() -- a|b
+        assert.equals("a||b", frame.tag.text)
+      end)
     end)
 
     it("keeps the pager below the last card row", function()

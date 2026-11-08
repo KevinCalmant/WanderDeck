@@ -161,7 +161,23 @@ local function sanitizeCollection(char, isKnownCard, maxCopies, dataLoaded)
   end
 end
 
+local DEFAULT_MINIMAP_ANGLE = 220
+
+---Sanitizes account-wide settings in place: sound on/off, minimap button
+---hidden and its angle (degrees, 0 to 360).
+---@param global table AceDB `db.global`
+local function sanitizeSettings(global)
+  if type(global.settings) ~= "table" then global.settings = {} end
+  local s = global.settings
+  if type(s.sound) ~= "boolean" then s.sound = true end
+  if type(s.minimapHidden) ~= "boolean" then s.minimapHidden = false end
+  local angle = s.minimapAngle
+  if not (isFiniteNonNegative(angle) and angle <= 360) then s.minimapAngle = DEFAULT_MINIMAP_ANGLE end
+end
+
 ns.Schema = {
+  DEFAULT_MINIMAP_ANGLE = DEFAULT_MINIMAP_ANGLE,
+  sanitizeSettings = sanitizeSettings,
   sanitizeChar = sanitizeChar,
   sanitizeCollection = sanitizeCollection,
   MAX_ZONE_SHARES = MAX_ZONE_SHARES,

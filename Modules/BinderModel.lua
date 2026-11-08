@@ -34,15 +34,16 @@ end
 ---@param cards table[] Cards.zoneCards(zoneMapID)
 ---@param collection table<string, number>
 ---@param newCards table<string, boolean>
----@param opts table|nil { filter = "all"|"owned"|"missing"|"duplicates", rarity = 1-5|nil, search = string, localize = fun(key): string }
----@return table[] entries { card, copies, isNew }
+---@param opts table|nil { filter = "all"|"owned"|"missing"|"duplicates", rarity = 1-5|nil, search = string, localize = fun(key): string, tags = char.tags, tag = string|nil, pinned = char.pinned }
+---@return table[] entries { card, copies, isNew, pinned }, pinned cards first
 function BinderModel.entries(cards, collection, newCards, opts)
   opts = opts or {}
   local filter = VALID_FILTERS[opts.filter] and opts.filter or "all"
   local search = BinderModel.normalizeSearch(opts.search)
   local localize = opts.localize or function(key) return key end
+  local tags, pinned = opts.tags or {}, opts.pinned or {}
 
-  local result = {}
+  local pinnedEntries, others = {}, {}
   for _, card in ipairs(cards) do
     local copies = collection[card.id] or 0
     local keep = passesFilter(filter, copies)
@@ -51,11 +52,40 @@ function BinderModel.entries(cards, collection, newCards, opts)
       -- Missing cards are silhouettes: searching must not reveal their names.
       keep = copies > 0 and localize(card.name):lower():find(search, 1, true) ~= nil
     end
+    if keep and opts.tag ~= nil then
+      -- Tags only make sense on owned cards.
+      keep = copies > 0 and ns.Tags.has(tags, card.id, opts.tag)
+    end
     if keep then
-      result[#result + 1] = { card = card, copies = copies, isNew = newCards[card.id] == true }
+      local isPinned = copies > 0 and pinned[card.id] == true
+      local entry = { card = card, copies = copies, isNew = newCards[card.id] == true, pinned = isPinned }
+      local list = isPinned and pinnedEntries or others
+      list[#list + 1] = entry
     end
   end
-  return result
+  for _, entry in ipairs(others) do pinnedEntries[#pinnedEntries + 1] = entry end
+  return pinnedEntries
+end
+
+---Tag filter choices for the binder, in cycle order: none, For trade, then
+---player tags sorted.
+---@param tags table char.tags
+---@return table[] { tag = string|nil }
+function BinderModel.tagChoices(tags)
+  local choices = { { tag = nil }, { tag = ns.Tags.TRADE } }
+  for _, tag in ipairs(ns.Tags.all(tags)) do choices[#choices + 1] = { tag = tag } end
+  return choices
+end
+
+---Next tag filter after `current` (wraps to none; an unknown tag restarts).
+function BinderModel.nextTag(tags, current)
+  local choices = BinderModel.tagChoices(tags)
+  for i, choice in ipairs(choices) do
+    if choice.tag == current then
+      return (choices[i + 1] or choices[1]).tag
+    end
+  end
+  return nil
 end
 
 ---One page of entries.

@@ -57,7 +57,7 @@ A card is static data in `Data/<Continent>/<Zone>.lua`:
 - Tags: player-defined labels plus the built-in **For trade** tag. Players can pin favorites to the top.
 - Duplicates are stored as counts (`collection[cardID] = n`); the binder shows `×n`.
 
-Built so far (`Modules/UI/`): reveal window with click-to-flip and Reveal all; binder with zone list, 3x3 grid, silhouettes, owned/missing/duplicates and rarity filters, search, paging, New tag cleared on view. Not built yet: reveal sounds, player tags, the For trade tag, pinned favorites, continent level in the binder, minimap button.
+Built so far (`Modules/UI/`): reveal window with click-to-flip and Reveal all; binder with zone list, 3x3 grid, silhouettes, owned/missing/duplicates and rarity filters, search, paging, New tag cleared on view. Also built: card detail window (flavor text, copies, pin, For trade, player tags), tag filter, pinned-first order, minimap button with pack badge and tooltip, opening and reveal sounds with a mute command. Not built yet: continent level in the binder.
 
 ## 5. Achievements
 
@@ -85,5 +85,7 @@ Every incoming message is untrusted input from another player. The parser:
 - never echoes raw payload text into chat or a frame; it shows the localized card name looked up from the ID.
 
 Each rejection rule gets a busted test: unknown card ID, a valid ID with a suffix or prefix glued on, an empty payload, an oversized payload, a count of 0 or a negative or huge count, a message from a third player, a confirm before both locks.
+
+Before any player tag is shown to another player (trade window, offers), replace `Tags.normalize`'s deny-list of invisible characters with an allow-list (printable ASCII plus chosen letter ranges): the deny-list still lets through soft hyphens, Hangul fillers, variation selectors and similar look-alike characters.
 
 Addon messages may be throttled or blocked in combat and in instances on Forever (unverified, add it to `/wd probe`): offer trading only out of combat and out of instances.

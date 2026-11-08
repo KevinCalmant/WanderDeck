@@ -37,6 +37,7 @@ local function step(char)
   if not earnedZone then return end
   if Packs.store(char.packs, { zoneMapID = earnedZone, earnedAt = serverTime() }, Config.MAX_UNOPENED_PACKS) then
     ns.print(L["You earned a pack!"].." ("..#char.packs..")")
+    if ns.refreshUI then ns.refreshUI() end
   else
     ns.print(L["Pack limit reached: open some packs to earn more."])
   end

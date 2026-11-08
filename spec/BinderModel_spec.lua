@@ -19,6 +19,7 @@ describe("BinderModel", function()
     ns = mocks.newNamespace()
     mocks.loadSource("Modules/Cards.lua", ns)
     mocks.loadSource("Modules/Collection.lua", ns)
+    mocks.loadSource("Modules/Tags.lua", ns)
     mocks.loadSource("Modules/BinderModel.lua", ns)
     BinderModel = ns.BinderModel
   end)
@@ -113,6 +114,21 @@ describe("BinderModel", function()
       assert.same({ "10:c" }, ids(BinderModel.entries(CARDS, collection, {}, { search = "croc", localize = localize })))
     end)
 
+    it("puts pinned owned cards first, keeping data order within each group", function()
+      local pinned = { ["10:c"] = true, ["10:b"] = true } -- 10:b is missing: ignored
+      local entries = BinderModel.entries(CARDS, collection, {}, { pinned = pinned })
+      assert.same({ "10:c", "10:a", "10:b", "10:d" }, ids(entries))
+      assert.is_true(entries[1].pinned)
+      assert.is_false(entries[3].pinned)
+    end)
+
+    it("filters by tag, owned cards only", function()
+      local tags = { ["10:a"] = { feu = true }, ["10:b"] = { feu = true }, ["10:c"] = { [ns.Tags.TRADE] = true } }
+      assert.same({ "10:a" }, ids(BinderModel.entries(CARDS, collection, {}, { tags = tags, tag = "feu" })))
+      assert.same({ "10:c" }, ids(BinderModel.entries(CARDS, collection, {}, { tags = tags, tag = ns.Tags.TRADE })))
+      assert.same({}, ids(BinderModel.entries(CARDS, collection, {}, { tags = tags, tag = "nope" })))
+    end)
+
     it("carries copies and the New flag", function()
       local entries = BinderModel.entries(CARDS, collection, { ["10:c"] = true }, { filter = "owned" })
       assert.same({ 1, 3 }, { entries[1].copies, entries[2].copies })
@@ -142,6 +158,22 @@ describe("BinderModel", function()
       local slice, page, count = BinderModel.page({}, 1, 9)
       assert.same({}, slice)
       assert.same({ 1, 1 }, { page, count })
+    end)
+  end)
+
+  describe("tag cycle", function()
+    it("goes none, For trade, player tags, then back to none", function()
+      local tags = { ["10:a"] = { zeta = true, alpha = true } }
+      local seq, current = {}, nil
+      for _ = 1, 5 do
+        current = BinderModel.nextTag(tags, current)
+        seq[#seq + 1] = tostring(current)
+      end
+      assert.same({ ns.Tags.TRADE, "alpha", "zeta", "nil", ns.Tags.TRADE }, seq)
+    end)
+
+    it("restarts on an unknown tag", function()
+      assert.is_nil(BinderModel.nextTag({}, "gone"))
     end)
   end)
 

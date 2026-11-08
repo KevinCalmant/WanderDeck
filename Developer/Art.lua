@@ -26,7 +26,32 @@ local function handleArt()
   ns.print(count.." cards. An empty or green square means that icon does not exist on this client.")
 end
 
+---Which Sound.KEYS exist in this client's SOUNDKIT table.
+---@param env table _G or a test stub
+---@return string[] lines
+function Art.soundLines(env)
+  local lines = {}
+  local kit = type(env.SOUNDKIT) == "table" and env.SOUNDKIT or {}
+  local events = {}
+  for event in pairs(ns.Sound.KEYS) do events[#events + 1] = event end
+  table.sort(events)
+  for _, event in ipairs(events) do
+    local key = ns.Sound.KEYS[event]
+    lines[#lines + 1] = event..": "..key.." "..(type(kit[key]) == "number" and "present" or "MISSING")
+  end
+  return lines
+end
+
 if ns.Slash then
+  ns.Slash.register({
+    name = "sounds",
+    usage = "sounds",
+    help = "Developer: check which card sounds exist on this client",
+    handler = function()
+      for _, line in ipairs(Art.soundLines(_G)) do print("  "..line) end
+    end,
+  })
+
   ns.Slash.register({
     name = "art",
     usage = "art",

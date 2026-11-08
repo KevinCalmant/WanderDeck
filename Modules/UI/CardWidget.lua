@@ -150,6 +150,8 @@ function CardWidget.create(parent)
 
   w.newTag = Draw.text(w, "GameFontGreenSmall")
   w.newTag:SetPoint("BOTTOMLEFT", w, "TOPLEFT", 2, 1)
+  w.pinTag = Draw.text(w, "GameFontNormalSmall", C.goldText)
+  w.pinTag:SetPoint("BOTTOMRIGHT", w, "TOPRIGHT", -2, 1)
 
   w.faceParts = { titleBar, titleLine, w.name, w.gem, art, artLine, w.icon, w.kind, w.rarityLabel, atkDisc, atk, defDisc, def }
 
@@ -185,11 +187,12 @@ local function reset(w)
   setShown(w.backParts, false)
   w.copies:Hide()
   w.newTag:Hide()
+  w.pinTag:Hide()
   w.goldBorder.setColor(C.gold[1], C.gold[2], C.gold[3], 1)
 end
 
 ---Face up.
----@param opts table|nil { copies = number, isNew = boolean }
+---@param opts table|nil { copies = number, isNew = boolean, pinned = boolean }
 function CardWidget.showCard(w, card, opts)
   opts = opts or {}
   reset(w)
@@ -210,6 +213,10 @@ function CardWidget.showCard(w, card, opts)
   if opts.isNew then
     w.newTag:SetText(L["New!"])
     w.newTag:Show()
+  end
+  if opts.pinned then
+    w.pinTag:SetText(L["Pinned"])
+    w.pinTag:Show()
   end
   if opts.copies and opts.copies > 1 then
     w.copies:SetText("x"..opts.copies)

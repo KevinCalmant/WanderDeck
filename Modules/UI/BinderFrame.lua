@@ -18,7 +18,13 @@ local MAX_ZONE_BUTTONS = 14
 local FILTER_LABELS = { all = "All", owned = "Owned", missing = "Missing", duplicates = "Duplicates" }
 
 local frame, widgets, zoneButtons, filterButtons
-local view = { zoneMapID = nil, filter = "all", rarity = nil, search = "", page = 1 }
+local view = { zoneMapID = nil, filter = "all", rarity = nil, tag = nil, search = "", page = 1 }
+
+local function tagLabel(tag)
+  if tag == nil then return L["All tags"] end
+  if tag == ns.Tags.TRADE then return L["For trade"] end
+  return ns.Tags.display(tag)
+end
 
 local function char()
   local db = ns.GetDB()
@@ -45,10 +51,20 @@ local function render()
 
   for key, button in pairs(filterButtons) do button:SetEnabled(key ~= view.filter) end
   frame.rarity:SetText(view.rarity and L[Cards.RARITY_NAMES[view.rarity]] or L["All rarities"])
+  -- A tag removed since it was chosen falls back to all tags.
+  if view.tag ~= nil and view.tag ~= ns.Tags.TRADE then
+    local stillUsed = false
+    for _, tag in ipairs(ns.Tags.all(c.tags)) do
+      if tag == view.tag then stillUsed = true break end
+    end
+    if not stillUsed then view.tag = nil end
+  end
+  frame.tag:SetText(tagLabel(view.tag))
 
   local entries = BinderModel.entries(Cards.zoneCards(view.zoneMapID), c.collection, c.newCards, {
     filter = view.filter, rarity = view.rarity, search = view.search,
     localize = function(key) return L[key] end,
+    tags = c.tags, tag = view.tag, pinned = c.pinned,
   })
   local shown, page, pageCount = BinderModel.page(entries, view.page, PER_PAGE)
   view.page = page
@@ -59,7 +75,7 @@ local function render()
     if not entry then
       w:Hide()
     elseif entry.copies > 0 then
-      CardWidget.showCard(w, entry.card, { copies = entry.copies, isNew = entry.isNew })
+      CardWidget.showCard(w, entry.card, { copies = entry.copies, isNew = entry.isNew, pinned = entry.pinned })
     else
       CardWidget.showMissing(w, entry.card)
     end
@@ -120,9 +136,18 @@ local function build()
     render()
   end)
 
+  frame.tag = Window.button(frame, "", 120)
+  frame.tag:SetPoint("TOPLEFT", left + 128, -72)
+  frame.tag:SetScript("OnClick", function()
+    local c = char()
+    if not c then return end
+    view.tag, view.page = BinderModel.nextTag(c.tags, view.tag), 1
+    render()
+  end)
+
   frame.search = CreateFrame("EditBox", nil, frame, "InputBoxTemplate")
-  frame.search:SetSize(170, 20)
-  frame.search:SetPoint("TOPLEFT", left + 136, -73)
+  frame.search:SetSize(112, 20)
+  frame.search:SetPoint("TOPLEFT", left + 262, -73)
   frame.search:SetAutoFocus(false)
   frame.search:SetMaxLetters(BinderModel.SEARCH_MAX_LENGTH)
   frame.search:SetScript("OnTextChanged", function(self)
@@ -139,7 +164,9 @@ local function build()
     -- Owned cards open the detail window; missing cards stay silhouettes.
     w:SetScript("OnClick", function(self)
       local entry = self.entry
-      if type(entry) == "table" and entry.copies > 0 then ns.CardDetail.show(entry.card, entry.copies) end
+      if type(entry) == "table" and entry.copies > 0 then
+        ns.CardDetail.show(entry.card, entry.copies, { onChange = function() pcall(render) end })
+      end
     end)
     widgets[i] = w
   end

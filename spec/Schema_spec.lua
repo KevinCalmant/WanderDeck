@@ -311,6 +311,45 @@ describe("Schema.sanitizeCollection", function()
   end)
 end)
 
+describe("Schema.sanitizeSettings", function()
+  local Schema
+
+  before_each(function()
+    mocks.reset()
+    local ns = mocks.newNamespace()
+    mocks.loadSource("Modules/Schema.lua", ns)
+    Schema = ns.Schema
+  end)
+
+  it("creates defaults", function()
+    local global = {}
+    Schema.sanitizeSettings(global)
+    assert.same({ sound = true, minimapHidden = false, minimapAngle = Schema.DEFAULT_MINIMAP_ANGLE }, global.settings)
+  end)
+
+  it("replaces wrong types and out-of-range angles", function()
+    for _, bad in ipairs({ -1, 361, 0 / 0, math.huge, "90", true }) do
+      local global = { settings = { sound = "yes", minimapHidden = 1, minimapAngle = bad } }
+      Schema.sanitizeSettings(global)
+      assert.same({ sound = true, minimapHidden = false, minimapAngle = Schema.DEFAULT_MINIMAP_ANGLE }, global.settings)
+    end
+  end)
+
+  it("keeps valid values, including the 0 and 360 bounds", function()
+    for _, angle in ipairs({ 0, 90.5, 360 }) do
+      local global = { settings = { sound = false, minimapHidden = true, minimapAngle = angle } }
+      Schema.sanitizeSettings(global)
+      assert.same({ sound = false, minimapHidden = true, minimapAngle = angle }, global.settings)
+    end
+  end)
+
+  it("replaces a non-table settings value", function()
+    local global = { settings = "x" }
+    Schema.sanitizeSettings(global)
+    assert.is_table(global.settings)
+  end)
+end)
+
 describe("Schema.sanitizeGlobal", function()
   local Schema
 
