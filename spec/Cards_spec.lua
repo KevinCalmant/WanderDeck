@@ -85,6 +85,26 @@ describe("Cards", function()
       end
     end)
 
+    it("keeps one valid game ID per card and refuses bad or multiple IDs", function()
+      local c = card("10:a", 1, "item")
+      c.itemID = 2589
+      Cards.registerZone({ zoneMapID = 10, continentMapID = 1, cards = { c } })
+      assert.equals(2589, Cards.get("10:a").itemID)
+      assert.equals("Interface\\Icons\\INV_Misc_Bag_08", Cards.iconPath(Cards.get("10:a")))
+
+      local function zoneWith(x) return { zoneMapID = 11, continentMapID = 1, cards = { x } } end
+      for _, field in ipairs({ "itemID", "questID", "areaID" }) do
+        for _, bad in ipairs({ 0, -1, 1.5, 0 / 0, math.huge, "2589", 2 ^ 31 }) do
+          local x = card("11:a", 1)
+          x[field] = bad
+          rejects(zoneWith(x))
+        end
+      end
+      local both = card("11:a", 1)
+      both.itemID, both.questID = 1, 2
+      rejects(zoneWith(both))
+    end)
+
     it("accepts a 64-character name and a 200-character flavor", function()
       local c = card("10:a", 1)
       c.name, c.flavor = string.rep("a", 64), string.rep("b", 200)

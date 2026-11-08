@@ -35,7 +35,7 @@ describe("UI frames", function()
     _G.C_Map = { GetMapInfo = function(id) return { name = "Zone "..id, mapType = 3, parentMapID = 1415 } end }
     for _, file in ipairs({
       "Utils/Wow.lua", "Modules/Config.lua", "Modules/Zone.lua", "Modules/StepTracker.lua", "Modules/Packs.lua",
-      "Modules/Cards.lua", "Modules/Collection.lua", "Modules/Tags.lua", "Modules/Reveal.lua", "Modules/BinderModel.lua",
+      "Modules/Cards.lua", "Modules/CardText.lua", "Modules/Collection.lua", "Modules/Tags.lua", "Modules/Reveal.lua", "Modules/BinderModel.lua",
       "Modules/Slash.lua", "Modules/Sound.lua", "Modules/Walker.lua", "Modules/UI/Draw.lua", "Modules/UI/Window.lua", "Modules/UI/CardWidget.lua", "Modules/UI/CardDetail.lua",
       "Modules/UI/RevealFrame.lua", "Modules/UI/BinderFrame.lua", "Modules/Opener.lua",
       "Data/EasternKingdoms/ElwynnForest.lua", "Data/EasternKingdoms/Westfall.lua",

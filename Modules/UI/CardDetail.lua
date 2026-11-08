@@ -153,7 +153,7 @@ function CardDetail._debug() return frame, big, flavor, owned, controls end
 function CardDetail.show(card, copies, opts)
   if not frame then build() end
   current = { card = card, onChange = opts and opts.onChange }
-  frame.title:SetText(L[card.name])
+  frame.title:SetText(ns.CardText.name(card))
   frame.title:SetTextColor(CardWidget.rarityRGB(card.rarity))
   CardWidget.showCard(big, card)
   flavor:SetText(L[card.flavor])

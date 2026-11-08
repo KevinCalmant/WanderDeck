@@ -41,6 +41,9 @@ function BinderModel.entries(cards, collection, newCards, opts)
   local filter = VALID_FILTERS[opts.filter] and opts.filter or "all"
   local search = BinderModel.normalizeSearch(opts.search)
   local localize = opts.localize or function(key) return key end
+  -- Display name used for search (CardText.name in game, so a client-supplied
+  -- item or quest name is searchable too).
+  local nameOf = opts.nameOf or function(card) return localize(card.name) end
   local tags, pinned = opts.tags or {}, opts.pinned or {}
 
   local pinnedEntries, others = {}, {}
@@ -50,7 +53,7 @@ function BinderModel.entries(cards, collection, newCards, opts)
       and (opts.rarity == nil or card.rarity == opts.rarity)
     if keep and search ~= "" then
       -- Missing cards are silhouettes: searching must not reveal their names.
-      keep = copies > 0 and localize(card.name):lower():find(search, 1, true) ~= nil
+      keep = copies > 0 and nameOf(card):lower():find(search, 1, true) ~= nil
     end
     if keep and opts.tag ~= nil then
       -- Tags only make sense on owned cards.

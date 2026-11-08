@@ -24,8 +24,12 @@ local KIND_STATS = {
   npc = { 2, 4 },
   place = { 1, 5 },
   quest = { 3, 3 },
+  item = { 3, 2 },
   lore = { 6, 6 },
 }
+-- Optional game IDs on a card: the client then supplies the localized name
+-- (and, for items, the icon) through CardText.
+local REF_FIELDS = { "itemID", "questID", "areaID" }
 local RARITY_BONUS = { 0, 1, 2, 4, 6 }
 -- Card art: an icon file name under Interface\Icons (no path, no extension).
 local ICON_PATTERN = "^[A-Za-z0-9_]+$"
@@ -35,7 +39,7 @@ local ICON_MAX_LENGTH = 64
 local KIND_ICONS = {
   creature = "INV_Misc_QuestionMark", rare = "INV_Misc_QuestionMark", elite = "INV_Misc_QuestionMark",
   boss = "INV_Misc_QuestionMark", npc = "INV_Misc_QuestionMark", place = "INV_Misc_Map_01",
-  quest = "INV_Misc_Note_01", lore = "INV_Misc_Book_09",
+  quest = "INV_Misc_Note_01", lore = "INV_Misc_Book_09", item = "INV_Misc_Bag_08",
 }
 Cards.ICON_PREFIX = "Interface\\Icons\\"
 local ID_PATTERN = "^([1-9]%d*):[a-z0-9_]+$"
@@ -79,11 +83,20 @@ function Cards.registerZone(zone)
     if icon == nil then icon = KIND_ICONS[card.kind] end
     assert(type(icon) == "string" and #icon <= ICON_MAX_LENGTH and icon:match(ICON_PATTERN),
       where..": icon must be an Interface\\Icons file name (letters, digits, _)")
+    local refs = 0
+    for _, field in ipairs(REF_FIELDS) do
+      if card[field] ~= nil then
+        assert(isMapID(card[field]), where..": "..field.." must be a positive whole number")
+        refs = refs + 1
+      end
+    end
+    assert(refs <= 1, where..": at most one of itemID, questID, areaID")
     seen[card.id] = true
 
     local registered = {
       id = card.id, zoneMapID = zone.zoneMapID, kind = card.kind, rarity = card.rarity,
       name = card.name, flavor = card.flavor, icon = icon,
+      itemID = card.itemID, questID = card.questID, areaID = card.areaID,
     }
     registered.attack, registered.defense = Cards.stats(card.kind, card.rarity)
     entry.cards[#entry.cards + 1] = registered

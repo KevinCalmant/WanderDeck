@@ -18,7 +18,7 @@ local ROUND_MASK = "Interface\\CharacterFrame\\TempPortraitAlphaMask"
 
 local KIND_LABELS = {
   creature = "Creature", rare = "Rare creature", elite = "Elite", boss = "Boss",
-  npc = "Character", place = "Place", quest = "Quest", lore = "Lore",
+  npc = "Character", place = "Place", quest = "Quest", item = "Item", lore = "Lore",
 }
 
 ---r, g, b (0-1) of a rarity, from the "aarrggbb" hex in Cards.RARITY_COLORS.
@@ -200,8 +200,8 @@ function CardWidget.showCard(w, card, opts)
   w.rarityBorder.setColor(r, g, b, 1)
   w.gem:SetColorTexture(r, g, b, 1)
 
-  w.name:SetText(L[card.name])
-  w.icon:SetTexture(Cards.iconPath(card))
+  w.name:SetText(ns.CardText.name(card))
+  w.icon:SetTexture(ns.CardText.icon(card))
   w.icon:SetDesaturated(false)
   w.kind:SetText(CardWidget.kindLabel(card))
   w.rarityLabel:SetText(L[Cards.RARITY_NAMES[card.rarity]])

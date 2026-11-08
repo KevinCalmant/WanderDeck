@@ -5,6 +5,7 @@
   <Script file="StepTracker.lua"/>
   <Script file="Packs.lua"/>
   <Script file="Cards.lua"/>
+  <Script file="CardText.lua"/>
   <Script file="Collection.lua"/>
   <Script file="Tags.lua"/>
   <Script file="Reveal.lua"/>

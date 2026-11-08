@@ -25,12 +25,13 @@ function Opener.reportError(err)
 end
 
 ---One chat line for a card: colored name, rarity, attack/defense, New tag.
----Card text comes from Data/ and the locale files, not from the game.
+---The name comes from CardText: Data/ and the locale files, or the client for
+---cards with a game ID, already validated and with "|" escaped.
 ---@param card table registered card
 ---@param isNew boolean
 ---@return string
 function Opener.cardLine(card, isNew)
-  local line = "|c"..Cards.RARITY_COLORS[card.rarity]..L[card.name].."|r"
+  local line = "|c"..Cards.RARITY_COLORS[card.rarity]..ns.CardText.name(card).."|r"
     .." ["..L[Cards.RARITY_NAMES[card.rarity]].."] "
     ..card.attack.."/"..card.defense
   if isNew then line = line.." |cff00ff00"..L["New!"].."|r" end

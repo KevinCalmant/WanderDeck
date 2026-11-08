@@ -30,12 +30,16 @@ function ns.GetDB() return db end
 ---any time; a missing or failing part is skipped.
 function ns.refreshUI()
   if ns.MinimapButton and ns.MinimapButton.refresh then pcall(ns.MinimapButton.refresh) end
+  if ns.BinderFrame and ns.BinderFrame.refreshIfShown then pcall(ns.BinderFrame.refreshIfShown) end
 end
 
 local eventFrame = CreateFrame("Frame")
 
-eventFrame:SetScript("OnEvent", function(self, event, loadedAddon)
-  if event == "ADDON_LOADED" and loadedAddon == addonName then
+eventFrame:SetScript("OnEvent", function(self, event, arg1, arg2)
+  if event == "ITEM_DATA_LOAD_RESULT" then
+    -- One of our item cards may have just loaded (arg1 = itemID, arg2 = success).
+    ns.CardText.onItemDataLoaded(arg1, arg2, C_Timer and C_Timer.After, ns.refreshUI)
+  elseif event == "ADDON_LOADED" and arg1 == addonName then
     _G.WanderDeckDB = Schema.sanitizeRoot(_G.WanderDeckDB)
     db = LibStub("AceDB-3.0"):New("WanderDeckDB", defaultSavedVars, true)
     if Schema.sanitizeGlobal(db.global) == "newer" then
@@ -53,6 +57,9 @@ eventFrame:SetScript("OnEvent", function(self, event, loadedAddon)
 end)
 
 eventFrame:RegisterEvent("ADDON_LOADED")
+-- Optional: a client without this event simply keeps the fallback name until
+-- the next redraw.
+pcall(eventFrame.RegisterEvent, eventFrame, "ITEM_DATA_LOAD_RESULT")
 
 _G.SLASH_WANDERDECK1 = "/wanderdeck"
 _G.SLASH_WANDERDECK2 = "/wd"

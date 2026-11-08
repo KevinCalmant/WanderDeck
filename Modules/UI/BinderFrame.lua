@@ -64,6 +64,7 @@ local function render()
   local entries = BinderModel.entries(Cards.zoneCards(view.zoneMapID), c.collection, c.newCards, {
     filter = view.filter, rarity = view.rarity, search = view.search,
     localize = function(key) return L[key] end,
+    nameOf = function(card) return ns.CardText.name(card) end,
     tags = c.tags, tag = view.tag, pinned = c.pinned,
   })
   local shown, page, pageCount = BinderModel.page(entries, view.page, PER_PAGE)
@@ -184,6 +185,11 @@ local function build()
   frame.next:SetScript("OnClick", function() view.page = view.page + 1 render() end)
   frame.pageText = ns.Draw.text(frame, "GameFontHighlight", ns.Draw.COLORS.parchment)
   frame.pageText:SetPoint("TOP", frame, "TOPLEFT", left + gridWidth / 2, -pagerTop - 4)
+end
+
+---Redraws the binder if it is open (e.g. once an item card's name loads).
+function BinderFrame.refreshIfShown()
+  if frame and frame:IsShown() then render() end
 end
 
 ---Test hook: the frame, card widgets, zone buttons and view state.

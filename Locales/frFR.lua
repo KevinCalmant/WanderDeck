@@ -62,6 +62,7 @@ L["Boss"] = "Boss"
 L["Character"] = "Personnage"
 L["Place"] = "Lieu"
 L["Quest"] = "Quête"
+L["Item"] = "Objet"
 L["Lore"] = "Histoire"
 
 -- Card names: French client names confirmed on fr.wowhead.com/classic (see

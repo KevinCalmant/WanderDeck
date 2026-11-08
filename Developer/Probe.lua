@@ -180,6 +180,13 @@ function Probe.collect(env, isSecret)
   lines[#lines + 1] = callLine(env, isSecret, "IsInInstance")
   lines[#lines + 1] = callLine(env, isSecret, "InCombatLockdown")
 
+  -- Client-localized names for cards with an itemID, questID or areaID
+  -- (Linen Cloth 2589, "Wanted: Hogger" 176, Goldshire 87).
+  lines[#lines + 1] = callLine(env, isSecret, "C_Item.GetItemNameByID", 2589)
+  lines[#lines + 1] = callLine(env, isSecret, "C_Item.GetItemIconByID", 2589)
+  lines[#lines + 1] = callLine(env, isSecret, "C_QuestLog.GetTitleForQuestID", 176)
+  lines[#lines + 1] = callLine(env, isSecret, "C_Map.GetAreaInfo", 87)
+
   lines[#lines + 1] = presenceLine(env, "C_ChatInfo.RegisterAddonMessagePrefix")
   lines[#lines + 1] = presenceLine(env, "C_ChatInfo.SendAddonMessage")
   lines[#lines + 1] = presenceLine(env, "C_Timer.NewTicker")
