@@ -40,8 +40,13 @@ function Window.create(globalName, title, width, height)
   rule:SetPoint("TOPRIGHT", -20, -38)
   rule:SetHeight(1)
 
+  -- The template's own OnClick goes through HideUIPanel, which is meant for
+  -- Blizzard-managed panels and raises a Lua error on an addon window in the
+  -- modern client: replace it with a plain Hide.
   local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
   close:SetPoint("TOPRIGHT", -6, -6)
+  close:SetScript("OnClick", function() f:Hide() end)
+  f.closeButton = close
 
   tinsert(UISpecialFrames, globalName)
   f:Hide()

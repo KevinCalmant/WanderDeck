@@ -178,6 +178,41 @@ describe("UI frames", function()
       assert.same({ 2 }, played)
     end)
 
+    describe("close button", function()
+      before_each(function()
+        _G.HideUIPanel = function() error("HideUIPanel must not be used") end
+      end)
+
+      after_each(function()
+        _G.HideUIPanel = nil
+      end)
+
+      it("closes the window without HideUIPanel", function()
+        char.packs = { { zoneMapID = 1429, earnedAt = 1 } }
+        open()
+        local frame = ns.RevealFrame._debug()
+        assert.is_true(frame.shown)
+        assert.has_no.errors(function() frame.closeButton.scripts.OnClick() end)
+        assert.is_false(frame.shown)
+      end)
+
+      it("keeps every card when closed mid-reveal, and the next pack opens face down", function()
+        char.packs = { { zoneMapID = 1429, earnedAt = 1 }, { zoneMapID = 1436, earnedAt = 2 } }
+        local result = open()
+        local frame, widgets = ns.RevealFrame._debug()
+        widgets[1].scripts.OnClick() -- flip one, leave four face down
+        frame.closeButton.scripts.OnClick()
+        for _, id in ipairs(result.cardIDs) do assert.is_true((char.collection[id] or 0) > 0, id) end
+        for id in pairs(result.firstTime) do assert.is_true(char.newCards[id], id) end
+        assert.equals(1, #char.packs)
+
+        open()
+        local _, _, state = ns.RevealFrame._debug()
+        assert.equals(0, state.count)
+        assert.equals("?", widgets[1].back.text)
+      end)
+    end)
+
     it("marks first-time cards as New on the face", function()
       char.packs = { { zoneMapID = 1429, earnedAt = 1 } }
       open()
@@ -520,6 +555,25 @@ describe("UI frames", function()
       frame.search.scripts.OnTextChanged(frame.search)
       assert.equals("Moonbrook", widgets[1].name.text)
       assert.is_false(widgets[2].shown)
+    end)
+
+    it("closes the binder and the detail window with their close buttons, without HideUIPanel", function()
+      _G.HideUIPanel = function() error("HideUIPanel must not be used") end
+      local ok, err = pcall(function()
+        char.collection = { ["1429:young_wolf"] = 1 }
+        ns.BinderFrame.toggle()
+        local frame, widgets = ns.BinderFrame._debug()
+        assert.is_true(frame.shown)
+        widgets[1].scripts.OnClick(widgets[1])
+        local detail = ns.CardDetail._debug()
+        assert.is_true(detail.shown)
+        detail.closeButton.scripts.OnClick()
+        assert.is_false(detail.shown)
+        frame.closeButton.scripts.OnClick()
+        assert.is_false(frame.shown)
+      end)
+      _G.HideUIPanel = nil
+      assert(ok, err)
     end)
 
     it("closes on a second toggle", function()
