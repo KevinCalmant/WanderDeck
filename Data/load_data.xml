@@ -80,5 +80,6 @@
   <Script file="Generated\UngoroCrater.lua"/>
   <Script file="Kalimdor\Winterspring.lua"/>
   <Script file="Generated\Winterspring.lua"/>
+  <Script file="ZephrasIsle.lua"/>
   <Script file="Loaded.lua"/>
 </Ui>

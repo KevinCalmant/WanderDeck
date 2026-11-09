@@ -879,7 +879,7 @@ describe("UI frames", function()
       assert.equals(1, view.zonePage)
     end)
 
-    it("lists all 40 shipped zones, one continent per zone page", function()
+    it("lists all 41 shipped zones, one continent per zone page", function()
       -- Elwynn and Westfall are loaded by before_each; add every other Data file.
       local xml = assert(io.open("Data/load_data.xml")):read("*a")
       for file in xml:gmatch('<Script file="([^"]+)"') do
@@ -907,13 +907,15 @@ describe("UI frames", function()
       end
       local count = 0
       for _ in pairs(seen) do count = count + 1 end
-      assert.equals(40, count)
-      assert.same({ "Zone 1414", "Zone 1415" }, continents)
+      assert.equals(41, count)
+      -- Zephras Isle hangs off Azeroth (947), so its page comes first.
+      assert.same({ "Zone 947", "Zone 1414", "Zone 1415" }, continents)
       -- Paging the list keeps the selected zone; picking one there selects it.
       local selected = view.zoneMapID
-      assert.equals(1414, ns.Cards.continentOf(selected))
+      assert.equals(947, ns.Cards.continentOf(selected))
       zoneButtons[1].scripts.OnClick(zoneButtons[1])
       assert.equals(1415, ns.Cards.continentOf(view.zoneMapID))
+      frame.zonePrev.scripts.OnClick()
       frame.zonePrev.scripts.OnClick()
       assert.is_false(frame.zonePrev.enabled)
       assert.equals(1415, ns.Cards.continentOf(view.zoneMapID))

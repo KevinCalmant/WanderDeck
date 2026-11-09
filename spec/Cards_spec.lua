@@ -425,8 +425,8 @@ describe("Data", function()
     end
   end)
 
-  it("registers the 40 outdoor zones of both continents", function()
-    assert.equals(40, #ns.Cards.zoneIDs())
+  it("registers the 40 outdoor zones of both continents and Zephras Isle", function()
+    assert.equals(41, #ns.Cards.zoneIDs())
   end)
 
   it("translates every card's flavor text into French", function()
@@ -464,9 +464,11 @@ describe("Data", function()
       [1416] = true, [1418] = true, [1419] = true, [1427] = true,
       [1430] = true, [1449] = true, [1450] = true, [1451] = true,
     }
+    -- Forever-only zones: no AzerothCore data, hand-written cards only.
+    local foreverOnly = { [2521] = true }
     for _, zoneMapID in ipairs(ns.Cards.zoneIDs()) do
       local count = #ns.Cards.zoneCards(zoneMapID)
-      local floor = thin[zoneMapID] and 20 or 100
+      local floor = (foreverOnly[zoneMapID] and 15) or (thin[zoneMapID] and 20) or 100
       assert.is_true(count >= floor and count <= 130, zoneMapID..": "..count)
     end
   end)
