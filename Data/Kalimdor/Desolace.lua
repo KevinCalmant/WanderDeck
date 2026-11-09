@@ -13,7 +13,7 @@ ns.Cards.registerZone({
       flavor = "A corrupted keeper who guards the Wicked Grotto." },
     { id = "1443:noxxion", kind = "boss", rarity = 4, name = "Noxxion", npcID = 13282, icon = "Spell_Nature_Regenerate",
       flavor = "The boss who festers in the Foulspore Cavern." },
-    { id = "1443:maraudon", kind = "place", rarity = 3, name = "Maraudon", icon = "Spell_Nature_Earthquake", areaID = 2100,
+    { id = "1443:maraudon", kind = "place", rarity = 3, name = "Maraudon", icon = "Spell_Nature_Earthquake", loadScreen = "LoadScreenMaraudon", areaID = 2100,
       flavor = "A cave complex sacred to the centaur, deep in the Valley of Spears." },
     { id = "1443:rexxar", kind = "npc", rarity = 5, name = "Rexxar", npcID = 10182, icon = "Ability_Hunter_Pet_Bear",
       flavor = "A wandering champion who travels with his bear Misha." },

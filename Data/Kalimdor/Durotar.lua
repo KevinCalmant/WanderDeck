@@ -30,7 +30,7 @@ ns.Cards.registerZone({
       flavor = "A Burning Blade warlock hiding in the caves." },
     { id = "1411:voljin", kind = "elite", rarity = 5, name = "Vol'jin", npcID = 10540, icon = "Spell_Shadow_ShadowWordPain",
       flavor = "The Darkspear leader keeps his trolls together." },
-    { id = "1411:ragefire_chasm", kind = "place", rarity = 4, name = "Ragefire Chasm", icon = "Spell_Fire_Volcano", areaID = 2437,
+    { id = "1411:ragefire_chasm", kind = "place", rarity = 4, name = "Ragefire Chasm", icon = "Spell_Fire_Volcano", loadScreen = "LoadScreenOrgrimmarInstance", areaID = 2437,
       flavor = "Fire and cultists under the capital's feet." },
     { id = "1411:taragaman_the_hungerer", kind = "boss", rarity = 4, name = "Taragaman the Hungerer", npcID = 11520, icon = "Spell_Fire_Incinerate",
       flavor = "A demon whose hunger never cools." },

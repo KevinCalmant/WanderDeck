@@ -9,7 +9,7 @@ ns.Cards.registerZone({
   cards = {
     { id = "1440:akumai", kind = "boss", rarity = 5, name = "Aku'mai", npcID = 4829, icon = "Spell_Nature_Cyclone",
       flavor = "The giant hydra waiting at the end of the flooded temple." },
-    { id = "1440:blackfathom_deeps", kind = "place", rarity = 4, name = "Blackfathom Deeps", icon = "Spell_Frost_FrostArmor02", areaID = 2797,
+    { id = "1440:blackfathom_deeps", kind = "place", rarity = 4, name = "Blackfathom Deeps", icon = "Spell_Frost_FrostArmor02", loadScreen = "LoadScreenBlackfathomDeeps", areaID = 2797,
       flavor = "A flooded temple dungeon at the Zoram Strand." },
     { id = "1440:ghamoo_ra", kind = "boss", rarity = 3, name = "Ghamoo-Ra", npcID = 4887, icon = "Ability_Warrior_DefensiveStance",
       flavor = "A giant turtle, first boss of the drowned temple." },

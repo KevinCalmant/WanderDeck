@@ -13,7 +13,7 @@ ns.Cards.registerZone({
       flavor = "A satyr boss who rules the eastern wing of Dire Maul." },
     { id = "1444:prince_tortheldrin", kind = "boss", rarity = 4, name = "Prince Tortheldrin", npcID = 11486, icon = "Spell_Shadow_ShadowWordPain",
       flavor = "A hostile elven noble who holds the western wing of Dire Maul." },
-    { id = "1444:dire_maul", kind = "place", rarity = 3, name = "Dire Maul", icon = "INV_Sword_04", areaID = 2577,
+    { id = "1444:dire_maul", kind = "place", rarity = 3, name = "Dire Maul", icon = "INV_Sword_04", loadScreen = "LoadScreenDireMaul", areaID = 2577,
       flavor = "A ruined elven city that now serves as a dungeon in Feralas." },
     { id = "1444:king_gordok", kind = "boss", rarity = 4, name = "King Gordok", npcID = 11501, icon = "INV_Misc_Bandana_03",
       flavor = "The ogre ruler of the northern wing of Dire Maul." },

@@ -9,7 +9,7 @@ ns.Cards.registerZone({
   cards = {
     { id = "1421:archmage_arugal", kind = "boss", rarity = 5, name = "Archmage Arugal", npcID = 4275, icon = "Spell_Shadow_SummonImp",
       flavor = "The wizard whose summoning turned the forest into a hunting ground." },
-    { id = "1421:shadowfang_keep", kind = "place", rarity = 4, name = "Shadowfang Keep", icon = "Spell_Shadow_Curse", areaID = 236,
+    { id = "1421:shadowfang_keep", kind = "place", rarity = 4, name = "Shadowfang Keep", icon = "Spell_Shadow_Curse", loadScreen = "LoadScreenShadowfang", areaID = 236,
       flavor = "Arugal's fortress, where howls echo down every hall." },
     { id = "1421:gorefang", kind = "rare", rarity = 4, name = "Gorefang", npcID = 12431, icon = "Ability_Hunter_Pet_Wolf",
       flavor = "A rare beast that stalks the forest paths at night." },

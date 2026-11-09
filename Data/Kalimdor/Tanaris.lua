@@ -13,7 +13,7 @@ ns.Cards.registerZone({
       flavor = "A boss you can face before or after the pyramid event." },
     { id = "1446:hydromancer_velratha", kind = "boss", rarity = 4, name = "Hydromancer Velratha", npcID = 7795, icon = "Spell_Frost_Frostbolt02",
       flavor = "A caster listed on the Zul'Farrak roster of bosses." },
-    { id = "1446:zulfarrak", kind = "place", rarity = 3, name = "Zul'Farrak", icon = "INV_Misc_Head_Troll_01", areaID = 978,
+    { id = "1446:zulfarrak", kind = "place", rarity = 3, name = "Zul'Farrak", icon = "INV_Misc_Head_Troll_01", loadScreen = "LoadScreenZulFarrak", areaID = 978,
       flavor = "A sand troll city that doubles as a dungeon at Sandsorrow Watch." },
     { id = "1446:cyclok_the_mad", kind = "rare", rarity = 3, name = "Cyclok the Mad", npcID = 8202, icon = "Spell_Nature_LightningShield",
       flavor = "A rare of the dunes that you do not meet by chance." },

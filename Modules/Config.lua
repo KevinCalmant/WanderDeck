@@ -41,4 +41,8 @@ ns.Config = {
   CARD_MODELS = true,
   -- Model framing: 0 shows the whole body, 1 a head-and-shoulders portrait.
   CARD_MODEL_ZOOM = 0.6,
+  -- Width / height of a dungeon loading screen image (vanilla screens are
+  -- 4:3; unverified on Forever: check with /wd loadscreens). Cards crop it to
+  -- fill their art panel.
+  LOAD_SCREEN_ASPECT = 4 / 3,
 }

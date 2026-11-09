@@ -12,7 +12,7 @@ ns.Cards.registerZone({
       flavor = "A fallen green dragon waiting at the bottom of the temple." },
     { id = "1435:jammalan_the_prophet", kind = "boss", rarity = 4, name = "Jammal'an the Prophet", npcID = 5710, icon = "Spell_Shadow_ShadowWordPain",
       flavor = "The Atal'ai leader who keeps the temple's faith alive." },
-    { id = "1435:temple_of_atalhakkar", kind = "place", rarity = 4, name = "Temple of Atal'Hakkar", icon = "Spell_Nature_ProtectionformNature",
+    { id = "1435:temple_of_atalhakkar", kind = "place", rarity = 4, name = "Temple of Atal'Hakkar", icon = "Spell_Nature_ProtectionformNature", loadScreen = "LoadScreenSunkenTemple",
       flavor = "A sunken temple that the swamp never gave back." },
     { id = "1435:itharius", kind = "npc", rarity = 3, name = "Itharius", npcID = 5353, icon = "Spell_Nature_Regenerate",
       flavor = "A ranger tied to the green dragons, met in the swamp." },

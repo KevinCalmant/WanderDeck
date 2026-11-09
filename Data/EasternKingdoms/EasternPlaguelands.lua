@@ -9,7 +9,7 @@ ns.Cards.registerZone({
   cards = {
     { id = "1423:tirion_fordring", kind = "npc", rarity = 5, name = "Tirion Fordring", npcID = 1855, icon = "Spell_Holy_SealOfMight",
       flavor = "A fallen paladin who found his way back to the Light." },
-    { id = "1423:stratholme", kind = "place", rarity = 4, name = "Stratholme", icon = "Spell_Fire_Incinerate", areaID = 2279,
+    { id = "1423:stratholme", kind = "place", rarity = 4, name = "Stratholme", icon = "Spell_Fire_Incinerate", loadScreen = "LoadScreenStratholme", areaID = 2279,
       flavor = "A burned city where the dead keep their posts." },
     { id = "1423:baron_rivendare", kind = "boss", rarity = 4, name = "Baron Rivendare", npcID = 10440, icon = "Spell_Shadow_DeathCoil",
       flavor = "A death knight lord who waits at the end of the city." },

@@ -9,7 +9,7 @@ ns.Cards.registerZone({
   cards = {
     { id = "1422:uthers_tomb", kind = "place", rarity = 4, name = "Uther's Tomb", icon = "Spell_Holy_SealOfMight", areaID = 196,
       flavor = "The resting place of a paladin whose name still carries weight." },
-    { id = "1422:scholomance", kind = "place", rarity = 4, name = "Scholomance", icon = "Spell_Shadow_RaiseDead", areaID = 2057,
+    { id = "1422:scholomance", kind = "place", rarity = 4, name = "Scholomance", icon = "Spell_Shadow_RaiseDead", loadScreen = "LoadScreenScholomance", areaID = 2057,
       flavor = "A school of necromancy on an island of the dead." },
     { id = "1422:hearthglen", kind = "place", rarity = 4, name = "Hearthglen", icon = "Spell_Holy_HolySmite", areaID = 190,
       flavor = "A Scarlet Crusade stronghold that trusts no stranger." },

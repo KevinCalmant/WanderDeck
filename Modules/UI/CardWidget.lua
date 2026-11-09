@@ -3,8 +3,9 @@ local _, ns = ...
 -- One card on screen in the "illustrated" style: gold frame, title bar with a
 -- rarity gem, art panel, flavor text and attack/defense medallions. Face up,
 -- face down (reveal) or a silhouette (missing from the binder). Text comes
--- from Data/ and the locale files only; art is a game icon, or the creature's
--- 3D model for creature cards with an npcID (the icon shows until it loads).
+-- from Data/ and the locale files only; art is a game icon, the creature's
+-- 3D model for creature cards with an npcID (the icon shows until it loads),
+-- or the loading screen for dungeon cards.
 
 local L = ns.L
 local Cards, Draw = ns.Cards, ns.Draw
@@ -316,6 +317,36 @@ function CardWidget.soloModel(w)
   end
 end
 
+---Texture coordinates that crop an image of this aspect (width / height) to
+---fill a width x height area, centered, without stretching it.
+---@return number left, number right, number top, number bottom
+function CardWidget.cropTexCoord(aspect, width, height)
+  local target = width / height
+  if aspect > target then
+    local margin = (1 - target / aspect) / 2
+    return margin, 1 - margin, 0, 1
+  end
+  local margin = (1 - aspect / target) / 2
+  return 0, 1, margin, 1 - margin
+end
+
+-- Loading screen art covers the icon only once the client resolves its file:
+-- a missing texture keeps the icon. Creature cards keep their model.
+local function showLoadScreen(w, card)
+  if ns.CardText.modelNpcID(card) then return end
+  local file = Cards.loadScreenPath(card)
+  if not file then return end
+  local tex = w.loadScreen
+  local ok, fileID = pcall(function()
+    tex:SetTexture(file)
+    return tex:GetTextureFileID()
+  end)
+  if ok and not ns.Wow.isSecret(fileID) and ns.Utils.isMapID(fileID) then
+    tex:Show()
+    w.icon:Hide()
+  end
+end
+
 ---@param parent table frame
 ---@param opts table|nil { revealFx = true } adds the Epic/Legendary reveal effects
 ---@return table widget Button
@@ -370,6 +401,12 @@ function CardWidget.create(parent, opts)
   w.icon:SetSize(62, 62)
   w.icon:SetPoint("CENTER", art, "CENTER", 0, 0)
   w.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+  w.loadScreen = w:CreateTexture(nil, "OVERLAY")
+  w.loadScreen:SetPoint("TOPLEFT", art, "TOPLEFT", 1, -1)
+  w.loadScreen:SetPoint("BOTTOMRIGHT", art, "BOTTOMRIGHT", -1, 1)
+  -- The art panel is W - 10 by 80, inside a 1-pixel inset.
+  w.loadScreen:SetTexCoord(CardWidget.cropTexCoord(ns.Config.LOAD_SCREEN_ASPECT, W - 12, 78))
+  w.loadScreen:Hide()
   buildModel(w, art)
 
   -- Kind and rarity on two short lines, so long French labels fit. The
@@ -424,6 +461,7 @@ end
 local function reset(w)
   stopRevealFx(w)
   hideModel(w)
+  w.loadScreen:Hide()
   setShown(w.faceParts, false)
   setShown(w.backParts, false)
   w.copies:Hide()
@@ -451,6 +489,7 @@ function CardWidget.showCard(w, card, opts)
   w.defense:SetText(card.defense)
   setShown(w.faceParts, true)
   showModel(w, card)
+  showLoadScreen(w, card)
 
   if opts.isNew then
     w.newTag:SetText(L["New!"])

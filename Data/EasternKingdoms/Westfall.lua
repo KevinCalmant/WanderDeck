@@ -34,7 +34,7 @@ ns.Cards.registerZone({
       flavor = "Rises from the soil when night falls on Westfall." },
     { id = "1436:old_murk_eye", kind = "elite", rarity = 4, name = "Old Murk-Eye", npcID = 391, icon = "INV_Misc_Head_Murloc_01",
       flavor = "The oldest murloc on the coast, and the grumpiest." },
-    { id = "1436:the_deadmines", kind = "place", rarity = 4, name = "The Deadmines", icon = "INV_Misc_Bomb_02", areaID = 1581,
+    { id = "1436:the_deadmines", kind = "place", rarity = 4, name = "The Deadmines", icon = "INV_Misc_Bomb_02", loadScreen = "LoadScreenDeadmines", areaID = 1581,
       flavor = "Beneath Moonbrook, a ship waits in the dark." },
     { id = "1436:edwin_vancleef", kind = "boss", rarity = 5, name = "Edwin VanCleef", npcID = 639, icon = "Ability_Rogue_Ambush",
       flavor = "The stonemason who became the Defias kingpin." },

@@ -39,6 +39,7 @@ A card is static data in `Data/<Continent>/<Zone>.lua`:
 | `rarity` | One of the five quality tiers below |
 | `name`, `flavor` | Localization keys (`L[...]`) |
 | `npcID`, `icon` | Art: creature-like kinds with an `npcID` show the creature's 3D model (`PlayerModel:SetCreature`, `Config.CARD_MODELS`), over the `Interface\Icons` icon that stays as the fallback |
+| `loadScreen` | Art of a dungeon `place` card: the dungeon's loading screen, a file name under `Interface\Glues\LoadingScreens` or a file ID, cropped to the art panel (`Config.LOAD_SCREEN_ASPECT`). It covers the icon only when the client resolves the file (`GetTextureFileID`); a creature card keeps its model. Check with `/wd loadscreens` |
 | `attack`, `defense` | Shown on the card; derived from `kind` and `rarity` by `Cards.stats` |
 
 **Rarity** reuses WoW item quality names and colors (`ITEM_QUALITY_COLORS`), so players read it at a glance: Common, Uncommon, Rare, Epic, Legendary. Rarity reflects how notable the subject is in the zone: an ordinary creature is Common, a rare spawn Rare, a dungeon boss Epic, a lore figure Legendary. Drop odds per tier live in `Config.lua` (_tunable_: 60 / 25 / 10 / 4 / 1 %).

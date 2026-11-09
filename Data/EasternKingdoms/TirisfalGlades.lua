@@ -32,7 +32,7 @@ ns.Cards.registerZone({
       flavor = "A ghost that never left its sorrow." },
     { id = "1420:ressan_the_needler", kind = "rare", rarity = 3, name = "Ressan the Needler", npcID = 10357, icon = "INV_Misc_Bone_HumanSkull_01",
       flavor = "Patient, sharp, and always nearby." },
-    { id = "1420:scarlet_monastery", kind = "place", rarity = 4, name = "Scarlet Monastery", icon = "Spell_Holy_HolySmite", areaID = 796,
+    { id = "1420:scarlet_monastery", kind = "place", rarity = 4, name = "Scarlet Monastery", icon = "Spell_Holy_HolySmite", loadScreen = "LoadScreenMonastery", areaID = 796,
       flavor = "The Crusade's fortress, full of burning faith." },
     { id = "1420:scarlet_commander_mograine", kind = "boss", rarity = 4, name = "Scarlet Commander Mograine", npcID = 3976, icon = "Spell_Holy_SealOfWrath",
       flavor = "He leads the cathedral guard with a heavy hand." },

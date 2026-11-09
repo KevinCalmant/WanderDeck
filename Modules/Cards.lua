@@ -42,6 +42,9 @@ local KIND_ICONS = {
   quest = "INV_Misc_Note_01", lore = "INV_Misc_Book_09", item = "INV_Misc_Bag_08",
 }
 Cards.ICON_PREFIX = "Interface\\Icons\\"
+-- Dungeon card art: the dungeon's loading screen, as a file name under
+-- Interface\Glues\LoadingScreens (same characters as icons) or a file ID.
+Cards.LOAD_SCREEN_PREFIX = "Interface\\Glues\\LoadingScreens\\"
 local ID_PATTERN = "^([1-9]%d*):[a-z0-9_]+$"
 local ID_MAX_LENGTH = 64
 local NAME_MAX_LENGTH = 64
@@ -86,6 +89,10 @@ local function validateCard(card, zoneMapID, i, seen)
   if icon == nil then icon = KIND_ICONS[card.kind] end
   assert(type(icon) == "string" and #icon <= ICON_MAX_LENGTH and icon:match(ICON_PATTERN),
     where..": icon must be an Interface\\Icons file name (letters, digits, _)")
+  local loadScreen = card.loadScreen
+  assert(loadScreen == nil or isMapID(loadScreen) or (type(loadScreen) == "string"
+    and #loadScreen <= ICON_MAX_LENGTH and loadScreen:match(ICON_PATTERN) ~= nil),
+    where..": loadScreen must be a file name under Interface\\Glues\\LoadingScreens (letters, digits, _) or a file ID")
   local refs = 0
   for _, field in ipairs(REF_FIELDS) do
     if card[field] ~= nil then
@@ -101,7 +108,7 @@ local function validateCard(card, zoneMapID, i, seen)
 
   local registered = {
     id = card.id, zoneMapID = zoneMapID, kind = card.kind, rarity = card.rarity,
-    name = card.name, flavor = card.flavor, icon = icon,
+    name = card.name, flavor = card.flavor, icon = icon, loadScreen = loadScreen,
     itemID = card.itemID, questID = card.questID, areaID = card.areaID,
     npcID = card.npcID, level = card.level, creatureType = card.creatureType,
   }
@@ -229,6 +236,15 @@ end
 ---@return string
 function Cards.iconPath(card)
   return Cards.ICON_PREFIX..card.icon
+end
+
+---Texture of a card's loading screen art (a file ID or a full path), or nil.
+---@param card table registered card
+---@return number|string|nil
+function Cards.loadScreenPath(card)
+  local file = card.loadScreen
+  if type(file) == "string" then return Cards.LOAD_SCREEN_PREFIX..file end
+  return file
 end
 
 ---@param cardID any

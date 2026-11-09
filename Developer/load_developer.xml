@@ -3,4 +3,5 @@
   <Script file="Art.lua"/>
   <Script file="RevealTest.lua"/>
   <Script file="ModelTest.lua"/>
+  <Script file="LoadScreenTest.lua"/>
 </Ui>
