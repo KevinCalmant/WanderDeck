@@ -60,7 +60,7 @@ Each rule above has a busted test; add one per discard reason and per fallback l
 
 ## Saved variables
 
-- AceDB with `global` (settings) and `char` (step counters, unopened packs, collection). Bump `schemaVersion` and add a migration function for every layout change; a layout break is a major version.
+- AceDB with `global` (settings, and the account-wide collection: `collection`, `newCards`, `tags`, `pinned`; user decision) and `char` (step counters, pack progress, unopened packs). Bump `schemaVersion` and add a migration step in `Modules/Migration.lua` for every layout change; a layout break is a major version. Migrations run on the raw root before AceDB, since only it sees every character. Never give `schemaVersion` an AceDB default: AceDB strips values equal to their default on logout, so version 1 saves carry no version (read as 1).
 - SavedVariables are a user-editable file: run every loaded value through a schema sanitizer (type, range, known IDs) before use, as `BeaconState.lua` does in the reference repo, and drop card IDs that `Data/` no longer defines.
 - Unknown card IDs are deleted only when every zone in `Data/Loaded.lua`'s `EXPECTED_ZONES` registered (`Cards.dataLoaded`): the client keeps loading after a file errors, and a failed Data file must not wipe that zone from collections. Add each new zone to that list. Renaming a shipped card ID (including a uiMapID fix) needs a migration step that rewrites saved IDs, or players lose those cards.
 

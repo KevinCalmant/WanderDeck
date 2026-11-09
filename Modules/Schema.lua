@@ -3,7 +3,8 @@ local _, ns = ...
 local type, pairs, ipairs, floor, huge = type, pairs, ipairs, math.floor, math.huge
 
 -- Bump with a migration step for every SavedVariables layout change.
-local CURRENT_VERSION = 1
+-- Version 2 moved the card collection from `char` to `global` (Migration.lua).
+local CURRENT_VERSION = 2
 
 -- Every key AceDB-3.0 reads from the saved-variable root: the sections of its
 -- `keyTbl` plus profiles, profileKeys and namespaces. Its PLAYER_LOGOUT
@@ -133,10 +134,10 @@ end
 -- Longest card ID kept when Data/ did not finish loading (Cards.lua uses 64).
 local MAX_CARD_ID_LENGTH = 64
 
----Sanitizes the character's collection in place. Keeps only card IDs that
+---Sanitizes the account-wide collection in place. Keeps only card IDs that
 ---Data/ still defines, with a whole copy count from 1 to maxCopies; a New flag
 ---survives only for a card that is still owned.
----@param char table AceDB `db.char`
+---@param char table AceDB `db.global` (named char before version 2)
 ---@param isKnownCard fun(cardID: any): any Cards.get
 ---@param maxCopies number Config.MAX_COPIES
 ---@param dataLoaded boolean false when a Data file failed: unknown string IDs are kept, not deleted
@@ -183,6 +184,7 @@ ns.Schema = {
   MAX_ZONE_SHARES = MAX_ZONE_SHARES,
   MAX_TIMESTAMP = MAX_TIMESTAMP,
   CURRENT_VERSION = CURRENT_VERSION,
+  isValidVersion = isValidVersion,
   SECTIONS = SECTIONS,
   sanitizeRoot = function(sv) return sanitizeRoot(sv, false) end,
   sanitizeGlobal = sanitizeGlobal,

@@ -1,8 +1,9 @@
 local _, ns = ...
 
 -- Pure player tags and pins on cards.
--- char.tags   = { [cardID] = { [tag] = true } }  player tags, plus TRADE
--- char.pinned = { [cardID] = true }              pinned to the top of the binder
+-- Account-wide (db.global), like the collection:
+-- tags   = { [cardID] = { [tag] = true } }  player tags, plus TRADE
+-- pinned = { [cardID] = true }              pinned to the top of the binder
 -- Tag text is typed by the player: it is normalized and validated here, and
 -- only ever displayed with chat codes escaped (see Tags.display).
 
@@ -147,9 +148,9 @@ function Tags.display(tag)
   return (tostring(tag):gsub("|", "||"))
 end
 
----Sanitizes char.tags and char.pinned from SavedVariables in place: known
----cards only, valid tags only, and the per-card and distinct limits.
----@param char table db.char
+---Sanitizes tags and pinned from SavedVariables in place: known cards only,
+---valid tags only, and the per-card and distinct limits.
+---@param char table db.global (named char before schema version 2)
 ---@param isKnownCard fun(cardID: any): any
 ---@param dataLoaded boolean unknown IDs are deleted only when Data loaded fully
 function Tags.sanitize(char, isKnownCard, dataLoaded)

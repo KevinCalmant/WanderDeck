@@ -8,6 +8,7 @@
   <Script file="CardText.lua"/>
   <Script file="Collection.lua"/>
   <Script file="Tags.lua"/>
+  <Script file="Migration.lua"/>
   <Script file="Reveal.lua"/>
   <Script file="BinderModel.lua"/>
   <Script file="Slash.lua"/>

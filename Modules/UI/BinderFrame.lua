@@ -28,13 +28,14 @@ local function tagLabel(tag)
   return ns.Tags.display(tag)
 end
 
-local function char()
+local function account()
   local db = ns.GetDB()
-  return db and db.char
+  -- The collection, New flags, tags and pins are account-wide.
+  return db and db.global
 end
 
 local function render()
-  local c = char()
+  local c = account()
   if not c then return end
 
   local zones = BinderModel.zoneList(Cards.zoneIDs(), Cards.zoneCards, c.collection, {
@@ -167,7 +168,7 @@ local function build()
   frame.tag = Window.button(frame, "", 120)
   frame.tag:SetPoint("TOPLEFT", left + 128, -72)
   frame.tag:SetScript("OnClick", function()
-    local c = char()
+    local c = account()
     if not c then return end
     view.tag, view.page = BinderModel.nextTag(c.tags, view.tag), 1
     render()
@@ -238,7 +239,7 @@ local function ensureBuilt()
 end
 
 function BinderFrame.toggle()
-  if not char() then return end
+  if not account() then return end
   ensureBuilt()
   if frame:IsShown() then
     frame:Hide()

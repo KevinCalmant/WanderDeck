@@ -56,6 +56,8 @@ A card is static data in `Data/<Continent>/<Zone>.lua`:
 - Filters: rarity, kind, owned / missing / duplicates, tag. Search by name.
 - Tags: player-defined labels plus the built-in **For trade** tag. Players can pin favorites to the top.
 - Duplicates are stored as counts (`collection[cardID] = n`); the binder shows `×n`.
+- **Account-wide collection** (user decision, 2026-11-09): owned cards, copies, New flags, tags and pins are shared by every character of the WoW account (AceDB `global`). Walking stays per character: steps, pack progress and unopened packs (AceDB `char`), so a pack opens on the character that earned it and its cards land in the shared collection.
+- Saves from before the change (schema version 1) are merged once on load (`Modules/Migration.lua`): copies of a card are summed over all characters, capped at `MAX_COPIES`; New flags and pins are unions; tags are a union. Then the sanitizers run as on every load: they drop unknown cards, then apply the 5-per-card and 20-distinct tag limits. A version 2 save whose characters hold collection data again (the addon was rolled back and packs were opened meanwhile) is merged again.
 
 Built so far (`Modules/UI/`): reveal window with click-to-flip and Reveal all; binder with zone list, 3x3 grid, silhouettes, owned/missing/duplicates and rarity filters, search, paging, New tag cleared on view. Also built: card detail window (flavor text, copies, pin, For trade, player tags), tag filter, pinned-first order, minimap button with pack badge and tooltip, opening and reveal sounds with a mute command. Not built yet: continent level in the binder.
 
@@ -76,6 +78,8 @@ Two players who both run the addon swap duplicates through whispered addon messa
 Flow: A opens a trade window on B → both pick cards from their duplicates → each side locks its offer → both confirm → each client removes its own cards and adds the other's. A disconnect, a cancel or a timeout (_tunable_, 60 s) before both confirmations leaves both collections untouched.
 
 Trades are honor-based: each player's collection is a local file they can edit, so the addon cannot prove a card is real. Say so in the trade window.
+
+The collection is account-wide, so a trade is between two WoW accounts: refuse a trade with another character of the same account (same collection on both sides).
 
 Every incoming message is untrusted input from another player. The parser:
 

@@ -23,7 +23,7 @@ local function stubObject()
 end
 
 describe("UI frames", function()
-  local ns, char
+  local ns, char, account
 
   -- The Legendary a pack of Elwynn holds when every roll returns its upper
   -- bound: the last one in data order.
@@ -52,11 +52,10 @@ describe("UI frames", function()
     }) do
       mocks.loadSource(file, ns)
     end
-    char = {
-      stats = { yards = 0 }, progress = { total = 0, byZone = {} }, packs = {},
-      collection = {}, newCards = {}, tags = {}, pinned = {},
-    }
-    ns.GetDB = function() return { char = char, global = { settings = { sound = true } } } end
+    char = { stats = { yards = 0 }, progress = { total = 0, byZone = {} }, packs = {} }
+    -- The collection is account-wide: it lives in db.global.
+    account = { settings = { sound = true }, collection = {}, newCards = {}, tags = {}, pinned = {} }
+    ns.GetDB = function() return { char = char, global = account } end
   end)
 
   after_each(function()
@@ -65,7 +64,7 @@ describe("UI frames", function()
 
   describe("reveal", function()
     local function open()
-      local result = ns.Collection.openNext(char, function() return 1 end, function() return nil end, ns.Config)
+      local result = ns.Collection.openNext(char, account,function() return 1 end, function() return nil end, ns.Config)
       ns.RevealFrame.show(result, "Zone 1429", function() end, function() return #char.packs end)
       return result
     end
@@ -95,7 +94,7 @@ describe("UI frames", function()
 
     it("shows the card art, and a halo only on Epic and Legendary cards", function()
       char.packs = { { zoneMapID = 1429, earnedAt = 1 } }
-      local result = ns.Collection.openNext(char, function(n) return n end, function() return nil end, ns.Config)
+      local result = ns.Collection.openNext(char, account,function(n) return n end, function() return nil end, ns.Config)
       ns.RevealFrame.show(result, "Zone 1429", function() end, function() return 0 end)
       local frame, widgets = ns.RevealFrame._debug()
       frame.revealAll.scripts.OnClick()
@@ -121,7 +120,7 @@ describe("UI frames", function()
 
       it("plays the Legendary effect when a Legendary card flips, in its rarity color", function()
         char.packs = { { zoneMapID = 1429, earnedAt = 1 } }
-        local result = ns.Collection.openNext(char, function(n) return n end, function() return nil end, ns.Config)
+        local result = ns.Collection.openNext(char, account,function(n) return n end, function() return nil end, ns.Config)
         ns.RevealFrame.show(result, "Zone 1429", function() end, function() return 0 end)
         local _, widgets = ns.RevealFrame._debug()
         local played = spy(widgets[1])
@@ -222,7 +221,7 @@ describe("UI frames", function()
 
     it("hides art and halo on a face-down Legendary card, and finishes on Reveal all", function()
       char.packs = { { zoneMapID = 1429, earnedAt = 1 } }
-      local result = ns.Collection.openNext(char, function(n) return n end, function() return nil end, ns.Config)
+      local result = ns.Collection.openNext(char, account,function(n) return n end, function() return nil end, ns.Config)
       ns.RevealFrame.show(result, "Zone 1429", function() end, function() return 0 end)
       local frame, widgets, state = ns.RevealFrame._debug()
       assert.is_false(widgets[1].icon.shown)
@@ -235,7 +234,7 @@ describe("UI frames", function()
 
       -- Next pack reuses the widget: the Legendary face must not stay visible.
       char.packs = { { zoneMapID = 1429, earnedAt = 2 } }
-      result = ns.Collection.openNext(char, function() return 1 end, function() return nil end, ns.Config)
+      result = ns.Collection.openNext(char, account,function() return 1 end, function() return nil end, ns.Config)
       ns.RevealFrame.show(result, "Zone 1429", function() end, function() return 0 end)
       assert.is_false(widgets[1].halo.shown)
       assert.is_false(widgets[1].icon.shown)
@@ -245,9 +244,9 @@ describe("UI frames", function()
 
     it("opens the detail window on a second click, not before the flip", function()
       char.packs = { { zoneMapID = 1429, earnedAt = 1 } }
-      local result = ns.Collection.openNext(char, function() return 1 end, function() return nil end, ns.Config)
+      local result = ns.Collection.openNext(char, account,function() return 1 end, function() return nil end, ns.Config)
       ns.RevealFrame.show(result, "Zone 1429", function() end, function() return 0 end,
-        function(id) return char.collection[id] end)
+        function(id) return account.collection[id] end)
       local _, widgets = ns.RevealFrame._debug()
       widgets[1].scripts.OnClick()
       assert.is_nil(ns.CardDetail._debug())
@@ -262,7 +261,7 @@ describe("UI frames", function()
 
     it("flips a face-down card without opening the detail, even once the window exists", function()
       char.packs = { { zoneMapID = 1429, earnedAt = 1 } }
-      local result = ns.Collection.openNext(char, function() return 1 end, function() return nil end, ns.Config)
+      local result = ns.Collection.openNext(char, account,function() return 1 end, function() return nil end, ns.Config)
       ns.RevealFrame.show(result, "Zone 1429", function() end, function() return 0 end)
       local _, widgets, state = ns.RevealFrame._debug()
       widgets[1].scripts.OnClick()
@@ -324,8 +323,8 @@ describe("UI frames", function()
         local frame, widgets = ns.RevealFrame._debug()
         widgets[1].scripts.OnClick() -- flip one, leave four face down
         frame.closeButton.scripts.OnClick()
-        for _, id in ipairs(result.cardIDs) do assert.is_true((char.collection[id] or 0) > 0, id) end
-        for id in pairs(result.firstTime) do assert.is_true(char.newCards[id], id) end
+        for _, id in ipairs(result.cardIDs) do assert.is_true((account.collection[id] or 0) > 0, id) end
+        for id in pairs(result.firstTime) do assert.is_true(account.newCards[id], id) end
         assert.equals(1, #char.packs)
 
         open()
@@ -405,8 +404,8 @@ describe("UI frames", function()
     end)
 
     it("hides the binder and keeps New flags when drawing fails after a good build", function()
-      char.collection = { ["1429:young_wolf"] = 1 }
-      char.newCards = { ["1429:young_wolf"] = true }
+      account.collection = { ["1429:young_wolf"] = 1 }
+      account.newCards = { ["1429:young_wolf"] = true }
       local said = {}
       ns.print = function(msg) said[#said + 1] = msg end
       ns.CardWidget.showCard = function() error("draw failed") end
@@ -414,7 +413,7 @@ describe("UI frames", function()
       ns.Slash.dispatch("binder")
       local frame = ns.BinderFrame._debug()
       assert.is_false(frame.shown)
-      assert.same({ ["1429:young_wolf"] = true }, char.newCards)
+      assert.same({ ["1429:young_wolf"] = true }, account.newCards)
       assert.equals(1, #said)
     end)
 
@@ -431,8 +430,8 @@ describe("UI frames", function()
     end)
 
     it("keeps New flags when the binder fails to build after its card widgets", function()
-      char.collection = { ["1429:young_wolf"] = 1 }
-      char.newCards = { ["1429:young_wolf"] = true }
+      account.collection = { ["1429:young_wolf"] = 1 }
+      account.newCards = { ["1429:young_wolf"] = true }
       local said = {}
       ns.print = function(msg) said[#said + 1] = msg end
       local button = ns.Window.button
@@ -442,7 +441,7 @@ describe("UI frames", function()
       end
       ns.Slash.dispatch("binder")
       ns.Slash.dispatch("binder")
-      assert.same({ ["1429:young_wolf"] = true }, char.newCards)
+      assert.same({ ["1429:young_wolf"] = true }, account.newCards)
       assert.equals(2, #said)
       local frame = ns.BinderFrame._debug()
       assert.is_false(frame.shown)
@@ -552,7 +551,7 @@ describe("UI frames", function()
     end
 
     it("does not show a missing card's name in a slot that held an owned card", function()
-      char.collection = { ["1429:young_wolf"] = 1 }
+      account.collection = { ["1429:young_wolf"] = 1 }
       openCommons()
       local frame, widgets = ns.BinderFrame._debug()
       assert.equals("Young Wolf", widgets[1].name.text)
@@ -565,7 +564,7 @@ describe("UI frames", function()
     end)
 
     it("hides a Legendary card's art, name and halo when its slot turns into a missing card", function()
-      char.collection = { ["1429:hogger"] = 1 }
+      account.collection = { ["1429:hogger"] = 1 }
       ns.BinderFrame.toggle()
       local frame, widgets, _, view = ns.BinderFrame._debug()
       view.rarity = 5
@@ -583,7 +582,7 @@ describe("UI frames", function()
     end)
 
     it("opens the detail of an owned card on click, and nothing for a missing card", function()
-      char.collection = { ["1429:young_wolf"] = 3 }
+      account.collection = { ["1429:young_wolf"] = 3 }
       openCommons()
       local _, widgets = ns.BinderFrame._debug()
       widgets[2].scripts.OnClick(widgets[2]) -- missing Stonetusk Boar
@@ -597,7 +596,7 @@ describe("UI frames", function()
     end)
 
     it("does not open a missing or empty slot once the detail window exists", function()
-      char.collection = { ["1429:young_wolf"] = 1 }
+      account.collection = { ["1429:young_wolf"] = 1 }
       openCommons()
       local frame, widgets, _, view = ns.BinderFrame._debug()
       widgets[1].scripts.OnClick(widgets[1])
@@ -632,7 +631,7 @@ describe("UI frames", function()
 
     describe("tags and pins", function()
       local function openDetail()
-        char.collection = { ["1429:young_wolf"] = 1, ["1429:stonetusk_boar"] = 1 }
+        account.collection = { ["1429:young_wolf"] = 1, ["1429:stonetusk_boar"] = 1 }
         openCommons()
         local frame, widgets, _, view = ns.BinderFrame._debug()
         widgets[2].scripts.OnClick(widgets[2]) -- Stonetusk Boar
@@ -644,7 +643,7 @@ describe("UI frames", function()
         local _, widgets, _, controls = openDetail()
         assert.equals("Pin", controls.pin.text)
         controls.pin.scripts.OnClick()
-        assert.same({ ["1429:stonetusk_boar"] = true }, char.pinned)
+        assert.same({ ["1429:stonetusk_boar"] = true }, account.pinned)
         assert.equals("Unpin", controls.pin.text)
         assert.equals("Stonetusk Boar", widgets[1].name.text)
         assert.equals("Pinned", widgets[1].pinTag.text)
@@ -656,7 +655,7 @@ describe("UI frames", function()
         local _, _, _, controls = openDetail()
         controls.input.text = "  Deck FEU "
         controls.input.scripts.OnEnterPressed(controls.input)
-        assert.same({ ["1429:stonetusk_boar"] = { ["deck feu"] = true } }, char.tags)
+        assert.same({ ["1429:stonetusk_boar"] = { ["deck feu"] = true } }, account.tags)
         assert.equals("deck feu  x", controls.chips[1].text)
         assert.equals("", controls.input.text)
 
@@ -665,10 +664,10 @@ describe("UI frames", function()
         controls.input.text = "|cffff0000x"
         controls.input.scripts.OnEnterPressed(controls.input)
         assert.equals(1, #said)
-        assert.same({ ["1429:stonetusk_boar"] = { ["deck feu"] = true } }, char.tags)
+        assert.same({ ["1429:stonetusk_boar"] = { ["deck feu"] = true } }, account.tags)
 
         controls.chips[1].scripts.OnClick(controls.chips[1])
-        assert.same({}, char.tags)
+        assert.same({}, account.tags)
         assert.is_false(controls.chips[1].shown)
       end)
 
@@ -678,7 +677,7 @@ describe("UI frames", function()
         ns.print = function(msg) said[#said + 1] = msg end
         controls.input.text = "#trade"
         controls.input.scripts.OnEnterPressed(controls.input)
-        assert.same({}, char.tags)
+        assert.same({}, account.tags)
         assert.equals(1, #said)
       end)
 
@@ -701,8 +700,8 @@ describe("UI frames", function()
       end)
 
       it("shows a player tag with pipes escaped on the filter button", function()
-        char.collection = { ["1429:young_wolf"] = 1 }
-        char.tags = { ["1429:young_wolf"] = { ["a|b"] = true } } -- slipped past the sanitizer
+        account.collection = { ["1429:young_wolf"] = 1 }
+        account.tags = { ["1429:young_wolf"] = { ["a|b"] = true } } -- slipped past the sanitizer
         ns.BinderFrame.toggle()
         local frame = ns.BinderFrame._debug()
         frame.tag.scripts.OnClick() -- For trade
@@ -737,7 +736,7 @@ describe("UI frames", function()
     end)
 
     it("never displays the search text", function()
-      char.collection = { ["1429:young_wolf"] = 1 }
+      account.collection = { ["1429:young_wolf"] = 1 }
       ns.BinderFrame.toggle()
       local frame, widgets, zoneButtons = ns.BinderFrame._debug()
       frame.search.text = "wolf<script>alert(1)</script>|Hitem:1|h[x]|h"
@@ -752,8 +751,8 @@ describe("UI frames", function()
     end)
 
     it("shows owned cards face up, missing ones as silhouettes, and clears New", function()
-      char.collection = { ["1429:young_wolf"] = 2 }
-      char.newCards = { ["1429:young_wolf"] = true }
+      account.collection = { ["1429:young_wolf"] = 2 }
+      account.newCards = { ["1429:young_wolf"] = true }
       openCommons()
       local frame, widgets, zoneButtons, view = ns.BinderFrame._debug()
       assert.is_true(frame.shown)
@@ -762,7 +761,7 @@ describe("UI frames", function()
       assert.equals("x2", widgets[1].copies.text)
       assert.equals("New!", widgets[1].newTag.text)
       assert.equals("?", widgets[2].back.text)
-      assert.same({}, char.newCards)
+      assert.same({}, account.newCards)
       assert.equals("Zone 1429  1/"..#ns.Cards.zoneCards(1429), zoneButtons[1].text)
     end)
 
@@ -834,7 +833,7 @@ describe("UI frames", function()
     end)
 
     it("switches zone, filters, pages and searches without errors", function()
-      char.collection = { ["1436:moonbrook"] = 1 }
+      account.collection = { ["1436:moonbrook"] = 1 }
       ns.BinderFrame.toggle()
       local frame, widgets, zoneButtons, view = ns.BinderFrame._debug()
       zoneButtons[2].scripts.OnClick(zoneButtons[2])
@@ -854,7 +853,7 @@ describe("UI frames", function()
     it("closes the binder and the detail window with their close buttons, without HideUIPanel", function()
       _G.HideUIPanel = function() error("HideUIPanel must not be used") end
       local ok, err = pcall(function()
-        char.collection = { ["1429:young_wolf"] = 1 }
+        account.collection = { ["1429:young_wolf"] = 1 }
         openCommons()
         local frame, widgets = ns.BinderFrame._debug()
         assert.is_true(frame.shown)

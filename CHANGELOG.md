@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+
+- The card collection is account-wide: owned cards, copies, New flags, tags and pins are shared by all your characters. Steps, pack progress and unopened packs stay per character. On first load, each character's existing collection is merged into the account one (copies summed, up to 999 per card; tags, pins and New flags combined), so no card is lost. Saved data layout version 2.
+
 ### Added
 
 - Creature cards with an `npcID` show the creature's 3D model in their art panel (prototype, `Config.CARD_MODELS`); the icon stays until the model loads and remains when it never does. Developer `/wd model <npcID>` (or `display <displayID>`) checks a model on the client.

@@ -46,7 +46,7 @@ describe("RevealTest", function()
   end)
 
   it("opens the pack window without touching saved data, and never shows the typed mode", function()
-    local db = { char = { collection = {}, newCards = {}, packs = {} } }
+    local db = { char = { packs = {} }, global = { collection = {}, newCards = {}, tags = {}, pinned = {} } }
     ns.GetDB = function() return db end
     ns.Slash.dispatch("fx |cffff0000evil|r")
     assert.truthy(shown)
@@ -54,7 +54,8 @@ describe("RevealTest", function()
     assert.equals(5, #result.cardIDs)
     assert.same({}, result.firstTime)
     assert.equals("Test (mix)", subtitle)
-    assert.same({ collection = {}, newCards = {}, packs = {} }, db.char)
+    assert.same({ packs = {} }, db.char)
+    assert.same({ collection = {}, newCards = {}, tags = {}, pinned = {} }, db.global)
 
     ns.Slash.dispatch("fx EPIC")
     assert.equals("Test (epic)", shown[2])

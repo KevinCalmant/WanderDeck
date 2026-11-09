@@ -57,7 +57,7 @@ handleOpen = function()
   local db = ns.GetDB()
   if not db then return end
   -- The pack is consumed and its cards saved here, before any display.
-  local result, reason = Collection.openNext(db.char, math.random, continentOf, Config)
+  local result, reason = Collection.openNext(db.char, db.global, math.random, continentOf, Config)
   if not result then
     ns.print(reason == "no-pack" and L["No pack to open. Keep walking!"] or L["No cards available for this pack."])
     return
@@ -68,7 +68,7 @@ handleOpen = function()
   -- The closure keeps a missing RevealFrame module inside the protection.
   local function copiesOf(cardID)
     local current = ns.GetDB()
-    return current and current.char.collection[cardID]
+    return current and current.global.collection[cardID]
   end
   local ok, err = pcall(function() return ns.RevealFrame.show(result, zoneName, handleOpen, packsLeft, copiesOf) end)
   if not ok then
@@ -88,7 +88,7 @@ end
 local function handleCards()
   local db = ns.GetDB()
   if not db then return end
-  local collection = db.char.collection
+  local collection = db.global.collection
   local ownedAll, totalAll = 0, 0
   for _, zoneMapID in ipairs(Cards.zoneIDs()) do
     local owned, total = Collection.progress(collection, Cards.zoneCards(zoneMapID))

@@ -4,20 +4,24 @@ local Slash = ns.Slash
 local Schema = ns.Schema
 local Config = ns.Config
 local Walker = ns.Walker
+local Migration = ns.Migration
 
 local defaultSavedVars = {
+  -- No schemaVersion default: AceDB strips a value equal to its default on
+  -- logout, which would hide the version from the next migration.
   global = {
-    schemaVersion = Schema.CURRENT_VERSION,
     settings = { sound = true, minimapHidden = false, minimapAngle = Schema.DEFAULT_MINIMAP_ANGLE },
-  },
-  char = {
-    stats = { yards = 0 },
-    progress = { total = 0, byZone = {} },
-    packs = {},
+    -- The card collection is account-wide (schema version 2).
     collection = {},
     newCards = {},
     tags = {},
     pinned = {},
+  },
+  -- Walking stays per character: steps, pack progress, unopened packs.
+  char = {
+    stats = { yards = 0 },
+    progress = { total = 0, byZone = {} },
+    packs = {},
   },
 }
 
@@ -40,7 +44,10 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1, arg2)
     -- One of our item cards may have just loaded (arg1 = itemID, arg2 = success).
     ns.CardText.onItemDataLoaded(arg1, arg2, C_Timer and C_Timer.After, ns.refreshUI)
   elseif event == "ADDON_LOADED" and arg1 == addonName then
-    _G.WanderDeckDB = Schema.sanitizeRoot(_G.WanderDeckDB)
+    local sv = Schema.sanitizeRoot(_G.WanderDeckDB)
+    -- Before AceDB: the merge reads every character, not only this one.
+    Migration.run(sv, Config.MAX_COPIES)
+    _G.WanderDeckDB = sv
     db = LibStub("AceDB-3.0"):New("WanderDeckDB", defaultSavedVars, true)
     if Schema.sanitizeGlobal(db.global) == "newer" then
       ns.print("Saved data comes from a newer WanderDeck version; update the addon.")
@@ -48,8 +55,8 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1, arg2)
     Schema.sanitizeSettings(db.global)
     Schema.sanitizeChar(db.char, Config.MAX_UNOPENED_PACKS)
     local dataLoaded = ns.Cards.dataLoaded == true
-    Schema.sanitizeCollection(db.char, ns.Cards.get, Config.MAX_COPIES, dataLoaded)
-    ns.Tags.sanitize(db.char, ns.Cards.get, dataLoaded)
+    Schema.sanitizeCollection(db.global, ns.Cards.get, Config.MAX_COPIES, dataLoaded)
+    ns.Tags.sanitize(db.global, ns.Cards.get, dataLoaded)
     self:UnregisterEvent("ADDON_LOADED")
     Walker.start()
     if ns.MinimapButton then pcall(ns.MinimapButton.init) end
