@@ -24,8 +24,10 @@ ns.Config = {
   MAX_UNOPENED_PACKS = 20,
   -- Cards in one pack.
   CARDS_PER_PACK = 5,
-  -- Relative drop weight per rarity (1 Common .. 5 Legendary) (guess).
-  RARITY_WEIGHTS = { 60, 25, 10, 4, 1 },
+  -- Relative drop weight per rarity (1 Common .. 5 Legendary), per card.
+  -- With 5 cards a pack: about 1 pack in 10 holds an Epic, 1 in 40 a
+  -- Legendary (user decision, 2026-11-09).
+  RARITY_WEIGHTS = { 124, 50, 20, 4, 1 },
   -- Every pack holds at least one card of this rarity or better (2 = Uncommon).
   GUARANTEED_RARITY = 2,
   -- Percent chance that a draw picks among the cards of its rarity the player
