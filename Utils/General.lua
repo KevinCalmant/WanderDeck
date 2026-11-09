@@ -18,11 +18,22 @@ end
 
 -- Invisible or direction-changing characters (UTF-8 bytes): C1 controls,
 -- no-break space, zero-width and bidi marks (U+2000-200F, U+2028-202F),
--- word joiners (U+2060-206F) and the BOM.
+-- word joiners (U+2060-206F), the BOM, and blank-looking or invisible
+-- characters outside those blocks (grapheme joiner, Hangul and braille
+-- blanks, Khmer and Mongolian invisible marks, variation selectors).
 local INVISIBLE_PATTERNS = {
   "\194[\128-\160]",          -- C1 controls, U+00A0
   "\194\173",                 -- U+00AD soft hyphen
-  "\225\160\142",             -- U+180E
+  "\205\143",                 -- U+034F combining grapheme joiner
+  "\216\156",                 -- U+061C Arabic letter mark (bidi)
+  "\225\133[\159-\160]",      -- U+115F-1160 Hangul fillers
+  "\225\158[\180-\181]",      -- U+17B4-17B5 Khmer inherent vowels
+  "\225\160[\139-\143]",      -- U+180B-180F Mongolian selectors, vowel separator
+  "\226\160\128",             -- U+2800 braille blank
+  "\239\190\160",             -- U+FFA0 halfwidth Hangul filler
+  "\243\160[\132-\135]",      -- U+E0100-E01EF variation selectors supplement
+  "\240\155\178[\160-\163]",  -- U+1BCA0-1BCA3 shorthand format controls
+  "\240\157\133[\179-\186]",  -- U+1D173-1D17A musical format controls
   "\226\128[\128-\143]",      -- U+2000-200F
   "\226\128[\168-\175]",      -- U+2028-202F
   "\226\129[\160-\175]",      -- U+2060-206F

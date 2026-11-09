@@ -793,18 +793,15 @@ def lua_string(text):
 # --- French names ----------------------------------------------------------
 
 FR_MAX_BYTES = 64  # CardText's NAME_MAX_LENGTH
-# Code points ns.Utils.isCleanText refuses (C1 controls and U+00A0, soft
-# hyphen, U+180E, zero-width and bidi marks, line and paragraph separators,
-# narrow NBSP, word joiners, Hangul filler, variation selectors, BOM, tag
-# characters), plus U+FFFD: the dump reader turns malformed UTF-8 into it.
-FR_REFUSED_RANGES = [
-    (0x80, 0xA0), (0xAD, 0xAD), (0x180E, 0x180E), (0x2000, 0x200F), (0x2028, 0x202F),
-    (0x2060, 0x206F), (0x3164, 0x3164), (0xFE00, 0xFE0F), (0xFEFF, 0xFEFF),
-    (0xE0000, 0xE007F), (0xFFFD, 0xFFFD),
-]
-# Any other control, format, surrogate, private-use or unassigned code point,
-# and any space but U+0020, is refused too.
-FR_REFUSED_CATEGORIES = {"Cc", "Cf", "Cs", "Co", "Cn", "Zl", "Zp"}
+# The only non-ASCII characters a French name may hold: accented Latin-1
+# letters (not U+00D7 or U+00F7), the oe ligatures, Y with diaeresis,
+# guillemets, en and em dashes, the typographic apostrophe and the ellipsis.
+# An allow-list, not a deny-list: invisible, blank-looking, combining, bidi
+# and replacement characters (U+FFFD marks malformed UTF-8 in the dump) all
+# fall outside it, including those no list of refused code points names.
+FR_ALLOWED_NON_ASCII = frozenset(
+    [chr(cp) for cp in range(0xC0, 0x100) if cp not in (0xD7, 0xF7)]
+    + ["\u0152", "\u0153", "\u0178", "\u00ab", "\u00bb", "\u2013", "\u2014", "\u2019", "\u2026"])
 FR_LOCALE_FILE = "frFR_Generated.lua"
 # Hand-written card kinds whose name can be a creature name.
 CREATURE_CARD_KINDS = {"creature", "rare", "elite", "boss", "npc"}
@@ -826,10 +823,8 @@ def french_problem(text):
         cp = ord(ch)
         if cp < 0x20 or cp == 0x7F:
             return "control character"
-        category = unicodedata.category(ch)
-        if (any(lo <= cp <= hi for lo, hi in FR_REFUSED_RANGES) or category in FR_REFUSED_CATEGORIES
-                or (category == "Zs" and ch != " ")):
-            return "invisible, bidi or replacement character"
+        if cp > 0x7F and ch not in FR_ALLOWED_NON_ASCII:
+            return "character outside the French set"
     if "|" in text:
         return "contains |"
     if not text.strip():
@@ -859,10 +854,12 @@ def unescape_lua(text):
 def normalize_french(value):
     """French typography puts a no-break space (U+00A0, or narrow U+202F)
     before ! ? : ; and inside guillemets; the addon refuses those characters,
-    so they become a plain space. Anything else is left for french_problem."""
+    so they become a plain space. NFC first, so a letter stored as a base and
+    a combining accent becomes the one accented letter. Anything else is left
+    for french_problem."""
     if not isinstance(value, str):
         return value
-    return value.replace(" ", " ").replace(" ", " ")
+    return unicodedata.normalize("NFC", value).replace(" ", " ").replace(" ", " ")
 
 
 def read_french(folder, table, key, column):

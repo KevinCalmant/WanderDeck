@@ -55,14 +55,34 @@ HOSTILE_FRENCH = [
     "Lar⁠deur", "﻿Lardeur", "Lar�deur", "Lar\u0085deur", "Lar­deur", "Lar\U000e0041deur",
     "Larㅤdeur", "Lar️deur", "Lar deur", "Lar　deur", "Lardeur", "Lar\ud800deur",
     FR_64 + "a", "a" * 65, "", "   ", " Lardeur", "Lardeur ", None, 5, b"Lardeur",
+    # Invisible or blank-looking characters outside the categories a deny-list
+    # would catch: combining grapheme joiner, braille blank, Hangul fillers,
+    # Mongolian and supplementary variation selectors, Khmer inherent vowels.
+    "Lar͏deur", "⠀", "⠀⠀", "Larᅟdeur", "Larᅠdeur", "Larﾠdeur",
+    "Lar᠋deur", "Lar\U000e0100deur", "Lar឴deur",
+    # Stacked combining marks ("Zalgo"), and a lone combining accent.
+    "a" + "́" * 20, "Lardeuŕ́", "́",
+    # Look-alikes and letters French names never use.
+    "Lardеur", "Lardeur™", "Lar×deur", "가",
 ]
 
 
 class FrenchProblem(unittest.TestCase):
     def test_accepts_french_names(self):
         for text in ["Lardeur", "Écorcheur des Mortemines", "Vol’jin", "MacKinley « Loup des mers »",
-                     "Gnoll Rivepatte", 'Le "Roi"', "a\\b", "Œil", FR_64, "a" * 64]:
+                     "Gnoll Rivepatte", 'Le "Roi"', "a\\b", "Œil", FR_64, "a" * 64,
+                     "Ÿ", "Naïve – « Hé » … — c’est", "ÀÂÇÈÉÊËÎÏÔÙÛÜàâçèéêëîïôùûüÿæÆ"]:
             self.assertIsNone(gen.french_problem(text), repr(text))
+
+    def test_accepts_every_character_of_the_shipped_french_files(self):
+        # The allow-list must not drop a name already shipped or curated.
+        import glob
+        repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        for path in glob.glob(os.path.join(repo, "Locales", "frFR*.lua")):
+            with open(path, encoding="utf-8") as handle:
+                for ch in set(handle.read()):
+                    if ord(ch) > 0x7F:
+                        self.assertIn(ch, gen.FR_ALLOWED_NON_ASCII, "%s U+%04X" % (os.path.basename(path), ord(ch)))
 
     def test_refuses_hostile_values(self):
         for text in HOSTILE_FRENCH:
@@ -71,7 +91,8 @@ class FrenchProblem(unittest.TestCase):
     def test_names_the_reason(self):
         self.assertEqual("contains |", gen.french_problem("a|cff"))
         self.assertEqual("control character", gen.french_problem("a\nb"))
-        self.assertEqual("invisible, bidi or replacement character", gen.french_problem("a‮b"))
+        self.assertEqual("character outside the French set", gen.french_problem("a‮b"))
+        self.assertEqual("character outside the French set", gen.french_problem("⠀"))
         self.assertEqual("longer than 64 bytes", gen.french_problem(FR_64 + "a"))
         self.assertEqual("blank", gen.french_problem(" "))
         self.assertEqual("missing", gen.french_problem(None))
@@ -82,6 +103,18 @@ class NormalizeFrench(unittest.TestCase):
         self.assertEqual("Terre !", gen.normalize_french("Terre !"))
         self.assertEqual("« Hé »", gen.normalize_french("« Hé »"))
         self.assertIsNone(gen.french_problem(gen.normalize_french("Un gyro... quoi ?")))
+
+    def test_composes_a_base_letter_and_its_combining_accent(self):
+        self.assertEqual("Écorcheur", gen.normalize_french("Écorcheur"))
+        self.assertIsNone(gen.french_problem(gen.normalize_french("Écorcheur")))
+        # NFC composes one accent at most; the stacked rest is still refused.
+        self.assertIsNotNone(gen.french_problem(gen.normalize_french("e" + "́" * 3)))
+
+    def test_nfc_singletons_are_checked_after_normalizing(self):
+        # U+212A KELVIN SIGN and U+037E GREEK QUESTION MARK map to ASCII.
+        self.assertEqual("K;", gen.normalize_french("K;"))
+        self.assertIsNone(gen.french_problem(gen.normalize_french("K;")))
+        self.assertIsNotNone(gen.french_problem("K"))
 
     def test_leaves_other_hostile_characters_for_french_problem(self):
         for bad in ["a​b", "a‮b", "a|cffb", "a\nb", " Terre"]:
@@ -121,6 +154,14 @@ class FrenchNames(unittest.TestCase):
             self.assertEqual({}, names, repr(bad))
             self.assertEqual(1, sum(n for reason, n in stats.items() if "written" not in reason), repr(bad))
             self.assertNotIn("Young Wolf", gen.render_french(names))
+
+    def test_an_english_key_that_is_not_clean_ascii_is_skipped(self):
+        creatures = {1: "Evil|cffff0000", 2: "Écorcheur", 3: "a" * 65}
+        fr = fr_tables(npc={1: "Mal", 2: "Écorcheur fr", 3: "Long"})
+        hand = [("creature", "Evil|cffff0000"), ("creature", "Écorcheur"), ("creature", "a" * 65)]
+        names, stats = gen.french_names([], hand, creatures, fr, set())
+        self.assertEqual({}, names)
+        self.assertEqual(3, stats["hand-written: English key not clean ASCII"])
 
     def test_lowest_id_wins_when_sources_disagree(self):
         cards = [card(id="1429:npc_300", entry=300), card()]

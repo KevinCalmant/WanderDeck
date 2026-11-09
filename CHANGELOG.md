@@ -6,7 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
-- French card names in a French client: generated cards (creatures, NPCs, quests, items) and hand-written creature cards get their French name from `Locales/frFR_Generated.lua` (built from the AzerothCore locale tables), and 134 place cards take their localized name from the client (`areaID`).
+- French card names in a French client: generated cards (creatures, NPCs, quests, items) and hand-written creature cards get their French name from `Locales/frFR_Generated.lua` (built from the AzerothCore locale tables; a name with any character outside French letters and punctuation is skipped), and 134 place cards take their localized name from the client (`areaID`).
 - Rarer Epics and Legendaries: about 1 pack in 10 holds an Epic and 1 in 40 a Legendary (was 1 in 5 and 1 in 20).
 - Addon skeleton: TOC for WoW Forever (Interface 16001), AceDB saved variables, `/wd` slash command.
 - Step tracking: walking on foot outdoors counts steps; mounted, taxi, vehicle, dead, instance and teleport moves are ignored.

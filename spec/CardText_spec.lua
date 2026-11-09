@@ -280,6 +280,36 @@ describe("CardText", function()
       end
     end)
 
+    it("refuses blank-looking and invisible characters outside the format blocks", function()
+      for _, bad in ipairs({
+        "Lar\205\143deur",           -- U+034F
+        "\226\160\128",              -- U+2800 alone
+        "Lar\225\133\159deur", "Lar\225\133\160deur", "Lar\239\190\160deur", -- Hangul fillers
+        "Lar\225\158\180deur", "Lar\225\158\181deur", -- U+17B4-17B5
+        "Lar\225\160\139deur", "Lar\225\160\141deur", -- U+180B, U+180D
+        "Lar\243\160\132\128deur", "Lar\243\160\135\175deur", -- U+E0100, U+E01EF
+        "Lar\216\156deur",           -- U+061C
+        "Lar\225\160\143deur",       -- U+180F
+        "Lar\240\155\178\160deur", "Lar\240\155\178\163deur", -- U+1BCA0, U+1BCA3
+        "Lar\240\157\133\179deur", "Lar\240\157\133\186deur", -- U+1D173, U+1D17A
+      }) do
+        assert.is_false(ns.Utils.isCleanText(bad), bad)
+      end
+    end)
+
+    it("still accepts the letters next to those ranges", function()
+      -- U+034E, U+1161 (Hangul vowel), U+2801 (braille dot), Korean syllable,
+      -- U+180A, U+17B3, U+17B6, U+FFA1, U+E00FF, U+061B, U+1BC9F, U+1D172,
+      -- U+1D17B, Cyrillic Ж.
+      for _, good in ipairs({
+        "a\205\142b", "\225\133\161", "\226\160\129", "\234\176\128",
+        "\225\160\138", "\225\158\179", "\225\158\182", "\239\190\161", "\243\160\131\191", "\216\155",
+        "\240\155\178\159", "\240\157\133\178", "\240\157\133\187", "\208\150",
+      }) do
+        assert.is_true(ns.Utils.isCleanText(good), good)
+      end
+    end)
+
     it("accepts accented, CJK and emoji-plane text", function()
       for _, good in ipairs({ "Étoffe de lin", "亚麻布", "Mère Croc", "a\240\159\144\186b" }) do
         assert.is_true(ns.Utils.isCleanText(good), good)
