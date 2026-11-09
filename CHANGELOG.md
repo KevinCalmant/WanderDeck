@@ -10,7 +10,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
-- Creature cards with an `npcID` show the creature's 3D model in their art panel (prototype, `Config.CARD_MODELS`); the icon stays until the model loads and remains when it never does. Developer `/wd model <npcID>` (or `display <displayID>`) checks a model on the client.
+- Creature cards with an `npcID` show the creature's 3D model in their art panel (prototype, `Config.CARD_MODELS`); the icon stays until the model loads and remains when it never does. 280 of the 288 hand-written creature cards got an `npcID`: 241 by exact English name (Hogger, Vol'jin; a generic name such as "Raptor" takes the vanilla creature of that name) and 39 picked by hand from the zone's creatures ("Yeti" in Alterac is a Mountain Yeti). The 8 without a vanilla creature (Rexxar, Brann Bronzebeard, ...) keep their icon. Developer `/wd model <npcID>` (or `display <displayID>`) checks a model on the client.
 - French card names in a French client: generated cards (creatures, NPCs, quests, items) and hand-written creature cards get their French name from `Locales/frFR_Generated.lua` (built from the AzerothCore locale tables; a name with any character outside French letters and punctuation is skipped), and 134 place cards take their localized name from the client (`areaID`).
 - Rarer Epics and Legendaries: about 1 pack in 10 holds an Epic and 1 in 40 a Legendary (was 1 in 5 and 1 in 20).
 - Addon skeleton: TOC for WoW Forever (Interface 16001), AceDB saved variables, `/wd` slash command.

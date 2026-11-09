@@ -449,7 +449,7 @@ describe("UI frames", function()
   end)
 
   describe("card art model", function()
-    local models, w
+    local models, w, timers
 
     local function creature(fields)
       local c = { id = "1429:npc_299", kind = "creature", rarity = 1, name = "Young Wolf",
@@ -464,16 +464,74 @@ describe("UI frames", function()
         local o = stubObject()
         if frameType == "PlayerModel" then
           models[#models + 1] = o
-          o.SetCreature = function(self, id) self.creature = id; self.fileID = self.cachedFileID end
-          o.ClearModel = function(self) self.creature, self.fileID = nil, nil end
+          o.loads = 0
+          o.SetCreature = function(self, id) self.creature = id; self.fileID = self.cachedFileID; self.loads = self.loads + 1 end
+          -- false, not nil: the stub answers unset keys with a function.
+          o.ClearModel = function(self) self.creature, self.fileID = false, false end
           o.GetModelFileID = function(self) return self.fileID end
+          -- Like the client, OnShow fires when the model becomes visible:
+          -- at once when its parent is visible, else when the parent opens.
+          o.parentVisible = true
+          o.Show = function(self)
+            local was = self.shown
+            self.shown = true
+            if not was and self.parentVisible and self.scripts.OnShow then self.scripts.OnShow(self) end
+          end
+          o.Hide = function(self)
+            local was = self.shown
+            self.shown = false
+            if was and self.scripts.OnHide then self.scripts.OnHide(self) end
+          end
+          o.IsVisible = function(self) return self.shown and self.parentVisible end
         end
         return o
       end
+      timers = {}
+      _G.C_Timer = { After = function(_, fn) timers[#timers + 1] = fn end }
       w = ns.CardWidget.create(_G.UIParent)
     end)
 
-    after_each(function() _G.issecretvalue = nil end)
+    after_each(function() _G.issecretvalue, _G.C_Timer = nil, nil end)
+
+    it("loads the model only once the card is visible, then again on the next frame", function()
+      local m = models[1]
+      m.parentVisible = false
+      ns.CardWidget.showCard(w, creature())
+      assert.equals(0, m.loads)
+      -- The window opens: the model becomes visible.
+      m.parentVisible = true
+      m.scripts.OnShow(m)
+      assert.equals(1, m.loads)
+      assert.equals(299, m.creature)
+      timers[#timers]()
+      assert.equals(2, m.loads)
+    end)
+
+    it("skips a next-frame reload for a card the slot no longer shows", function()
+      local m = models[1]
+      ns.CardWidget.showCard(w, creature())
+      local stale = timers[#timers]
+      ns.CardWidget.showCard(w, creature({ kind = "place" }))
+      stale()
+      assert.is_false(m.creature)
+      ns.CardWidget.showCard(w, creature({ npcID = 300 }))
+      stale()
+      assert.equals(1, m.loads - 1) -- the 300 load only, not a reload of 299
+      assert.equals(300, m.creature)
+    end)
+
+    it("still shows the model on a client without C_Timer", function()
+      _G.C_Timer = nil
+      ns.CardWidget.showCard(w, creature())
+      assert.equals(299, models[1].creature)
+    end)
+
+    it("frees the model when the card is hidden", function()
+      local m = models[1]
+      ns.CardWidget.showCard(w, creature())
+      m:Hide()
+      assert.is_false(m.creature)
+    end)
 
     it("shows the creature's model and keeps the icon until it loads", function()
       ns.CardWidget.showCard(w, creature())

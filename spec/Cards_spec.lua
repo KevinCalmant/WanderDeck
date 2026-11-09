@@ -448,6 +448,12 @@ describe("Data", function()
     end
   end)
 
+  it("gives hand-written creature cards their npcID, so they show a 3D model", function()
+    assert.equals(448, ns.Cards.get("1429:hogger").npcID)
+    assert.equals(10540, ns.Cards.get("1411:voljin").npcID)
+    assert.equals(639, ns.Cards.get("1436:edwin_vancleef").npcID)
+  end)
+
   it("ships about 120 cards per zone, with every rarity", function()
     -- Zones where the AzerothCore dump has too few outdoor spawns in the
     -- level range (Deadwind Pass and Moonglade NPCs are above level 63).

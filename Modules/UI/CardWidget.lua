@@ -222,6 +222,33 @@ local function onModelLoaded(w)
   if modelLoaded(w.model) then w.icon:Hide() end
 end
 
+local hideModel
+
+-- Loads the card's creature into the model frame. Called when the model
+-- becomes visible and again on the next frame: a model set in the same frame
+-- as its window opens (the binder renders right after Show) gets no camera,
+-- since the frame has no laid-out size yet, and draws nothing.
+local function applyModel(w)
+  local m, npcID = w.model, w.modelNpcID
+  if not (m and npcID) then return end
+  local ok = pcall(function()
+    m:SetCreature(npcID)
+    m:SetPortraitZoom(ns.Config.CARD_MODEL_ZOOM)
+  end)
+  if not ok then hideModel(w) return end
+  -- A cached model may be ready at once, without OnModelLoaded.
+  if modelLoaded(m) then w.icon:Hide() end
+end
+
+local function applyNextFrame(w)
+  if not (type(C_Timer) == "table" and type(C_Timer.After) == "function") then return end
+  local token = w.modelToken + 1
+  w.modelToken = token
+  C_Timer.After(0, function()
+    if w.modelToken == token and w.modelNpcID and w.model:IsVisible() then applyModel(w) end
+  end)
+end
+
 local function buildModel(w, art)
   local ok, model = pcall(function()
     local m = CreateFrame("PlayerModel", nil, w)
@@ -230,14 +257,24 @@ local function buildModel(w, art)
     -- Clicks go through to the card button.
     m:EnableMouse(false)
     m:SetScript("OnModelLoaded", function() onModelLoaded(w) end)
+    -- Only visible cards hold a model: a closed window frees its models and
+    -- reloads them when it opens again.
+    m:SetScript("OnShow", function()
+      applyModel(w)
+      applyNextFrame(w)
+    end)
+    m:SetScript("OnHide", function(self) pcall(self.ClearModel, self) end)
     m:Hide()
     return m
   end)
+  -- Explicit starting values: a frame (or a test stub) may answer unset keys.
+  w.modelNpcID, w.modelToken = false, 0
   if ok then w.model = model end
 end
 
-local function hideModel(w)
-  w.modelNpcID = nil
+hideModel = function(w)
+  w.modelNpcID = false
+  w.modelToken = w.modelToken + 1
   if w.model then
     w.model:Hide()
     pcall(w.model.ClearModel, w.model)
@@ -248,14 +285,9 @@ local function showModel(w, card)
   local npcID = ns.CardText.modelNpcID(card)
   if not (w.model and npcID) then return end
   w.modelNpcID = npcID
-  local ok = pcall(function()
-    w.model:Show()
-    w.model:SetCreature(npcID)
-    w.model:SetPortraitZoom(ns.Config.CARD_MODEL_ZOOM)
-  end)
-  if not ok then hideModel(w) return end
-  -- A cached model may be ready at once, without OnModelLoaded.
-  if modelLoaded(w.model) then w.icon:Hide() end
+  -- reset() hid the model, so Show fires OnShow, which loads it, now if the
+  -- card is visible, else when its window opens.
+  if not pcall(w.model.Show, w.model) then hideModel(w) end
 end
 
 ---@param parent table frame
