@@ -223,6 +223,8 @@ local function onModelLoaded(w)
 end
 
 local hideModel
+local withModel = {} -- every widget that has a model frame
+local soloWidget -- while set, only this widget shows its 3D model
 
 -- Loads the card's creature into the model frame. Called when the model
 -- becomes visible and again on the next frame: a model set in the same frame
@@ -269,7 +271,10 @@ local function buildModel(w, art)
   end)
   -- Explicit starting values: a frame (or a test stub) may answer unset keys.
   w.modelNpcID, w.modelToken = false, 0
-  if ok then w.model = model end
+  if ok then
+    w.model = model
+    withModel[#withModel + 1] = w
+  end
 end
 
 hideModel = function(w)
@@ -285,9 +290,30 @@ local function showModel(w, card)
   local npcID = ns.CardText.modelNpcID(card)
   if not (w.model and npcID) then return end
   w.modelNpcID = npcID
+  if soloWidget and w ~= soloWidget then return end
   -- reset() hid the model, so Show fires OnShow, which loads it, now if the
   -- card is visible, else when its window opens.
   if not pcall(w.model.Show, w.model) then hideModel(w) end
+end
+
+---Shows only this widget's 3D model; the others show their icon until
+---soloModel(nil). Model frames share one depth buffer, so a model drawn under
+---a window cuts holes in the model of a card shown over it.
+---@param w table|nil widget, or nil to show every model again
+function CardWidget.soloModel(w)
+  soloWidget = w
+  for _, other in ipairs(withModel) do
+    if other ~= w and other.modelNpcID then
+      if w then
+        if other.model:IsShown() then
+          other.model:Hide()
+          other.icon:Show()
+        end
+      elseif not other.model:IsShown() and not pcall(other.model.Show, other.model) then
+        hideModel(other)
+      end
+    end
+  end
 end
 
 ---@param parent table frame

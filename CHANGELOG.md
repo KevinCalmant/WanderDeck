@@ -8,6 +8,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - The card collection is account-wide: owned cards, copies, New flags, tags and pins are shared by all your characters. Steps, pack progress and unopened packs stay per character. On first load, each character's existing collection is merged into the account one (copies summed, up to 999 per card; tags, pins and New flags combined), so no card is lost. Saved data layout version 2.
 
+### Fixed
+
+- The 3D model of a card opened in the detail window no longer has holes cut by the models of the cards behind it: while the detail window is open, the binder and pack cards show their icon instead.
+
 ### Added
 
 - Creature cards with an `npcID` show the creature's 3D model in their art panel (prototype, `Config.CARD_MODELS`); the icon stays until the model loads and remains when it never does. 280 of the 288 hand-written creature cards got an `npcID`: 241 by exact English name (Hogger, Vol'jin; a generic name such as "Raptor" takes the vanilla creature of that name) and 39 picked by hand from the zone's creatures ("Yeti" in Alterac is a Mountain Yeti). Lore cards naming a character (Thrall, Sylvanas, ...) show their model too. Five cards with no NPC on Forever (checked on Wowhead's Forever database) were removed: Twilight Lord Bathiel, Highlord Kruul, Brann Bronzebeard, Mountain Giant and Bog Beast. Durgen Dirgehammer, Kackle and Rexxar take their Forever NPC IDs. Developer `/wd model <npcID>` (or `display <displayID>`) checks a model on the client.

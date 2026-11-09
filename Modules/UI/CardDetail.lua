@@ -66,6 +66,7 @@ local function build()
   -- Height: pin/trade row, three rows of tag chips, hint, input, copies line.
   frame = Window.create("WanderDeckCardDetail", "", WIDTH, CONTROLS_TOP + 175)
   frame:SetFrameStrata("FULLSCREEN_DIALOG")
+  frame:SetScript("OnHide", function() CardWidget.soloModel(nil) end)
 
   big = CardWidget.create(frame)
   big:SetScale(SCALE)
@@ -156,6 +157,7 @@ function CardDetail.show(card, copies, opts)
   current = { card = card, onChange = opts and opts.onChange }
   frame.title:SetText(ns.CardText.name(card))
   frame.title:SetTextColor(CardWidget.rarityRGB(card.rarity))
+  CardWidget.soloModel(big)
   CardWidget.showCard(big, card)
   flavor:SetText(ns.CardText.flavor(card))
   -- Only a whole positive count is shown (anything else hides the line).
