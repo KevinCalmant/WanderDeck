@@ -9,7 +9,7 @@ ns.Cards.registerZone({
   cards = {
     { id = "1418:archaedas", kind = "boss", rarity = 5, name = "Archaedas", icon = "Spell_Nature_Earthquake",
       flavor = "An ancient stone guardian that wakes only when disturbed." },
-    { id = "1418:uldaman", kind = "place", rarity = 4, name = "Uldaman", icon = "INV_Misc_Bone_HumanSkull_01",
+    { id = "1418:uldaman", kind = "place", rarity = 4, name = "Uldaman", icon = "INV_Misc_Bone_HumanSkull_01", areaID = 1517,
       flavor = "A buried vault whose last guardian waits in the depths." },
     { id = "1418:barnabus", kind = "rare", rarity = 4, name = "Barnabus", icon = "Spell_Nature_Earthquake",
       flavor = "A big stone brute that shakes the ground as it walks." },

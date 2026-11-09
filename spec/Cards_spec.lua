@@ -611,6 +611,59 @@ describe("Data", function()
     end
   end)
 
+  it("loads the generated French names in a French client only, before the curated files", function()
+    local handle = assert(io.open("locales.xml"))
+    local xml = handle:read("*a")
+    handle:close()
+    local files = {}
+    for file in xml:gmatch('<Script file="([^"]+)"') do files[#files + 1] = file end
+    assert.equals("Locales\\enUS.lua", files[1])
+    assert.equals("Locales\\frFR_Generated.lua", files[2])
+    assert.equals("Locales\\frFR.lua", files[3])
+
+    _G.GetLocale = function() return "enUS" end
+    local en = mocks.newNamespace()
+    mocks.loadSource("Locales/frFR_Generated.lua", en)
+    assert.is_nil(next(en.L))
+  end)
+
+  it("keeps every generated French name a short clean card name", function()
+    _G.GetLocale = function() return "frFR" end
+    local fr = mocks.newNamespace()
+    mocks.loadSource("Locales/frFR_Generated.lua", fr)
+    local cardNames = {}
+    for _, zoneMapID in ipairs(ns.Cards.zoneIDs()) do
+      for _, c in ipairs(ns.Cards.zoneCards(zoneMapID)) do cardNames[c.name] = true end
+    end
+    local count = 0
+    for key, value in pairs(fr.L) do
+      count = count + 1
+      assert.is_true(cardNames[key] == true, "not a card name: "..key)
+      assert.is_string(value, key)
+      assert.is_truthy(value:find("%S"), "blank: "..key)
+      assert.is_true(#value <= 64, "longer than 64 bytes: "..key)
+      assert.is_nil(value:find("|", 1, true), key)
+      assert.is_nil(value:find("%c"), key)
+      assert.is_true(fr.Utils.isCleanText(value), "not clean UTF-8: "..key)
+      assert.is_nil(value:find("\239\191\189", 1, true), "replacement character: "..key)
+      assert.is_true(value ~= key, "same as English: "..key)
+    end
+    assert.is_true(count > 1000, "only "..count.." names")
+  end)
+
+  it("never generates a French name a curated file already holds", function()
+    _G.GetLocale = function() return "frFR" end
+    local generated = mocks.newNamespace()
+    mocks.loadSource("Locales/frFR_Generated.lua", generated)
+    local all = mocks.newNamespace()
+    mocks.loadLocales(all)
+    for key, value in pairs(generated.L) do
+      -- The generator leaves out names a curated file already translates,
+      -- so every generated name survives the curated files unchanged.
+      assert.equals(value, rawget(all.L, key), key)
+    end
+  end)
+
   it("keeps card text free of chat escape codes", function()
     local fresh_isClean = ns.Utils.isCleanText
     for _, zoneMapID in ipairs(ns.Cards.zoneIDs()) do

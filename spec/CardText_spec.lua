@@ -73,6 +73,37 @@ describe("CardText", function()
       assert.equals("Linen Cloth (data)", CardText.name(card({ questID = 176 }), { C_QuestLog = 5 }))
     end)
 
+    it("shows a generated NPC card's French name in a French client", function()
+      _G.GetLocale = function() return "frFR" end
+      local fr = mocks.newNamespace()
+      mocks.loadLocales(fr)
+      mocks.loadSource("Utils/Wow.lua", fr)
+      mocks.loadSource("Modules/Cards.lua", fr)
+      mocks.loadSource("Modules/CardText.lua", fr)
+      mocks.loadAllData(fr)
+      local kam = fr.Cards.get("1429:npc_1666")
+      assert.equals(1666, kam.npcID)
+      assert.equals("Kam Furie-du-fond", fr.CardText.name(kam, {}))
+      -- A generated quest card falls back to its French title while the
+      -- client has not cached the quest.
+      local quest
+      for _, c in ipairs(fr.Cards.zoneCards(1429)) do
+        if c.questID and rawget(fr.L, c.name) then quest = c break end
+      end
+      assert.equals(rawget(fr.L, quest.name), fr.CardText.name(quest, { C_QuestLog = {
+        GetTitleForQuestID = function() return nil end,
+      } }))
+      -- An English client keeps the English name.
+      _G.GetLocale = function() return "enUS" end
+      local en = mocks.newNamespace()
+      mocks.loadLocales(en)
+      mocks.loadSource("Utils/Wow.lua", en)
+      mocks.loadSource("Modules/Cards.lua", en)
+      mocks.loadSource("Modules/CardText.lua", en)
+      mocks.loadAllData(en)
+      assert.equals("Kam Deepfury", en.CardText.name(en.Cards.get("1429:npc_1666"), {}))
+    end)
+
     it("escapes chat codes in a client name", function()
       local env = { C_Map = { GetAreaInfo = function() return "Evil|cffff0000Red|r" end } }
       assert.equals("Evil||cffff0000Red||r", CardText.name(card({ areaID = 87 }), env))

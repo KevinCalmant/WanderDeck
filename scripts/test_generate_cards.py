@@ -42,9 +42,138 @@ class LuaString(unittest.TestCase):
         self.assertEqual(gen.lua_string("]]--"), '"]]--"')
 
     def test_refuses_text_that_is_not_clean(self):
-        for text in ["Evil\n", "a|cff", ""]:
+        for text in ["Evil\n", "a|cff", "", "Écorcheur"]:
             with self.assertRaises(ValueError):
                 gen.lua_string(text)
+
+
+# 64 bytes: "é" is 2 bytes in UTF-8.
+FR_64 = "é" * 32
+HOSTILE_FRENCH = [
+    "Lardeur|cffff0000x|r", "|Hitem:1|h[x]|h", "a|", "Lardeur\n", "Lar\rdeur", "Lar\0deur", "Lar\tdeur",
+    "‮Lardeur", "Lardeur‮", "Lar deur", "Faim !", "Lar​deur", "Lar‍deur",
+    "Lar⁠deur", "﻿Lardeur", "Lar�deur", "Lar\u0085deur", "Lar­deur", "Lar\U000e0041deur",
+    "Larㅤdeur", "Lar️deur", "Lar deur", "Lar　deur", "Lardeur", "Lar\ud800deur",
+    FR_64 + "a", "a" * 65, "", "   ", " Lardeur", "Lardeur ", None, 5, b"Lardeur",
+]
+
+
+class FrenchProblem(unittest.TestCase):
+    def test_accepts_french_names(self):
+        for text in ["Lardeur", "Écorcheur des Mortemines", "Vol’jin", "MacKinley « Loup des mers »",
+                     "Gnoll Rivepatte", 'Le "Roi"', "a\\b", "Œil", FR_64, "a" * 64]:
+            self.assertIsNone(gen.french_problem(text), repr(text))
+
+    def test_refuses_hostile_values(self):
+        for text in HOSTILE_FRENCH:
+            self.assertIsNotNone(gen.french_problem(text), repr(text))
+
+    def test_names_the_reason(self):
+        self.assertEqual("contains |", gen.french_problem("a|cff"))
+        self.assertEqual("control character", gen.french_problem("a\nb"))
+        self.assertEqual("invisible, bidi or replacement character", gen.french_problem("a‮b"))
+        self.assertEqual("longer than 64 bytes", gen.french_problem(FR_64 + "a"))
+        self.assertEqual("blank", gen.french_problem(" "))
+        self.assertEqual("missing", gen.french_problem(None))
+
+
+class NormalizeFrench(unittest.TestCase):
+    def test_turns_no_break_spaces_into_plain_spaces(self):
+        self.assertEqual("Terre !", gen.normalize_french("Terre !"))
+        self.assertEqual("« Hé »", gen.normalize_french("« Hé »"))
+        self.assertIsNone(gen.french_problem(gen.normalize_french("Un gyro... quoi ?")))
+
+    def test_leaves_other_hostile_characters_for_french_problem(self):
+        for bad in ["a​b", "a‮b", "a|cffb", "a\nb", " Terre"]:
+            self.assertIsNotNone(gen.french_problem(gen.normalize_french(bad)), repr(bad))
+        self.assertIsNone(gen.normalize_french(None))
+
+
+class LuaStringFr(unittest.TestCase):
+    def test_escapes_quotes_and_backslashes_and_keeps_utf8(self):
+        self.assertEqual('"Le \\"Roi\\" \\\\ é"', gen.lua_string_fr('Le "Roi" \\ é'))
+        self.assertEqual('"x\\"); os.exit() --"', gen.lua_string_fr('x"); os.exit() --'))
+        self.assertEqual('"]]--"', gen.lua_string_fr("]]--"))
+
+    def test_refuses_hostile_values(self):
+        for text in HOSTILE_FRENCH:
+            with self.assertRaises(ValueError, msg=repr(text)):
+                gen.lua_string_fr(text)
+
+
+def fr_tables(npc=None, quest=None, item=None):
+    return {"npc": npc or {}, "quest": quest or {}, "item": item or {}}
+
+
+class FrenchNames(unittest.TestCase):
+    def test_generated_cards_take_their_source_name(self):
+        cards = [card(), {"id": "1429:quest_7", "name": "Kobold Camp Cleanup", "questID": 7},
+                 {"id": "1429:item_2933", "name": "Seal of Wrynn", "itemID": 2933}]
+        names, stats = gen.french_names(cards, [], {}, fr_tables(
+            npc={299: "Jeune loup"}, quest={7: "Nettoyage du camp kobold"}, item={2933: "Sceau de Wrynn"}), set())
+        self.assertEqual({"Young Wolf": "Jeune loup", "Kobold Camp Cleanup": "Nettoyage du camp kobold",
+                          "Seal of Wrynn": "Sceau de Wrynn"}, names)
+        self.assertEqual(1, stats["generated npc: written"])
+
+    def test_a_refused_value_is_skipped_counted_and_never_written(self):
+        for bad in HOSTILE_FRENCH:
+            names, stats = gen.french_names([card()], [], {}, fr_tables(npc={299: bad}), set())
+            self.assertEqual({}, names, repr(bad))
+            self.assertEqual(1, sum(n for reason, n in stats.items() if "written" not in reason), repr(bad))
+            self.assertNotIn("Young Wolf", gen.render_french(names))
+
+    def test_lowest_id_wins_when_sources_disagree(self):
+        cards = [card(id="1429:npc_300", entry=300), card()]
+        names, stats = gen.french_names(cards, [], {}, fr_tables(npc={299: "Jeune loup", 300: "Louveteau"}), set())
+        self.assertEqual("Jeune loup", names["Young Wolf"])
+        self.assertEqual(1, stats["generated: sources disagree, lowest ID taken"])
+
+    def test_hand_written_creatures_match_one_name_or_agreeing_entries(self):
+        creatures = {448: "Hogger", 1: "Mother Fang", 2: "Mother Fang", 3: "Twin", 4: "Twin", 5: "Moonbrook"}
+        fr = fr_tables(npc={448: "Lardeur", 1: "Mère Croc", 2: "Mère Croc", 3: "Jumeau", 4: "Jumelle",
+                            5: "Ruisselune"})
+        hand = [("elite", "Hogger"), ("rare", "Mother Fang"), ("npc", "Twin"), ("place", "Moonbrook"),
+                ("creature", "Nobody")]
+        names, stats = gen.french_names([], hand, creatures, fr, set())
+        self.assertEqual({"Hogger": "Lardeur", "Mother Fang": "Mère Croc"}, names)
+        self.assertEqual(1, stats["hand-written: entries disagree, skipped"])
+        self.assertEqual(1, stats["hand-written: no creature with this name"])
+
+    def test_names_already_in_locales_or_unchanged_are_left_out(self):
+        names, stats = gen.french_names([card(), card(id="1429:npc_6", entry=6, name="Hogger")], [], {},
+                                        fr_tables(npc={299: "Jeune loup", 6: "Hogger"}), {"Young Wolf"})
+        self.assertEqual({}, names)
+        self.assertEqual(1, stats["generated npc: already in Locales"])
+        self.assertEqual(1, stats["generated npc: same as English"])
+
+
+class RenderFrench(unittest.TestCase):
+    def test_sorted_with_the_locale_guard_first(self):
+        text = gen.render_french({"Young Wolf": "Jeune loup", '"Sea Wolf" MacKinley': "MacKinley « Loup des mers »"})
+        lines = text.split("\n")
+        self.assertEqual(["local _, ns = ...", 'if GetLocale() ~= "frFR" then return end', "local L = ns.L"], lines[:3])
+        body = [line for line in lines if line.startswith("L[")]
+        self.assertEqual(['L["\\"Sea Wolf\\" MacKinley"] = "MacKinley « Loup des mers »"',
+                          'L["Young Wolf"] = "Jeune loup"'], body)
+
+    def test_refuses_a_hostile_value_or_key(self):
+        with self.assertRaises(ValueError):
+            gen.render_french({"Young Wolf": "Jeune\nloup"})
+        with self.assertRaises(ValueError):
+            gen.render_french({"Young\nWolf": "Jeune loup"})
+
+
+class ExistingLocaleKeys(unittest.TestCase):
+    def test_reads_every_locale_file_but_the_generated_one(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as repo:
+            os.makedirs(os.path.join(repo, "Locales"))
+            for name, text in [("enUS.lua", 'L["Level"] = "Level"\n'),
+                               ("frFR.lua", 'L["Hogger"] = "Lardeur"\nL["Say \\"hi\\""] = "x"\n'),
+                               ("frFR_Generated.lua", 'L["Young Wolf"] = "Jeune loup"\n')]:
+                with open(os.path.join(repo, "Locales", name), "w") as handle:
+                    handle.write(text)
+            self.assertEqual({"Level", "Hogger", 'Say "hi"'}, gen.existing_locale_keys(repo))
 
 
 class CheckCard(unittest.TestCase):
@@ -345,6 +474,75 @@ class MainRefusal(unittest.TestCase):
     def test_writes_with_allow_removed_ids(self):
         self.run_main("--allow-removed-ids")
         self.assertEqual(len(gen.ZONE_ORDER), len(self.generated()))
+
+    def test_refusal_writes_no_locale_file_either(self):
+        with self.assertRaises(SystemExit):
+            self.run_main("--locale-folder", "unused-locale")
+        self.assertFalse(os.path.exists(os.path.join(self.repo, "Locales")))
+
+
+def sql_dump(table, columns, rows):
+    """A minimal AzerothCore-style dump: CREATE TABLE, then one INSERT."""
+    def value(v):
+        return str(v) if isinstance(v, int) else "'" + v.replace("\\", "\\\\").replace("'", "\\'") + "'"
+    create = "CREATE TABLE `%s` (\n%s\n) ENGINE=InnoDB;\n" % (
+        table, ",\n".join("  `%s` text" % c for c in columns))
+    values = ",".join("(" + ",".join(value(v) for v in row) + ")" for row in rows)
+    return create + "INSERT INTO `%s` VALUES %s;\n" % (table, values)
+
+
+class MainLocale(unittest.TestCase):
+    """main() --locale-folder writes Locales/frFR_Generated.lua from the dumps,
+    and a hostile value in a dump never reaches it."""
+
+    def setUp(self):
+        import sys
+        import tempfile
+        self.tmp = tempfile.TemporaryDirectory()
+        self.repo = os.path.join(self.tmp.name, "repo")
+        self.sql = os.path.join(self.tmp.name, "sql")
+        os.makedirs(os.path.join(self.repo, "Data", "Generated"))
+        os.makedirs(self.sql)
+        dumps = {
+            "creature_template": (["entry", "name"], [(299, "Young Wolf"), (300, "Evil Wolf")]),
+            "creature_template_locale": (["entry", "locale", "Name"], [
+                (299, "deDE", "Junger Wolf"), (299, "frFR", "Jeune loup"),
+                (300, "frFR", "Loup|cffff0000 rouge|r")]),
+            "quest_template_locale": (["ID", "locale", "Title"], [
+                (7, "frFR", "Faim\u00a0!"), (8, "frFR", "Soif\u200b!")]),
+            "item_template_locale": (["ID", "locale", "Name"], [(2933, "frFR", 'Sceau "de" Wrynn\\')]),
+        }
+        for table, (columns, rows) in dumps.items():
+            with open(os.path.join(self.sql, table + ".sql"), "w", encoding="utf-8") as handle:
+                handle.write(sql_dump(table, columns, rows))
+        cards = [card(id="1436:npc_299"), card(id="1436:npc_300", entry=300, name="Evil Wolf"),
+                 {"id": "1436:quest_7", "kind": "quest", "rarity": 2, "name": "Hungry!",
+                  "icon": "INV_Misc_Note_01", "questID": 7, "level": 5},
+                 {"id": "1436:quest_8", "kind": "quest", "rarity": 2, "name": "Thirsty!",
+                  "icon": "INV_Misc_Note_01", "questID": 8, "level": 5},
+                 {"id": "1436:item_2933", "kind": "item", "rarity": 3, "name": "Seal of Wrynn",
+                  "icon": "INV_Misc_Bag_08", "itemID": 2933}]
+        self.real_build, self.real_argv = gen.build, sys.argv
+        gen.build = lambda sql, repo, report: {z: (cards if z == 1436 else [], 0, 0) for z in gen.ZONE_ORDER}
+
+    def tearDown(self):
+        import sys
+        gen.build, sys.argv = self.real_build, self.real_argv
+        self.tmp.cleanup()
+
+    def test_writes_clean_french_names_only(self):
+        import sys
+        sys.argv = ["generate-cards.py", self.sql, "--repo", self.repo, "--locale-folder", self.sql]
+        gen.main()
+        with open(os.path.join(self.repo, "Locales", "frFR_Generated.lua"), encoding="utf-8") as handle:
+            text = handle.read()
+        body = [line for line in text.split("\n") if line.startswith("L[")]
+        # The no-break space of "Faim !" becomes a plain space; the zero-width
+        # space of the second title refuses it.
+        self.assertEqual(['L["Hungry!"] = "Faim !"', 'L["Seal of Wrynn"] = "Sceau \\"de\\" Wrynn\\\\"',
+                          'L["Young Wolf"] = "Jeune loup"'], body)
+        for absent in ("Evil Wolf", "|", "Thirsty", "\u00a0", "\u200b", "Junger"):
+            self.assertNotIn(absent, text)
 
 
 class ShippedZones(unittest.TestCase):

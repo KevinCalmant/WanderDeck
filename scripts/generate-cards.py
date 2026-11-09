@@ -101,6 +101,23 @@ Options: --repo <repo root> (default: this script's parent folder),
   --report (print per-zone counts to stderr). Output is deterministic.
   Every new generated file needs its Data/load_data.xml line and its
   "<zoneMapID>:generated" entry in Data/Loaded.lua.
+
+French names (--locale-folder <dir>)
+  Also writes Locales/frFR_Generated.lua from the AzerothCore locale tables
+  in <dir> (creature_template_locale.sql, quest_template_locale.sql,
+  item_template_locale.sql; same folder as the world database; read as data,
+  frFR rows only, names and titles only). One L["<English name>"] per name:
+  every generated card (npcID -> creature Name, questID -> quest Title,
+  itemID -> item Name; several cards with one English name take the lowest
+  ID's name), and every hand-written creature, rare, elite, boss or npc card
+  whose English name is exactly one creature_template name, or several
+  entries sharing one French name. Names that already have an entry in
+  another Locales/*.lua file (enUS keys or curated French) are left out:
+  curated translations load after this file and win. A French value must be
+  well-formed UTF-8 without control, invisible, bidi or replacement
+  characters (stricter than ns.Utils.isCleanText), without "|", without
+  surrounding spaces, 1-64 bytes; anything else is skipped and counted
+  (--report), never written.
 """
 
 import argparse
@@ -108,6 +125,7 @@ import math
 import os
 import re
 import sys
+import unicodedata
 from collections import Counter, defaultdict
 
 # --- Zones -----------------------------------------------------------------
@@ -772,6 +790,191 @@ def lua_string(text):
     return '"' + text.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
+# --- French names ----------------------------------------------------------
+
+FR_MAX_BYTES = 64  # CardText's NAME_MAX_LENGTH
+# Code points ns.Utils.isCleanText refuses (C1 controls and U+00A0, soft
+# hyphen, U+180E, zero-width and bidi marks, line and paragraph separators,
+# narrow NBSP, word joiners, Hangul filler, variation selectors, BOM, tag
+# characters), plus U+FFFD: the dump reader turns malformed UTF-8 into it.
+FR_REFUSED_RANGES = [
+    (0x80, 0xA0), (0xAD, 0xAD), (0x180E, 0x180E), (0x2000, 0x200F), (0x2028, 0x202F),
+    (0x2060, 0x206F), (0x3164, 0x3164), (0xFE00, 0xFE0F), (0xFEFF, 0xFEFF),
+    (0xE0000, 0xE007F), (0xFFFD, 0xFFFD),
+]
+# Any other control, format, surrogate, private-use or unassigned code point,
+# and any space but U+0020, is refused too.
+FR_REFUSED_CATEGORIES = {"Cc", "Cf", "Cs", "Co", "Cn", "Zl", "Zp"}
+FR_LOCALE_FILE = "frFR_Generated.lua"
+# Hand-written card kinds whose name can be a creature name.
+CREATURE_CARD_KINDS = {"creature", "rare", "elite", "boss", "npc"}
+LOCALE_KEY = re.compile(r'^\s*L\["((?:[^"\\\n]|\\.)*)"\]\s*=', re.M)
+HAND_CARD = re.compile(r'\bkind = "([a-z]+)", rarity = [0-9]+, name = "((?:[^"\\\n]|\\.)*)"')
+# Order in which sources win when two generated cards share an English name.
+SOURCE_RANK = {"npc": 0, "quest": 1, "item": 2}
+
+
+def french_problem(text):
+    """Why a translated name cannot be written, or None when it can."""
+    if not isinstance(text, str):
+        return "missing"
+    try:
+        size = len(text.encode("utf-8"))
+    except UnicodeEncodeError:
+        return "malformed UTF-8"
+    for ch in text:
+        cp = ord(ch)
+        if cp < 0x20 or cp == 0x7F:
+            return "control character"
+        category = unicodedata.category(ch)
+        if (any(lo <= cp <= hi for lo, hi in FR_REFUSED_RANGES) or category in FR_REFUSED_CATEGORIES
+                or (category == "Zs" and ch != " ")):
+            return "invisible, bidi or replacement character"
+    if "|" in text:
+        return "contains |"
+    if not text.strip():
+        return "blank"
+    if text.strip() != text:
+        return "surrounding spaces"
+    if size > FR_MAX_BYTES:
+        return "longer than %d bytes" % FR_MAX_BYTES
+    return None
+
+
+def lua_string_fr(text):
+    """Lua literal of a French name: same escapes as lua_string, but UTF-8
+    letters are allowed. Refuses anything french_problem() rejects, so no
+    caller can emit an unterminated string, a chat code or an invisible
+    character."""
+    problem = french_problem(text)
+    if problem:
+        raise ValueError("refusing to emit %r as a Lua string: %s" % (text, problem))
+    return '"' + text.replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
+def unescape_lua(text):
+    return re.sub(r"\\(.)", r"\1", text)
+
+
+def normalize_french(value):
+    """French typography puts a no-break space (U+00A0, or narrow U+202F)
+    before ! ? : ; and inside guillemets; the addon refuses those characters,
+    so they become a plain space. Anything else is left for french_problem."""
+    if not isinstance(value, str):
+        return value
+    return value.replace(" ", " ").replace(" ", " ")
+
+
+def read_french(folder, table, key, column):
+    """{ID: frFR value} of one AzerothCore locale table (NULL kept as None)."""
+    return {r[key]: normalize_french(r[column]) for r in read_table(folder, table, [key, "locale", column])
+            if r["locale"] == "frFR"}
+
+
+def existing_locale_keys(repo):
+    """Keys of every Locales/*.lua file but frFR_Generated.lua: UI strings
+    (enUS) and curated translations, which this file must not shadow."""
+    directory = os.path.join(repo, "Locales")
+    keys = set()
+    if not os.path.isdir(directory):
+        return keys
+    for entry in sorted(os.listdir(directory)):
+        if entry.endswith(".lua") and entry != FR_LOCALE_FILE:
+            with open(os.path.join(directory, entry), encoding="utf-8") as handle:
+                keys |= {unescape_lua(k) for k in LOCALE_KEY.findall(handle.read())}
+    return keys
+
+
+def hand_written_cards(repo, zone_map_id):
+    """(kind, exact English name) of the zone's hand-written cards. Stops when
+    a card's kind and name cannot be read (a reformatted file would otherwise
+    silently lose its translations)."""
+    path = hand_written_path(repo, zone_map_id)
+    if path is None:
+        return []
+    with open(path, encoding="utf-8") as handle:
+        text = handle.read()
+    cards = [(kind, unescape_lua(name)) for kind, name in HAND_CARD.findall(text)]
+    if len(cards) != len(parse_hand_written(text)[1]):
+        sys.exit("%s: cannot read the kind and name of every card" % path)
+    return cards
+
+
+def french_names(generated, hand_cards, creature_names, fr, skip_keys):
+    """English name -> French name for the locale file, and a Counter of
+    what was written or skipped and why.
+
+    generated: generated cards; hand_cards: (kind, name) of hand-written
+    cards; creature_names: {entry: English name} of creature_template;
+    fr: {"npc"|"quest"|"item": {ID: frFR value}}; skip_keys: names that
+    already have a locale entry."""
+    stats = Counter()
+    chosen = {}  # English name -> (source, French value)
+
+    by_name = defaultdict(list)
+    for c in generated:
+        kind, ref = card_ref(c)
+        by_name[c["name"]].append((SOURCE_RANK[kind], ref, kind, fr[kind].get(ref)))
+    for name, refs in by_name.items():
+        found = sorted(r for r in refs if r[3] is not None)
+        if not found:
+            stats["generated: no French row"] += 1
+            continue
+        if len({r[3] for r in found}) > 1:
+            stats["generated: sources disagree, lowest ID taken"] += 1
+        chosen[name] = ("generated " + found[0][2], found[0][3])
+
+    entries_by_name = defaultdict(list)
+    for entry, name in creature_names.items():
+        entries_by_name[name].append(entry)
+    for name in sorted({name for kind, name in hand_cards if kind in CREATURE_CARD_KINDS}):
+        if name in chosen:
+            continue
+        values = {fr["npc"][e] for e in entries_by_name.get(name, ()) if fr["npc"].get(e) is not None}
+        if not entries_by_name.get(name):
+            stats["hand-written: no creature with this name"] += 1
+        elif not values:
+            stats["hand-written: no French row"] += 1
+        elif len(values) > 1:
+            stats["hand-written: entries disagree, skipped"] += 1
+        else:
+            chosen[name] = ("hand-written", values.pop())
+
+    out = {}
+    for name in sorted(chosen):
+        source, value = chosen[name]
+        problem = french_problem(value)
+        if name in skip_keys:
+            stats["%s: already in Locales" % source] += 1
+        elif not clean_name(name):
+            stats["%s: English key not clean ASCII" % source] += 1
+        elif problem:
+            stats["%s: refused (%s)" % (source, problem)] += 1
+        elif value == name:
+            stats["%s: same as English" % source] += 1
+        else:
+            out[name] = value
+            stats["%s: written" % source] += 1
+    return out, stats
+
+
+def render_french(names):
+    lines = [
+        "local _, ns = ...",
+        'if GetLocale() ~= "frFR" then return end',
+        "local L = ns.L",
+        "",
+        "-- French card names generated by scripts/generate-cards.py --locale-folder",
+        "-- from the AzerothCore locale tables. Do not edit by hand: change the",
+        "-- script and re-run it. Curated names (frFR.lua and the regional files)",
+        "-- load after this file and win.",
+    ]
+    for name in sorted(names):
+        lines.append("L[%s] = %s" % (lua_string(name), lua_string_fr(names[name])))
+    lines.append("")
+    return "\n".join(lines)
+
+
 def hand_written_path(repo, zone_map_id):
     """Path of the zone's hand-written Data file, or None when it is missing.
     The file name is matched without case (UngoroCrater.lua, UnGoroCrater.lua)."""
@@ -1224,6 +1427,9 @@ def main():
     parser.add_argument("--report", action="store_true", help="print counts to stderr")
     parser.add_argument("--allow-removed-ids", action="store_true",
                         help="write even when a card ID of an existing generated file disappears")
+    parser.add_argument("--locale-folder", metavar="DIR",
+                        help="AzerothCore folder holding the *_locale.sql tables: also write "
+                             "Locales/" + FR_LOCALE_FILE)
     args = parser.parse_args()
 
     result = build(args.sql_folder, args.repo, args.report)
@@ -1250,6 +1456,25 @@ def main():
             print("%s would lose %s" % (ZONES[zone][0], ", ".join(lost[zone])), file=sys.stderr)
         sys.exit("Shipped card IDs would disappear and players would lose those cards. Add a "
                  "migration that rewrites them, then re-run with --allow-removed-ids.")
+    # Built before any file is written: a locale table that fails to parse
+    # stops the run with nothing changed.
+    french = None
+    if args.locale_folder:
+        fr = {
+            "npc": read_french(args.locale_folder, "creature_template_locale", "entry", "Name"),
+            "quest": read_french(args.locale_folder, "quest_template_locale", "ID", "Title"),
+            "item": read_french(args.locale_folder, "item_template_locale", "ID", "Name"),
+        }
+        creature_names = {r["entry"]: r["name"] for r in read_table(
+            args.sql_folder, "creature_template", ["entry", "name"])}
+        hand_cards = [card for zone in ZONE_ORDER for card in hand_written_cards(args.repo, zone)]
+        generated = [c for zone in ZONE_ORDER for c in result[zone][0]]
+        names, stats = french_names(generated, hand_cards, creature_names, fr,
+                                    existing_locale_keys(args.repo))
+        french = render_french(names)
+        if args.report:
+            for reason, count in sorted(stats.items()):
+                print("frFR %-60s %5d" % (reason, count), file=sys.stderr)
     for zone in ZONE_ORDER:
         cards, hand_count, available = result[zone]
         path = os.path.join(out_dir, ZONES[zone][0] + ".lua")
@@ -1261,6 +1486,11 @@ def main():
             print("%-20s %d hand %2d + generated %3d (of %4d candidates) rarity %s kind %s" % (
                 ZONES[zone][2], CONTINENTS[ZONES[zone][1]], hand_count, len(cards), available,
                 dict(sorted(by_rarity.items())), dict(sorted(by_kind.items()))), file=sys.stderr)
+    if french is not None:
+        locale_dir = os.path.join(args.repo, "Locales")
+        os.makedirs(locale_dir, exist_ok=True)
+        with open(os.path.join(locale_dir, FR_LOCALE_FILE), "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(french)
 
 
 if __name__ == "__main__":
