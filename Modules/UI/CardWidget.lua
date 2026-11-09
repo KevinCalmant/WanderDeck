@@ -3,7 +3,8 @@ local _, ns = ...
 -- One card on screen in the "illustrated" style: gold frame, title bar with a
 -- rarity gem, art panel, flavor text and attack/defense medallions. Face up,
 -- face down (reveal) or a silhouette (missing from the binder). Text comes
--- from Data/ and the locale files only; art is a game icon.
+-- from Data/ and the locale files only; art is a game icon, or the creature's
+-- 3D model for creature cards with an npcID (the icon shows until it loads).
 
 local L = ns.L
 local Cards, Draw = ns.Cards, ns.Draw
@@ -207,6 +208,56 @@ local function stopRevealFx(w)
   for _, group in pairs(w.revealFx.groups) do group:Stop() end
 end
 
+-- The 3D model sits over the art panel. The icon under it stays visible until
+-- the client reports a loaded model, so an unknown or uncached creature (or a
+-- client without PlayerModel) still shows the icon.
+local function modelLoaded(model)
+  local ok, fileID = pcall(model.GetModelFileID, model)
+  return ok and not ns.Wow.isSecret(fileID) and type(fileID) == "number" and fileID > 0
+end
+
+local function onModelLoaded(w)
+  if not (w.modelNpcID and w.model:IsShown()) then return end
+  pcall(w.model.SetPortraitZoom, w.model, ns.Config.CARD_MODEL_ZOOM)
+  if modelLoaded(w.model) then w.icon:Hide() end
+end
+
+local function buildModel(w, art)
+  local ok, model = pcall(function()
+    local m = CreateFrame("PlayerModel", nil, w)
+    m:SetPoint("TOPLEFT", art, "TOPLEFT", 1, -1)
+    m:SetPoint("BOTTOMRIGHT", art, "BOTTOMRIGHT", -1, 1)
+    -- Clicks go through to the card button.
+    m:EnableMouse(false)
+    m:SetScript("OnModelLoaded", function() onModelLoaded(w) end)
+    m:Hide()
+    return m
+  end)
+  if ok then w.model = model end
+end
+
+local function hideModel(w)
+  w.modelNpcID = nil
+  if w.model then
+    w.model:Hide()
+    pcall(w.model.ClearModel, w.model)
+  end
+end
+
+local function showModel(w, card)
+  local npcID = ns.CardText.modelNpcID(card)
+  if not (w.model and npcID) then return end
+  w.modelNpcID = npcID
+  local ok = pcall(function()
+    w.model:Show()
+    w.model:SetCreature(npcID)
+    w.model:SetPortraitZoom(ns.Config.CARD_MODEL_ZOOM)
+  end)
+  if not ok then hideModel(w) return end
+  -- A cached model may be ready at once, without OnModelLoaded.
+  if modelLoaded(w.model) then w.icon:Hide() end
+end
+
 ---@param parent table frame
 ---@param opts table|nil { revealFx = true } adds the Epic/Legendary reveal effects
 ---@return table widget Button
@@ -261,6 +312,7 @@ function CardWidget.create(parent, opts)
   w.icon:SetSize(62, 62)
   w.icon:SetPoint("CENTER", art, "CENTER", 0, 0)
   w.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+  buildModel(w, art)
 
   -- Kind and rarity on two short lines, so long French labels fit. The
   -- flavor text lives in the detail window (CardDetail), not on the card.
@@ -313,6 +365,7 @@ end
 
 local function reset(w)
   stopRevealFx(w)
+  hideModel(w)
   setShown(w.faceParts, false)
   setShown(w.backParts, false)
   w.copies:Hide()
@@ -339,6 +392,7 @@ function CardWidget.showCard(w, card, opts)
   w.attack:SetText(card.attack)
   w.defense:SetText(card.defense)
   setShown(w.faceParts, true)
+  showModel(w, card)
 
   if opts.isNew then
     w.newTag:SetText(L["New!"])

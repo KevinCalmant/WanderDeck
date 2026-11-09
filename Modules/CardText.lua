@@ -113,6 +113,25 @@ function CardText.flavor(card)
   return table.concat(parts, " · ")
 end
 
+-- Kinds whose card shows a living being; places, quests, items and lore keep
+-- their icon.
+local MODEL_KINDS = { creature = true, rare = true, elite = true, boss = true, npc = true }
+
+---Creature ID whose 3D model illustrates a card, or nil when the card keeps
+---its icon: models switched off, a kind that is not a creature, or no valid
+---npcID (Cards.registerZone already checks it; checked again since this
+---value reaches the client's model API).
+---@param card table registered card
+---@param config table|nil ns.Config by default
+---@return number|nil npcID
+function CardText.modelNpcID(card, config)
+  config = config or ns.Config
+  if not (config and config.CARD_MODELS) then return nil end
+  if not MODEL_KINDS[card.kind] then return nil end
+  if not ns.Utils.isMapID(card.npcID) then return nil end
+  return card.npcID
+end
+
 ---Texture for a card's art: the client's item icon (a file ID) for an item
 ---card when available, else the card's Interface\Icons path.
 ---@return number|string

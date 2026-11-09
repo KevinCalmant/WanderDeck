@@ -35,4 +35,10 @@ ns.Config = {
   NEW_CARD_BIAS = 50,
   -- Copies of one card a collection can hold.
   MAX_COPIES = 999,
+  -- Creature cards with an npcID show the creature's 3D model in their art
+  -- panel; the icon stays as the fallback while the model loads or when it
+  -- never does (prototype, unverified on Forever: check with /wd model).
+  CARD_MODELS = true,
+  -- Model framing: 0 shows the whole body, 1 a head-and-shoulders portrait.
+  CARD_MODEL_ZOOM = 0.6,
 }

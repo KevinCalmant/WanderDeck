@@ -449,6 +449,98 @@ describe("UI frames", function()
     end)
   end)
 
+  describe("card art model", function()
+    local models, w
+
+    local function creature(fields)
+      local c = { id = "1429:npc_299", kind = "creature", rarity = 1, name = "Young Wolf",
+        icon = "INV_Misc_Bag_08", npcID = 299, attack = 1, defense = 1 }
+      for k, v in pairs(fields or {}) do c[k] = v end
+      return c
+    end
+
+    before_each(function()
+      models = {}
+      _G.CreateFrame = function(frameType)
+        local o = stubObject()
+        if frameType == "PlayerModel" then
+          models[#models + 1] = o
+          o.SetCreature = function(self, id) self.creature = id; self.fileID = self.cachedFileID end
+          o.ClearModel = function(self) self.creature, self.fileID = nil, nil end
+          o.GetModelFileID = function(self) return self.fileID end
+        end
+        return o
+      end
+      w = ns.CardWidget.create(_G.UIParent)
+    end)
+
+    after_each(function() _G.issecretvalue = nil end)
+
+    it("shows the creature's model and keeps the icon until it loads", function()
+      ns.CardWidget.showCard(w, creature())
+      local m = models[1]
+      assert.is_true(m.shown)
+      assert.equals(299, m.creature)
+      assert.is_true(w.icon.shown)
+      m.fileID = 123
+      m.scripts.OnModelLoaded(m)
+      assert.is_false(w.icon.shown)
+    end)
+
+    it("hides the icon at once when the model is cached", function()
+      models[1].cachedFileID = 123
+      ns.CardWidget.showCard(w, creature())
+      assert.is_false(w.icon.shown)
+    end)
+
+    it("keeps the icon for a place card and a card without npcID", function()
+      for _, c in ipairs({ creature({ kind = "place", areaID = 108 }), creature({ npcID = false }) }) do
+        ns.CardWidget.showCard(w, c)
+        assert.is_false(models[1].shown)
+        assert.is_true(w.icon.shown)
+      end
+    end)
+
+    it("keeps the icon when the model file ID is missing, secret or not a number", function()
+      _G.issecretvalue = function(v) return v == 777 end
+      for _, fileID in ipairs({ 777, 0, -1, "123" }) do
+        ns.CardWidget.showCard(w, creature())
+        models[1].fileID = fileID
+        models[1].scripts.OnModelLoaded(models[1])
+        assert.is_true(w.icon.shown, tostring(fileID))
+      end
+    end)
+
+    it("keeps the icon when the model API throws", function()
+      models[1].SetCreature = function() error("no creature") end
+      ns.CardWidget.showCard(w, creature())
+      assert.is_false(models[1].shown)
+      assert.is_true(w.icon.shown)
+    end)
+
+    it("hides the model face down and missing, and ignores a late load for another card", function()
+      ns.CardWidget.showCard(w, creature())
+      ns.CardWidget.showBack(w)
+      assert.is_false(models[1].shown)
+      ns.CardWidget.showCard(w, creature())
+      ns.CardWidget.showMissing(w, creature())
+      assert.is_false(models[1].shown)
+      -- The model finishes loading after the slot switched to a place card.
+      ns.CardWidget.showCard(w, creature({ kind = "place" }))
+      models[1].fileID = 123
+      models[1].scripts.OnModelLoaded(models[1])
+      assert.is_true(w.icon.shown)
+    end)
+
+    it("shows no model when models are switched off", function()
+      ns.Config.CARD_MODELS = false
+      ns.CardWidget.showCard(w, creature())
+      ns.Config.CARD_MODELS = true
+      assert.is_false(models[1].shown)
+      assert.is_true(w.icon.shown)
+    end)
+  end)
+
   describe("binder", function()
     -- Cards show rarest first; these tests look at Elwynn's Commons (Young
     -- Wolf, then Stonetusk Boar), so they open the binder on rarity 1.

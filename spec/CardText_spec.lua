@@ -317,6 +317,61 @@ describe("CardText", function()
     end)
   end)
 
+  describe("modelNpcID", function()
+    local on = { CARD_MODELS = true }
+
+    it("gives the npcID of every creature-like kind", function()
+      for _, kind in ipairs({ "creature", "rare", "elite", "boss", "npc" }) do
+        assert.equals(299, CardText.modelNpcID(card({ kind = kind, npcID = 299 }), on), kind)
+      end
+    end)
+
+    it("keeps the icon for places, quests, items, lore and unknown kinds", function()
+      for _, kind in ipairs({ "place", "quest", "item", "lore", "dragon", nil }) do
+        assert.is_nil(CardText.modelNpcID(card({ kind = kind, npcID = 299 }), on), tostring(kind))
+      end
+    end)
+
+    it("keeps the icon without a valid npcID", function()
+      for _, bad in ipairs({ false, 0, -1, 1.5, 0 / 0, math.huge, 2 ^ 31, "299", "<script>", {} }) do
+        assert.is_nil(CardText.modelNpcID(card({ kind = "creature", npcID = bad }), on), tostring(bad))
+      end
+      assert.is_nil(CardText.modelNpcID(card({ kind = "creature" }), on))
+    end)
+
+    it("keeps the icon when models are switched off", function()
+      assert.is_nil(CardText.modelNpcID(card({ kind = "creature", npcID = 299 }), { CARD_MODELS = false }))
+    end)
+  end)
+
+  describe("modelNpcID", function()
+    local on = { CARD_MODELS = true }
+
+    it("gives the npcID of every creature-like kind", function()
+      for _, kind in ipairs({ "creature", "rare", "elite", "boss", "npc" }) do
+        assert.equals(299, CardText.modelNpcID(card({ kind = kind, npcID = 299 }), on), kind)
+      end
+    end)
+
+    it("keeps the icon for places, quests, items, lore and unknown kinds", function()
+      for _, kind in ipairs({ "place", "quest", "item", "lore", "dragon" }) do
+        assert.is_nil(CardText.modelNpcID(card({ kind = kind, npcID = 299 }), on), kind)
+      end
+      assert.is_nil(CardText.modelNpcID(card({ npcID = 299 }), on))
+    end)
+
+    it("keeps the icon without a valid npcID", function()
+      for _, bad in ipairs({ false, 0, -1, 1.5, 0 / 0, math.huge, 2 ^ 31, "299", "<script>", {} }) do
+        assert.is_nil(CardText.modelNpcID(card({ kind = "creature", npcID = bad }), on), tostring(bad))
+      end
+      assert.is_nil(CardText.modelNpcID(card({ kind = "creature" }), on))
+    end)
+
+    it("keeps the icon when models are switched off", function()
+      assert.is_nil(CardText.modelNpcID(card({ kind = "creature", npcID = 299 }), { CARD_MODELS = false }))
+    end)
+  end)
+
   describe("icon", function()
     it("uses the client's item icon file ID", function()
       local env = { C_Item = { GetItemIconByID = function() return 132889 end } }

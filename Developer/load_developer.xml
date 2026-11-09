@@ -2,4 +2,5 @@
   <Script file="Probe.lua"/>
   <Script file="Art.lua"/>
   <Script file="RevealTest.lua"/>
+  <Script file="ModelTest.lua"/>
 </Ui>
