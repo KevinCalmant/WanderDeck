@@ -113,9 +113,9 @@ function CardText.flavor(card)
   return table.concat(parts, " · ")
 end
 
--- Kinds whose card shows a living being; places, quests, items and lore keep
--- their icon.
-local MODEL_KINDS = { creature = true, rare = true, elite = true, boss = true, npc = true }
+-- Kinds whose card can show a living being (a lore card only when it names a
+-- character, i.e. has an npcID); places, quests and items keep their icon.
+local MODEL_KINDS = { creature = true, rare = true, elite = true, boss = true, npc = true, lore = true }
 
 ---Creature ID whose 3D model illustrates a card, or nil when the card keeps
 ---its icon: models switched off, a kind that is not a creature, or no valid

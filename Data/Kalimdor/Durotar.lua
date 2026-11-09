@@ -34,7 +34,7 @@ ns.Cards.registerZone({
       flavor = "Fire and cultists under the capital's feet." },
     { id = "1411:taragaman_the_hungerer", kind = "boss", rarity = 4, name = "Taragaman the Hungerer", npcID = 11520, icon = "Spell_Fire_Incinerate",
       flavor = "A demon whose hunger never cools." },
-    { id = "1411:thrall", kind = "lore", rarity = 5, name = "Thrall", icon = "Spell_Nature_LightningShield",
+    { id = "1411:thrall", kind = "lore", rarity = 5, name = "Thrall", npcID = 4949, icon = "Spell_Nature_LightningShield",
       flavor = "The Warchief who led his people to a new land." },
     { id = "1411:eitrigg", kind = "npc", rarity = 4, name = "Eitrigg", npcID = 3144, icon = "Ability_Warrior_WarCry",
       flavor = "Grizzled orc veteran who counsels Thrall in the throne room of Orgrimmar." },

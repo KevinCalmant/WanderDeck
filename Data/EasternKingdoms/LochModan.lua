@@ -11,7 +11,8 @@ ns.Cards.registerZone({
       flavor = "The lake's biggest jaws, and they know it." },
     { id = "1432:mogrosh_stronghold", kind = "place", rarity = 4, name = "Mo'grosh Stronghold", icon = "INV_Misc_Head_Gnoll_01", areaID = 143,
       flavor = "An ogre den that most travelers wisely walk around." },
-    { id = "1432:kackle", kind = "elite", rarity = 4, name = "Kackle", icon = "Ability_Hunter_Pet_Scorpid",
+    -- npcID from Wowhead's Forever database (a Forever-only NPC, not in AzerothCore).
+    { id = "1432:kackle", kind = "elite", rarity = 4, name = "Kackle", npcID = 210107, icon = "Ability_Hunter_Pet_Scorpid",
       flavor = "A crocolisk with more muscle than the rest of its kin." },
     { id = "1432:lord_condar", kind = "rare", rarity = 3, name = "Lord Condar", npcID = 14268, icon = "Ability_Hunter_Pet_Vulture",
       flavor = "A rare bird that rules the skies over the loch." },

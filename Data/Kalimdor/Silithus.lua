@@ -13,8 +13,6 @@ ns.Cards.registerZone({
       flavor = "The major settlement of the Cenarion Circle in the sands." },
     { id = "1451:hiveashi", kind = "place", rarity = 4, name = "Hive'Ashi", icon = "Ability_Hunter_Pet_Spider", areaID = 2742,
       flavor = "One of the silithid hives that crawl across the desert." },
-    { id = "1451:brann_bronzebeard", kind = "npc", rarity = 5, name = "Brann Bronzebeard", icon = "INV_Misc_Head_Dwarf_01",
-      flavor = "A famous explorer whose whereabouts are unknown." },
     { id = "1451:rex_ashil", kind = "rare", rarity = 3, name = "Rex Ashil", npcID = 14475, icon = "Spell_Nature_Cyclone",
       flavor = "A rare of the dunes, named only in old spawn lists." },
     { id = "1451:setis", kind = "rare", rarity = 3, name = "Setis", npcID = 14471, icon = "Ability_Hunter_Pet_Scorpid",

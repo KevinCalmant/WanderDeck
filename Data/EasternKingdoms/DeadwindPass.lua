@@ -8,7 +8,7 @@ ns.Cards.registerZone({
   zoneMapID = 1430,
   continentMapID = 1415,
   cards = {
-    { id = "1430:medivh", kind = "lore", rarity = 5, name = "Medivh", icon = "Spell_Shadow_Twilight",
+    { id = "1430:medivh", kind = "lore", rarity = 5, name = "Medivh", npcID = 15608, icon = "Spell_Shadow_Twilight",
       flavor = "The tower's old master, long gone but never forgotten." },
     { id = "1430:karazhan", kind = "place", rarity = 4, name = "Karazhan", icon = "Spell_Shadow_GatherShadows", areaID = 2562,
       flavor = "A tower looming over the pass, full of old secrets." },

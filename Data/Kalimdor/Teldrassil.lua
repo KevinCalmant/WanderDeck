@@ -34,7 +34,7 @@ ns.Cards.registerZone({
       flavor = "A rotting timberling by the quiet lake." },
     { id = "1438:fandral_staghelm", kind = "npc", rarity = 5, name = "Fandral Staghelm", npcID = 15382, icon = "Ability_Druid_TravelForm",
       flavor = "The Archdruid who planted the world tree." },
-    { id = "1438:tyrande_whisperwind", kind = "lore", rarity = 5, name = "Tyrande Whisperwind", icon = "Spell_Holy_ElunesGrace",
+    { id = "1438:tyrande_whisperwind", kind = "lore", rarity = 5, name = "Tyrande Whisperwind", npcID = 7999, icon = "Spell_Holy_ElunesGrace",
       flavor = "High Priestess of Elune, guardian of her people." },
   },
 })

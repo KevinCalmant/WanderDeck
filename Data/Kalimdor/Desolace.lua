@@ -15,7 +15,7 @@ ns.Cards.registerZone({
       flavor = "The boss who festers in the Foulspore Cavern." },
     { id = "1443:maraudon", kind = "place", rarity = 3, name = "Maraudon", icon = "Spell_Nature_Earthquake", areaID = 2100,
       flavor = "A cave complex sacred to the centaur, deep in the Valley of Spears." },
-    { id = "1443:rexxar", kind = "npc", rarity = 5, name = "Rexxar", icon = "Ability_Hunter_Pet_Bear",
+    { id = "1443:rexxar", kind = "npc", rarity = 5, name = "Rexxar", npcID = 10182, icon = "Ability_Hunter_Pet_Bear",
       flavor = "A wandering champion who travels with his bear Misha." },
     { id = "1443:hissperak", kind = "rare", rarity = 3, name = "Hissperak", npcID = 14227, icon = "Ability_Hunter_Pet_Scorpid",
       flavor = "A rare of the dry valley that most adventurers only hear about." },

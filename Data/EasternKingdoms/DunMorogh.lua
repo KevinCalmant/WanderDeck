@@ -38,9 +38,10 @@ ns.Cards.registerZone({
       flavor = "He flooded Gnomeregan and kept the keys." },
     { id = "1426:the_hall_of_thanes", kind = "place", rarity = 4, name = "The Hall of Thanes", icon = "Spell_Holy_SealOfMight",
       flavor = "Old Ironforge sleeps beneath the High Seat." },
-    { id = "1426:durgen_dirgehammer", kind = "boss", rarity = 4, name = "Durgen Dirgehammer", icon = "Spell_Holy_SealOfMight",
+    -- npcID from Wowhead's Forever database (a Forever-only NPC, not in AzerothCore).
+    { id = "1426:durgen_dirgehammer", kind = "boss", rarity = 4, name = "Durgen Dirgehammer", npcID = 261319, icon = "Spell_Holy_SealOfMight",
       flavor = "The last thane standing in the old halls." },
-    { id = "1426:king_magni_bronzebeard", kind = "lore", rarity = 5, name = "King Magni Bronzebeard", icon = "INV_Misc_Head_Dwarf_01",
+    { id = "1426:king_magni_bronzebeard", kind = "lore", rarity = 5, name = "King Magni Bronzebeard", npcID = 2784, icon = "INV_Misc_Head_Dwarf_01",
       flavor = "Ironforge's king, as solid as his throne." },
   },
 })

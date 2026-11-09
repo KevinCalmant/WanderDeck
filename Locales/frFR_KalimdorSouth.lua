@@ -76,7 +76,6 @@ L["A sticky creature that bubbles up from the tar pits."] = "Une créature colla
 L["The wind lord that a Highlord's mission aims to confront."] = "Le seigneur des vents que vise la mission d'un généralissime."
 L["The major settlement of the Cenarion Circle in the sands."] = "La grande colonie du Cercle cénarien au milieu des sables."
 L["One of the silithid hives that crawl across the desert."] = "L'une des ruches silithides qui grouillent dans le désert."
-L["A famous explorer whose whereabouts are unknown."] = "Un explorateur célèbre dont on ignore où il se trouve."
 L["A rare of the dunes, named only in old spawn lists."] = "Une rare des dunes, que seules les vieilles listes mentionnent."
 L["A rare of the dunes that hunters hope to find."] = "Une rare des dunes que les chasseurs espèrent trouver."
 L["A dwarven dig camp in the middle of the sands."] = "Un camp de fouilles nain au milieu des sables."

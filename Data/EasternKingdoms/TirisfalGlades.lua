@@ -38,7 +38,7 @@ ns.Cards.registerZone({
       flavor = "He leads the cathedral guard with a heavy hand." },
     { id = "1420:high_inquisitor_whitemane", kind = "boss", rarity = 5, name = "High Inquisitor Whitemane", npcID = 3977, icon = "Spell_Holy_Resurrection",
       flavor = "She raises the fallen to fight again." },
-    { id = "1420:sylvanas_windrunner", kind = "lore", rarity = 5, name = "Sylvanas Windrunner", icon = "INV_Weapon_Bow_02",
+    { id = "1420:sylvanas_windrunner", kind = "lore", rarity = 5, name = "Sylvanas Windrunner", npcID = 10181, icon = "INV_Weapon_Bow_02",
       flavor = "The Banshee Queen rules those who refused to stay dead." },
     { id = "1420:varimathras", kind = "npc", rarity = 4, name = "Varimathras", npcID = 2425, icon = "Spell_Shadow_SummonImp",
       flavor = "The dreadlord who sits at the Banshee Queen's right hand, and keeps his own counsel." },

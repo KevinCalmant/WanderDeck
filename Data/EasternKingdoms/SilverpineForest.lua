@@ -25,7 +25,5 @@ ns.Cards.registerZone({
       flavor = "Cursed wolf-men who prowl between the pines." },
     { id = "1421:worg", kind = "creature", rarity = 1, name = "Worg", npcID = 1765, icon = "Ability_Hunter_Pet_Wolf",
       flavor = "A large wild wolf with a big appetite." },
-    { id = "1421:bog_beast", kind = "creature", rarity = 1, name = "Bog Beast", icon = "Spell_Nature_ProtectionformNature",
-      flavor = "A swamp elemental that sloshes through the wet ground." },
   },
 })

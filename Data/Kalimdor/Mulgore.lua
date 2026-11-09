@@ -36,7 +36,7 @@ ns.Cards.registerZone({
       flavor = "A lone lion the hunters talk about." },
     { id = "1412:thunder_bluff", kind = "place", rarity = 4, name = "Thunder Bluff", icon = "Ability_ThunderClap", areaID = 1638,
       flavor = "A city on the mesas, joined by rope bridges." },
-    { id = "1412:cairne_bloodhoof", kind = "lore", rarity = 5, name = "Cairne Bloodhoof", icon = "INV_Misc_Head_Tauren_01",
+    { id = "1412:cairne_bloodhoof", kind = "lore", rarity = 5, name = "Cairne Bloodhoof", npcID = 3057, icon = "INV_Misc_Head_Tauren_01",
       flavor = "The High Chieftain, wise and slow to anger." },
     { id = "1412:magatha_grimtotem", kind = "npc", rarity = 4, name = "Magatha Grimtotem", npcID = 4046, icon = "INV_Misc_Head_Tauren_01",
       flavor = "Cunning Grimtotem matriarch on Elder Rise, long a rival of Cairne for the tauren's leadership." },

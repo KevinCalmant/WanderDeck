@@ -452,6 +452,9 @@ describe("Data", function()
     assert.equals(448, ns.Cards.get("1429:hogger").npcID)
     assert.equals(10540, ns.Cards.get("1411:voljin").npcID)
     assert.equals(639, ns.Cards.get("1436:edwin_vancleef").npcID)
+    assert.equals(4949, ns.Cards.get("1411:thrall").npcID)
+    -- Not in the AzerothCore dump under this ID; listed for Forever on Wowhead.
+    assert.equals(10182, ns.Cards.get("1443:rexxar").npcID)
   end)
 
   it("ships about 120 cards per zone, with every rarity", function()

@@ -14,7 +14,6 @@ L["An owl-like beast that hoots along the shore."] = "Une bête hibou qui hulule
 L["A forest cat that stalks in the moonlight."] = "Un félin des bois qui rôde au clair de lune."
 L["The giant hydra waiting at the end of the flooded temple."] = "L'hydre géante qui attend au fond du temple englouti."
 L["A flooded temple dungeon at the Zoram Strand."] = "Un temple englouti servant de donjon, sur la grève de Zoram."
-L["An elemental ascendant, fourth boss of the deeps."] = "Un ascendant élémentaire, quatrième boss des profondeurs."
 L["A giant turtle, first boss of the drowned temple."] = "Une tortue géante, premier boss du temple noyé."
 L["A named level 32 figure of the Ashenvale woods."] = "Une figure nommée de niveau 32 des bois d'Ashenvale."
 L["A rare with a title far too big for him."] = "Un rare dont le titre est bien trop grand pour lui."
