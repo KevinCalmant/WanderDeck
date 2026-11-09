@@ -5,13 +5,13 @@ local _, ns = ...
 -- re-run it. Names are English localization keys; flavor comes from level
 -- and creature type (CardText.flavor). Icons unverified on Forever (/wd art).
 ns.Cards.addCards(1419, {
+  { id = "1419:npc_12396", kind = "elite", rarity = 4, name = "Doomguard Commander", icon = "Spell_Shadow_SummonImp", npcID = 12396, level = 61, creatureType = "Demon" },
   { id = "1419:item_18665", kind = "item", rarity = 4, name = "The Eye of Shadow", icon = "INV_Misc_Bag_08", itemID = 18665 },
   { id = "1419:npc_7667", kind = "elite", rarity = 3, name = "Lady Sevine", icon = "Spell_Shadow_SummonImp", npcID = 7667, level = 59, creatureType = "Demon" },
   { id = "1419:npc_7851", kind = "elite", rarity = 3, name = "Nethergarde Elite", icon = "Ability_Warrior_BattleShout", npcID = 7851, level = 55, creatureType = "Humanoid" },
   { id = "1419:npc_8716", kind = "elite", rarity = 3, name = "Dreadlord", icon = "Spell_Shadow_SummonImp", npcID = 8716, level = 62, creatureType = "Demon" },
   { id = "1419:npc_8717", kind = "elite", rarity = 3, name = "Felguard Elite", icon = "Spell_Shadow_SummonImp", npcID = 8717, level = 61, creatureType = "Demon" },
   { id = "1419:npc_8718", kind = "elite", rarity = 3, name = "Manahound", icon = "Spell_Shadow_SummonImp", npcID = 8718, level = 60, creatureType = "Demon" },
-  { id = "1419:npc_12396", kind = "elite", rarity = 3, name = "Doomguard Commander", icon = "Spell_Shadow_SummonImp", npcID = 12396, level = 61, creatureType = "Demon" },
   { id = "1419:npc_8297", kind = "rare", rarity = 3, name = "Magronos the Unyielding", icon = "Ability_Warrior_BattleShout", npcID = 8297, level = 56, creatureType = "Humanoid" },
   { id = "1419:npc_8298", kind = "rare", rarity = 3, name = "Akubar the Seer", icon = "Ability_Warrior_BattleShout", npcID = 8298, level = 54, creatureType = "Humanoid" },
   { id = "1419:npc_8300", kind = "rare", rarity = 3, name = "Ravage", icon = "Ability_Hunter_Pet_Wolf", npcID = 8300, level = 51, creatureType = "Beast" },

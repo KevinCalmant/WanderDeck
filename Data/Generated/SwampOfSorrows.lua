@@ -7,6 +7,7 @@ local _, ns = ...
 ns.Cards.addCards(1435, {
   { id = "1435:npc_5719", kind = "boss", rarity = 4, name = "Morphaz", icon = "Spell_Fire_Volcano", npcID = 5719, level = 50, creatureType = "Dragonkin" },
   { id = "1435:npc_5722", kind = "boss", rarity = 4, name = "Hazzas", icon = "Spell_Fire_Volcano", npcID = 5722, level = 50, creatureType = "Dragonkin" },
+  { id = "1435:npc_1443", kind = "npc", rarity = 4, name = "Fel'zerul", icon = "Ability_Warrior_BattleShout", npcID = 1443, level = 60, creatureType = "Humanoid" },
   { id = "1435:npc_5259", kind = "elite", rarity = 3, name = "Atal'ai Witch Doctor", icon = "INV_Misc_Head_Troll_01", npcID = 5259, level = 48, creatureType = "Humanoid" },
   { id = "1435:npc_5271", kind = "elite", rarity = 3, name = "Atal'ai Deathwalker", icon = "Spell_Shadow_RaiseDead", npcID = 5271, level = 49, creatureType = "Undead" },
   { id = "1435:npc_5277", kind = "elite", rarity = 3, name = "Nightmare Scalebane", icon = "Spell_Fire_Volcano", npcID = 5277, level = 49, creatureType = "Dragonkin" },
@@ -25,7 +26,6 @@ ns.Cards.addCards(1435, {
   { id = "1435:npc_986", kind = "npc", rarity = 2, name = "Haromm", icon = "Spell_Nature_LightningShield", npcID = 986, level = 50, creatureType = "Humanoid" },
   { id = "1435:npc_988", kind = "npc", rarity = 2, name = "Kartosh", icon = "Spell_Shadow_SummonImp", npcID = 988, level = 50, creatureType = "Humanoid" },
   { id = "1435:npc_1442", kind = "npc", rarity = 2, name = "Helgrum the Swift", icon = "Ability_Warrior_BattleShout", npcID = 1442, level = 60, creatureType = "Humanoid" },
-  { id = "1435:npc_1443", kind = "npc", rarity = 2, name = "Fel'zerul", icon = "Ability_Warrior_BattleShout", npcID = 1443, level = 60, creatureType = "Humanoid" },
   { id = "1435:npc_1776", kind = "npc", rarity = 2, name = "Magtoor", icon = "Ability_Warrior_BattleShout", npcID = 1776, level = 42, creatureType = "Humanoid" },
   { id = "1435:npc_5391", kind = "npc", rarity = 2, name = "Galen Goodward", icon = "Ability_Warrior_BattleShout", npcID = 5391, level = 37, creatureType = "Humanoid" },
   { id = "1435:npc_5476", kind = "npc", rarity = 2, name = "Watcher Biggs", icon = "INV_Shield_06", npcID = 5476, level = 33, creatureType = "Humanoid" },

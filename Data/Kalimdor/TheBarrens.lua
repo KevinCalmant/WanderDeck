@@ -7,7 +7,7 @@ ns.Cards.registerZone({
   zoneMapID = 1413,
   continentMapID = 1414,
   cards = {
-    { id = "1413:amnennar_the_coldbringer", kind = "boss", rarity = 5, name = "Amnennar the Coldbringer", icon = "Spell_Frost_Frostbolt02",
+    { id = "1413:amnennar_the_coldbringer", kind = "boss", rarity = 4, name = "Amnennar the Coldbringer", icon = "Spell_Frost_Frostbolt02",
       flavor = "A frost-wreathed lich who turned a quilboar warren into a tomb." },
     { id = "1413:wailing_caverns", kind = "place", rarity = 4, name = "Wailing Caverns", icon = "Spell_Nature_Regenerate",
       flavor = "Overgrown caves in Lushwater Oasis where the echoes never rest." },
@@ -27,5 +27,7 @@ ns.Cards.registerZone({
       flavor = "A big cat that stalks the tall grass of the plains." },
     { id = "1413:razormane_quilboar", kind = "creature", rarity = 1, name = "Razormane Quilboar", icon = "INV_Misc_Head_Quillboar_01",
       flavor = "Boar-folk who pitch their thorny camps across the savannah." },
+    { id = "1413:mankrik", kind = "npc", rarity = 4, name = "Mankrik", icon = "INV_Sword_04",
+      flavor = "Grieving orc blademaster who hunts quilboar across the Barrens after burying his wife Olgra." },
   },
 })

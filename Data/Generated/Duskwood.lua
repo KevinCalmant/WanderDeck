@@ -5,13 +5,13 @@ local _, ns = ...
 -- re-run it. Names are English localization keys; flavor comes from level
 -- and creature type (CardText.flavor). Icons unverified on Forever (/wd art).
 ns.Cards.addCards(1431, {
+  { id = "1431:npc_263", kind = "npc", rarity = 5, name = "Lord Ello Ebonlocke", icon = "Ability_Warrior_BattleShout", npcID = 263, level = 30, creatureType = "Humanoid" },
   { id = "1431:npc_507", kind = "rare", rarity = 3, name = "Fenros", icon = "Ability_Warrior_BattleShout", npcID = 507, level = 32, creatureType = "Humanoid" },
   { id = "1431:npc_521", kind = "rare", rarity = 3, name = "Lupos", icon = "Ability_Hunter_Pet_Wolf", npcID = 521, level = 23, creatureType = "Beast" },
   { id = "1431:npc_534", kind = "rare", rarity = 3, name = "Nefaru", icon = "Ability_Warrior_BattleShout", npcID = 534, level = 34, creatureType = "Humanoid" },
   { id = "1431:quest_377", kind = "quest", rarity = 3, name = "Crime and Punishment", icon = "INV_Misc_Note_01", questID = 377, level = 26 },
   { id = "1431:item_2043", kind = "item", rarity = 3, name = "Ring of Forlorn Spirits", icon = "INV_Misc_Bag_08", itemID = 2043 },
   { id = "1431:item_2044", kind = "item", rarity = 3, name = "Crescent of Forlorn Spirits", icon = "INV_Sword_04", itemID = 2044 },
-  { id = "1431:npc_263", kind = "npc", rarity = 2, name = "Lord Ello Ebonlocke", icon = "Ability_Warrior_BattleShout", npcID = 263, level = 30, creatureType = "Humanoid" },
   { id = "1431:npc_265", kind = "npc", rarity = 2, name = "Madame Eva", icon = "Ability_Warrior_BattleShout", npcID = 265, level = 25, creatureType = "Humanoid" },
   { id = "1431:npc_267", kind = "npc", rarity = 2, name = "Clerk Daltry", icon = "Ability_Warrior_BattleShout", npcID = 267, level = 31, creatureType = "Humanoid" },
   { id = "1431:npc_268", kind = "npc", rarity = 2, name = "Sirra Von'Indi", icon = "Ability_Warrior_BattleShout", npcID = 268, level = 24, creatureType = "Humanoid" },

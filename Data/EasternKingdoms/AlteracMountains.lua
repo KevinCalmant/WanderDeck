@@ -15,7 +15,7 @@ ns.Cards.registerZone({
       flavor = "A Horde war leader tied to the fight in the valley." },
     { id = "1416:narillasanz", kind = "rare", rarity = 3, name = "Narillasanz", icon = "Spell_Frost_FrostArmor02",
       flavor = "The one rare listed for these cold mountains." },
-    { id = "1416:lord_jorach_ravenholdt", kind = "npc", rarity = 3, name = "Lord Jorach Ravenholdt", icon = "Ability_Rogue_Ambush",
+    { id = "1416:lord_jorach_ravenholdt", kind = "npc", rarity = 4, name = "Lord Jorach Ravenholdt", icon = "Ability_Rogue_Ambush",
       flavor = "The master of a rogue house that prefers the shadows." },
     { id = "1416:ravenholdt_manor", kind = "place", rarity = 3, name = "Ravenholdt Manor", icon = "Ability_Rogue_Ambush",
       flavor = "A hideout where rogues trade secrets and blades." },
@@ -27,5 +27,7 @@ ns.Cards.registerZone({
       flavor = "A snow ape that rules the high slopes." },
     { id = "1416:mountain_lion", kind = "creature", rarity = 1, name = "Mountain Lion", icon = "Ability_Hunter_Pet_Cat",
       flavor = "An alpine hunter with quiet paws." },
+    { id = "1416:archmage_ansirem_runeweaver", kind = "npc", rarity = 4, name = "Archmage Ansirem Runeweaver", icon = "Spell_Frost_Frostbolt02",
+      flavor = "A Dalaran archmage who stayed by the crater, still searching for his lost daughter." },
   },
 })

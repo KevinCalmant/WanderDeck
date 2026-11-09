@@ -10,7 +10,7 @@ ns.Cards.registerZone({
   cards = {
     { id = "1428:emperor_dagran_thaurissan", kind = "boss", rarity = 5, name = "Emperor Dagran Thaurissan", icon = "Spell_Fire_Volcano",
       flavor = "The Dark Iron ruler on the throne at the bottom of the mountain." },
-    { id = "1428:warchief_rend_blackhand", kind = "boss", rarity = 4, name = "Warchief Rend Blackhand", icon = "INV_Sword_04",
+    { id = "1428:warchief_rend_blackhand", kind = "boss", rarity = 5, name = "Warchief Rend Blackhand", icon = "INV_Sword_04",
       flavor = "The orc warchief waiting at the top of the Spire." },
     { id = "1428:hematos", kind = "elite", rarity = 4, name = "Hematos", icon = "Ability_Hunter_Pet_Scorpid",
       flavor = "A level 60 rare elite that haunts the red steppe." },

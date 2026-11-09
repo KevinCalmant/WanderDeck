@@ -13,7 +13,7 @@ ns.Cards.registerZone({
       flavor = "An elevator that carries travelers from the Barrens up to the mesas." },
     { id = "1441:mirage_raceway", kind = "place", rarity = 4, name = "Mirage Raceway", icon = "INV_Misc_Gear_01",
       flavor = "A goblin racetrack with bets, engines and plenty of dust." },
-    { id = "1441:rau_cliffrunner", kind = "npc", rarity = 3, name = "Rau Cliffrunner", icon = "INV_Misc_Head_Tauren_01",
+    { id = "1441:rau_cliffrunner", kind = "npc", rarity = 4, name = "Rau Cliffrunner", icon = "INV_Misc_Head_Tauren_01",
       flavor = "A Freewind Post contact who sends heroes after a fire phial." },
     { id = "1441:harb_foulmountain", kind = "rare", rarity = 3, name = "Harb Foulmountain", icon = "Spell_Nature_Earthquake",
       flavor = "A rare spawn that few travelers meet twice." },

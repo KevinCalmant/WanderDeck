@@ -67,6 +67,42 @@ class CheckCard(unittest.TestCase):
                 gen.check_card(bad)
 
 
+class RarityOverrides(unittest.TestCase):
+    def setUp(self):
+        self.saved = dict(gen.RARITY_OVERRIDES)
+        gen.RARITY_OVERRIDES.clear()
+
+    def tearDown(self):
+        gen.RARITY_OVERRIDES.clear()
+        gen.RARITY_OVERRIDES.update(self.saved)
+
+    def test_legendary_only_for_a_curated_card(self):
+        with self.assertRaises(SystemExit):
+            gen.check_card(card(rarity=5))
+        gen.RARITY_OVERRIDES["1429:npc_299"] = 5
+        gen.check_card(card(rarity=5))
+        with self.assertRaises(SystemExit):
+            gen.check_card(card(id="1429:npc_300", entry=300, rarity=5))
+
+    def test_refuses_bool_and_out_of_range_rarities_even_when_curated(self):
+        gen.RARITY_OVERRIDES["1429:npc_299"] = 5
+        for bad in [True, 6, 0, "5", 4.5]:
+            with self.assertRaises(SystemExit, msg=repr(bad)):
+                gen.check_card(card(rarity=bad))
+
+    def test_applies_after_selection_without_changing_ids(self):
+        gen.RARITY_OVERRIDES["1429:npc_299"] = 4
+        out = {1429: ([card(), card(id="1429:npc_300", entry=300)], 0, 2)}
+        gen.apply_rarity_overrides(out)
+        self.assertEqual([4, 1], [c["rarity"] for c in out[1429][0]])
+        self.assertEqual(["1429:npc_299", "1429:npc_300"], [c["id"] for c in out[1429][0]])
+
+    def test_stops_when_a_curated_card_is_not_generated(self):
+        gen.RARITY_OVERRIDES["1429:npc_999"] = 5
+        with self.assertRaises(SystemExit):
+            gen.apply_rarity_overrides({1429: ([card()], 0, 1)})
+
+
 class Render(unittest.TestCase):
     def test_render_refuses_a_bad_card(self):
         zone = next(iter(gen.ZONES))

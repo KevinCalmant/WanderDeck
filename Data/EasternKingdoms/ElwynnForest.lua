@@ -40,5 +40,13 @@ ns.Cards.registerZone({
       flavor = "The prize boar of the Brackwell farm, fiercely guarded." },
     { id = "1429:hogger", kind = "elite", rarity = 5, name = "Hogger", icon = "INV_Misc_Head_Gnoll_01",
       flavor = "The gnoll every adventurer remembers." },
+    { id = "1429:highlord_bolvar_fordragon", kind = "npc", rarity = 5, name = "Highlord Bolvar Fordragon", icon = "Ability_Warrior_DefensiveStance",
+      flavor = "Regent of Stormwind, sword and shield of a boy king while the true king is missing." },
+    { id = "1429:anduin_wrynn", kind = "npc", rarity = 5, name = "Anduin Wrynn", icon = "INV_Shield_06",
+      flavor = "A boy on a great throne, ruling a kingdom while his father is lost." },
+    { id = "1429:lady_katrana_prestor", kind = "npc", rarity = 4, name = "Lady Katrana Prestor", icon = "Spell_Shadow_GatherShadows",
+      flavor = "The royal advisor who murmurs beside the throne, and is not what she seems." },
+    { id = "1429:archbishop_benedictus", kind = "npc", rarity = 4, name = "Archbishop Benedictus", icon = "Spell_Holy_HolySmite",
+      flavor = "Shepherd of the Cathedral of Light and of Stormwind's faithful." },
   },
 })

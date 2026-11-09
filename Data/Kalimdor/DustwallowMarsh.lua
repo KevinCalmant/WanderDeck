@@ -13,7 +13,7 @@ ns.Cards.registerZone({
       flavor = "A small island off the coast, dangerous enough to count as a dungeon." },
     { id = "1445:drogoth_the_roamer", kind = "rare", rarity = 4, name = "Drogoth the Roamer", icon = "Spell_Shadow_DeathCoil",
       flavor = "A rare that wanders the marsh and rarely stays in one place." },
-    { id = "1445:overlord_mokmorokk", kind = "npc", rarity = 3, name = "Overlord Mok'Morokk", icon = "INV_Misc_Head_Troll_01",
+    { id = "1445:overlord_mokmorokk", kind = "npc", rarity = 4, name = "Overlord Mok'Morokk", icon = "INV_Misc_Head_Troll_01",
       flavor = "The Brackenwall chief, who wants help against the black dragons." },
     { id = "1445:darkmist_widow", kind = "rare", rarity = 3, name = "Darkmist Widow", icon = "Ability_Hunter_Pet_Spider",
       flavor = "A rare spider that lurks in the marsh mist." },

@@ -32,7 +32,7 @@ ns.Cards.registerZone({
       flavor = "He studies the sickness spreading through the roots." },
     { id = "1438:blackmoss_the_fetid", kind = "rare", rarity = 3, name = "Blackmoss the Fetid", icon = "Spell_Nature_Regenerate",
       flavor = "A rotting timberling by the quiet lake." },
-    { id = "1438:fandral_staghelm", kind = "npc", rarity = 4, name = "Fandral Staghelm", icon = "Ability_Druid_TravelForm",
+    { id = "1438:fandral_staghelm", kind = "npc", rarity = 5, name = "Fandral Staghelm", icon = "Ability_Druid_TravelForm",
       flavor = "The Archdruid who planted the world tree." },
     { id = "1438:tyrande_whisperwind", kind = "lore", rarity = 5, name = "Tyrande Whisperwind", icon = "Spell_Holy_ElunesGrace",
       flavor = "High Priestess of Elune, guardian of her people." },

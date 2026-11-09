@@ -5,6 +5,7 @@ local _, ns = ...
 -- re-run it. Names are English localization keys; flavor comes from level
 -- and creature type (CardText.flavor). Icons unverified on Forever (/wd art).
 ns.Cards.addCards(1434, {
+  { id = "1434:npc_2465", kind = "npc", rarity = 4, name = "Far Seer Mok'thardin", icon = "Ability_Warrior_BattleShout", npcID = 2465, level = 45, creatureType = "Humanoid" },
   { id = "1434:npc_11346", kind = "elite", rarity = 3, name = "Hakkari Oracle", icon = "INV_Misc_Head_Murloc_01", npcID = 11346, level = 56, creatureType = "Humanoid" },
   { id = "1434:npc_11355", kind = "elite", rarity = 3, name = "Gurubashi Warrior", icon = "INV_Sword_04", npcID = 11355, level = 55, creatureType = "Humanoid" },
   { id = "1434:npc_11383", kind = "elite", rarity = 3, name = "High Priestess Hai'watna", icon = "Spell_Holy_HolySmite", npcID = 11383, level = 57, creatureType = "Humanoid" },
@@ -26,7 +27,6 @@ ns.Cards.addCards(1434, {
   { id = "1434:npc_717", kind = "npc", rarity = 2, name = "Ajeck Rouack", icon = "Ability_Warrior_BattleShout", npcID = 717, level = 40, creatureType = "Humanoid" },
   { id = "1434:npc_718", kind = "npc", rarity = 2, name = "Sir S. J. Erlgadin", icon = "Ability_Warrior_BattleShout", npcID = 718, level = 40, creatureType = "Humanoid" },
   { id = "1434:npc_773", kind = "npc", rarity = 2, name = "Krazek", icon = "Ability_Warrior_BattleShout", npcID = 773, level = 35, creatureType = "Humanoid" },
-  { id = "1434:npc_2465", kind = "npc", rarity = 2, name = "Far Seer Mok'thardin", icon = "Ability_Warrior_BattleShout", npcID = 2465, level = 45, creatureType = "Humanoid" },
   { id = "1434:npc_2497", kind = "npc", rarity = 2, name = "Nimboya", icon = "Ability_Warrior_BattleShout", npcID = 2497, level = 41, creatureType = "Humanoid" },
   { id = "1434:npc_2498", kind = "npc", rarity = 2, name = "Crank Fizzlebub", icon = "Ability_Warrior_BattleShout", npcID = 2498, level = 34, creatureType = "Humanoid" },
   { id = "1434:npc_2501", kind = "npc", rarity = 2, name = "\"Sea Wolf\" MacKinley", icon = "Ability_Hunter_Pet_Wolf", npcID = 2501, level = 44, creatureType = "Humanoid" },

@@ -15,7 +15,7 @@ ns.Cards.registerZone({
       flavor = "A hostile elven noble who holds the western wing of Dire Maul." },
     { id = "1444:dire_maul", kind = "place", rarity = 3, name = "Dire Maul", icon = "INV_Sword_04",
       flavor = "A ruined elven city that now serves as a dungeon in Feralas." },
-    { id = "1444:king_gordok", kind = "boss", rarity = 3, name = "King Gordok", icon = "INV_Misc_Bandana_03",
+    { id = "1444:king_gordok", kind = "boss", rarity = 4, name = "King Gordok", icon = "INV_Misc_Bandana_03",
       flavor = "The ogre ruler of the northern wing of Dire Maul." },
     { id = "1444:lady_szallah", kind = "rare", rarity = 3, name = "Lady Szallah", icon = "Ability_Hunter_Pet_Cat",
       flavor = "A rare of the jungle, listed among the zone's elusive spawns." },

@@ -5,6 +5,7 @@ local _, ns = ...
 -- re-run it. Names are English localization keys; flavor comes from level
 -- and creature type (CardText.flavor). Icons unverified on Forever (/wd art).
 ns.Cards.addCards(1451, {
+  { id = "1451:npc_15183", kind = "npc", rarity = 4, name = "Geologist Larksbane", icon = "Trade_Mining", npcID = 15183, level = 60, creatureType = "Humanoid" },
   { id = "1451:item_21180", kind = "item", rarity = 4, name = "Earthstrike", icon = "INV_Misc_Bag_08", itemID = 21180 },
   { id = "1451:item_21188", kind = "item", rarity = 4, name = "Fist of Cenarius", icon = "INV_Sword_04", itemID = 21188 },
   { id = "1451:item_21520", kind = "item", rarity = 4, name = "Ravencrest's Legacy", icon = "INV_Sword_04", itemID = 21520 },
@@ -26,7 +27,6 @@ ns.Cards.addCards(1451, {
   { id = "1451:npc_15174", kind = "npc", rarity = 2, name = "Calandrath", icon = "INV_Drink_05", npcID = 15174, level = 54, creatureType = "Humanoid" },
   { id = "1451:npc_15176", kind = "npc", rarity = 2, name = "Vargus", icon = "Trade_BlackSmithing", npcID = 15176, level = 57, creatureType = "Humanoid" },
   { id = "1451:npc_15180", kind = "npc", rarity = 2, name = "Baristolth of the Shifting Sands", icon = "Ability_Warrior_BattleShout", npcID = 15180, level = 60, creatureType = "Humanoid" },
-  { id = "1451:npc_15183", kind = "npc", rarity = 2, name = "Geologist Larksbane", icon = "Trade_Mining", npcID = 15183, level = 60, creatureType = "Humanoid" },
   { id = "1451:npc_15189", kind = "npc", rarity = 2, name = "Beetix Ficklespragg", icon = "Ability_Warrior_BattleShout", npcID = 15189, level = 57, creatureType = "Humanoid" },
   { id = "1451:npc_15191", kind = "npc", rarity = 2, name = "Windcaller Proudhorn", icon = "Ability_Warrior_BattleShout", npcID = 15191, level = 56, creatureType = "Humanoid" },
   { id = "1451:npc_15194", kind = "npc", rarity = 2, name = "Hermit Ortell", icon = "Ability_Warrior_BattleShout", npcID = 15194, level = 57, creatureType = "Humanoid" },

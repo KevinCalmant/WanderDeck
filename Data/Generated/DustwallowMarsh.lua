@@ -5,6 +5,7 @@ local _, ns = ...
 -- re-run it. Names are English localization keys; flavor comes from level
 -- and creature type (CardText.flavor). Icons unverified on Forever (/wd art).
 ns.Cards.addCards(1445, {
+  { id = "1445:npc_4967", kind = "npc", rarity = 4, name = "Archmage Tervosh", icon = "Ability_Warrior_BattleShout", npcID = 4967, level = 38, creatureType = "Humanoid" },
   { id = "1445:npc_4339", kind = "elite", rarity = 3, name = "Brimgore", icon = "Spell_Fire_Volcano", npcID = 4339, level = 41, creatureType = "Dragonkin" },
   { id = "1445:npc_5434", kind = "elite", rarity = 3, name = "Coral Shark", icon = "INV_Misc_Pelt_Wolf_01", npcID = 5434, level = 46, creatureType = "Beast" },
   { id = "1445:npc_5797", kind = "elite", rarity = 3, name = "Aean Swiftriver", icon = "Ability_Warrior_BattleShout", npcID = 5797, level = 22, creatureType = "Humanoid" },
@@ -29,7 +30,6 @@ ns.Cards.addCards(1445, {
   { id = "1445:npc_4941", kind = "npc", rarity = 2, name = "Caz Twosprocket", icon = "Ability_Warrior_BattleShout", npcID = 4941, level = 35, creatureType = "Humanoid" },
   { id = "1445:npc_4944", kind = "npc", rarity = 2, name = "Captain Garran Vimes", icon = "Ability_Warrior_BattleShout", npcID = 4944, level = 50, creatureType = "Humanoid" },
   { id = "1445:npc_4948", kind = "npc", rarity = 2, name = "Adjutant Tesoran", icon = "Ability_Warrior_BattleShout", npcID = 4948, level = 35, creatureType = "Humanoid" },
-  { id = "1445:npc_4967", kind = "npc", rarity = 2, name = "Archmage Tervosh", icon = "Ability_Warrior_BattleShout", npcID = 4967, level = 38, creatureType = "Humanoid" },
   { id = "1445:npc_6546", kind = "npc", rarity = 2, name = "Tabetha", icon = "Ability_Warrior_BattleShout", npcID = 6546, level = 62, creatureType = "Humanoid" },
   { id = "1445:npc_12919", kind = "npc", rarity = 2, name = "Nat Pagle", icon = "Ability_Warrior_BattleShout", npcID = 12919, level = 45, creatureType = "Humanoid" },
   { id = "1445:quest_1169", kind = "quest", rarity = 2, name = "Identifying the Brood", icon = "INV_Misc_Note_01", questID = 1169, level = 41 },

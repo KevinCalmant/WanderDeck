@@ -5,8 +5,11 @@ local _, ns = ...
 -- re-run it. Names are English localization keys; flavor comes from level
 -- and creature type (CardText.flavor). Icons unverified on Forever (/wd art).
 ns.Cards.addCards(1449, {
+  { id = "1449:npc_6500", kind = "elite", rarity = 5, name = "Tyrant Devilsaur", icon = "INV_Misc_Pelt_Wolf_01", npcID = 6500, level = 55, creatureType = "Beast" },
+  { id = "1449:npc_9118", kind = "npc", rarity = 4, name = "Larion", icon = "Ability_Warrior_BattleShout", npcID = 9118, level = 51, creatureType = "Humanoid" },
+  { id = "1449:npc_9119", kind = "npc", rarity = 4, name = "Muigin", icon = "Ability_Warrior_BattleShout", npcID = 9119, level = 51, creatureType = "Humanoid" },
+  { id = "1449:npc_9999", kind = "npc", rarity = 4, name = "Ringo", icon = "Ability_Warrior_BattleShout", npcID = 9999, level = 54, creatureType = "Humanoid" },
   { id = "1449:npc_6499", kind = "elite", rarity = 3, name = "Ironhide Devilsaur", icon = "INV_Misc_Pelt_Wolf_01", npcID = 6499, level = 55, creatureType = "Beast" },
-  { id = "1449:npc_6500", kind = "elite", rarity = 3, name = "Tyrant Devilsaur", icon = "INV_Misc_Pelt_Wolf_01", npcID = 6500, level = 55, creatureType = "Beast" },
   { id = "1449:npc_6501", kind = "elite", rarity = 3, name = "Stegodon", icon = "INV_Misc_Pelt_Wolf_01", npcID = 6501, level = 53, creatureType = "Beast" },
   { id = "1449:npc_6502", kind = "elite", rarity = 3, name = "Plated Stegodon", icon = "INV_Shield_06", npcID = 6502, level = 53, creatureType = "Beast" },
   { id = "1449:npc_6503", kind = "elite", rarity = 3, name = "Spiked Stegodon", icon = "INV_Misc_Pelt_Wolf_01", npcID = 6503, level = 54, creatureType = "Beast" },
@@ -19,12 +22,9 @@ ns.Cards.addCards(1449, {
   { id = "1449:quest_3962", kind = "quest", rarity = 3, name = "It's Dangerous to Go Alone", icon = "INV_Misc_Note_01", questID = 3962, level = 56 },
   { id = "1449:quest_4148", kind = "quest", rarity = 3, name = "Bloodpetal Zapper", icon = "INV_Misc_Note_01", questID = 4148, level = 53 },
   { id = "1449:npc_8737", kind = "npc", rarity = 2, name = "Linken", icon = "Ability_Warrior_BattleShout", npcID = 8737, level = 40, creatureType = "Humanoid" },
-  { id = "1449:npc_9118", kind = "npc", rarity = 2, name = "Larion", icon = "Ability_Warrior_BattleShout", npcID = 9118, level = 51, creatureType = "Humanoid" },
-  { id = "1449:npc_9119", kind = "npc", rarity = 2, name = "Muigin", icon = "Ability_Warrior_BattleShout", npcID = 9119, level = 51, creatureType = "Humanoid" },
   { id = "1449:npc_9618", kind = "npc", rarity = 2, name = "Karna Remtravel", icon = "Ability_Warrior_BattleShout", npcID = 9618, level = 49, creatureType = "Humanoid" },
   { id = "1449:npc_9997", kind = "npc", rarity = 2, name = "Spraggle Frock", icon = "Ability_Warrior_BattleShout", npcID = 9997, level = 37, creatureType = "Humanoid" },
   { id = "1449:npc_9998", kind = "npc", rarity = 2, name = "Shizzle", icon = "Ability_Warrior_BattleShout", npcID = 9998, level = 40, creatureType = "Humanoid" },
-  { id = "1449:npc_9999", kind = "npc", rarity = 2, name = "Ringo", icon = "Ability_Warrior_BattleShout", npcID = 9999, level = 54, creatureType = "Humanoid" },
   { id = "1449:npc_10302", kind = "npc", rarity = 2, name = "Krakle", icon = "Ability_Warrior_BattleShout", npcID = 10302, level = 60, creatureType = "Humanoid" },
   { id = "1449:quest_974", kind = "quest", rarity = 2, name = "Finding the Source", icon = "INV_Misc_Note_01", questID = 974, level = 55 },
   { id = "1449:quest_980", kind = "quest", rarity = 2, name = "The New Springs", icon = "INV_Misc_Note_01", questID = 980, level = 55 },

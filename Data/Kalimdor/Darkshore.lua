@@ -13,7 +13,7 @@ ns.Cards.registerZone({
       flavor = "A mage tower left in ruins, and not by accident." },
     { id = "1439:ruins_of_mathystra", kind = "place", rarity = 4, name = "Ruins of Mathystra", icon = "Spell_Nature_MoonGlow",
       flavor = "Night elf ruins where the shore keeps its old memories." },
-    { id = "1439:prospector_remtravel", kind = "npc", rarity = 3, name = "Prospector Remtravel", icon = "Trade_Mining",
+    { id = "1439:prospector_remtravel", kind = "npc", rarity = 4, name = "Prospector Remtravel", icon = "Trade_Mining",
       flavor = "An Explorers' League dwarf who will not stop hunting his fossil." },
     { id = "1439:lord_sinslayer", kind = "rare", rarity = 3, name = "Lord Sinslayer", icon = "Spell_Shadow_DeathCoil",
       flavor = "The deadliest rare on the coast, and he knows it." },

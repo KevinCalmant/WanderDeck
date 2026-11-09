@@ -7,7 +7,7 @@ ns.Cards.registerZone({
   zoneMapID = 1443,
   continentMapID = 1414,
   cards = {
-    { id = "1443:princess_theradras", kind = "boss", rarity = 5, name = "Princess Theradras", icon = "Spell_Nature_Earthquake",
+    { id = "1443:princess_theradras", kind = "boss", rarity = 4, name = "Princess Theradras", icon = "Spell_Nature_Earthquake",
       flavor = "The ruler of the valley, waiting at the bottom of her cavern." },
     { id = "1443:celebras_the_cursed", kind = "boss", rarity = 4, name = "Celebras the Cursed", icon = "Spell_Nature_ProtectionformNature",
       flavor = "A corrupted keeper who guards the Wicked Grotto." },
@@ -15,7 +15,7 @@ ns.Cards.registerZone({
       flavor = "The boss who festers in the Foulspore Cavern." },
     { id = "1443:maraudon", kind = "place", rarity = 3, name = "Maraudon", icon = "Spell_Nature_Earthquake",
       flavor = "A cave complex sacred to the centaur, deep in the Valley of Spears." },
-    { id = "1443:rexxar", kind = "npc", rarity = 3, name = "Rexxar", icon = "Ability_Hunter_Pet_Bear",
+    { id = "1443:rexxar", kind = "npc", rarity = 5, name = "Rexxar", icon = "Ability_Hunter_Pet_Bear",
       flavor = "A wandering champion who travels with his bear Misha." },
     { id = "1443:hissperak", kind = "rare", rarity = 3, name = "Hissperak", icon = "Ability_Hunter_Pet_Scorpid",
       flavor = "A rare of the dry valley that most adventurers only hear about." },

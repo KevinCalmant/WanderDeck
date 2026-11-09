@@ -5,6 +5,7 @@ local _, ns = ...
 -- re-run it. Names are English localization keys; flavor comes from level
 -- and creature type (CardText.flavor). Icons unverified on Forever (/wd art).
 ns.Cards.addCards(1433, {
+  { id = "1433:npc_382", kind = "npc", rarity = 4, name = "Marshal Marris", icon = "Ability_Warrior_BattleShout", npcID = 382, level = 35, creatureType = "Humanoid" },
   { id = "1433:npc_334", kind = "elite", rarity = 3, name = "Gath'Ilzogg", icon = "Ability_Warrior_BattleShout", npcID = 334, level = 26, creatureType = "Humanoid" },
   { id = "1433:npc_335", kind = "elite", rarity = 3, name = "Singe", icon = "Spell_Fire_Volcano", npcID = 335, level = 24, creatureType = "Dragonkin" },
   { id = "1433:npc_486", kind = "elite", rarity = 3, name = "Tharil'zun", icon = "Ability_Warrior_BattleShout", npcID = 486, level = 24, creatureType = "Humanoid" },
@@ -25,7 +26,6 @@ ns.Cards.addCards(1433, {
   { id = "1433:npc_346", kind = "npc", rarity = 2, name = "Barkeep Daniels", icon = "Ability_Warrior_BattleShout", npcID = 346, level = 21, creatureType = "Humanoid" },
   { id = "1433:npc_379", kind = "npc", rarity = 2, name = "Darcy", icon = "Ability_Warrior_BattleShout", npcID = 379, level = 15, creatureType = "Humanoid" },
   { id = "1433:npc_381", kind = "npc", rarity = 2, name = "Dockmaster Baren", icon = "Ability_Warrior_BattleShout", npcID = 381, level = 20, creatureType = "Humanoid" },
-  { id = "1433:npc_382", kind = "npc", rarity = 2, name = "Marshal Marris", icon = "Ability_Warrior_BattleShout", npcID = 382, level = 35, creatureType = "Humanoid" },
   { id = "1433:npc_415", kind = "npc", rarity = 2, name = "Verner Osgood", icon = "Ability_Warrior_BattleShout", npcID = 415, level = 25, creatureType = "Humanoid" },
   { id = "1433:npc_464", kind = "npc", rarity = 2, name = "Guard Parker", icon = "INV_Shield_06", npcID = 464, level = 30, creatureType = "Humanoid" },
   { id = "1433:npc_1070", kind = "npc", rarity = 2, name = "Deputy Feldon", icon = "Ability_Warrior_BattleShout", npcID = 1070, level = 33, creatureType = "Humanoid" },

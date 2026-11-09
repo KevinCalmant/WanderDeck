@@ -25,6 +25,16 @@ end
 describe("UI frames", function()
   local ns, char
 
+  -- The Legendary a pack of Elwynn holds when every roll returns its upper
+  -- bound: the last one in data order.
+  local function lastLegendary()
+    local last
+    for _, c in ipairs(ns.Cards.zoneCards(1429)) do
+      if c.rarity == 5 then last = c end
+    end
+    return last
+  end
+
   before_each(function()
     mocks.reset()
     ns = mocks.newNamespace()
@@ -89,7 +99,7 @@ describe("UI frames", function()
       ns.RevealFrame.show(result, "Zone 1429", function() end, function() return 0 end)
       local frame, widgets = ns.RevealFrame._debug()
       frame.revealAll.scripts.OnClick()
-      assert.equals("Hogger", widgets[1].name.text)
+      assert.equals(lastLegendary().name, widgets[1].name.text)
       assert.is_true(widgets[1].halo.shown)
 
       char.packs = { { zoneMapID = 1429, earnedAt = 2 } }
@@ -118,7 +128,7 @@ describe("UI frames", function()
         local colors = {}
         rawset(widgets[1].revealFx.burst, "SetColorTexture", function(_, r, g, b) colors = { r, g, b } end)
         widgets[1].scripts.OnClick()
-        assert.equals("Hogger", widgets[1].name.text)
+        assert.equals(lastLegendary().name, widgets[1].name.text)
         assert.equals(5, played[#played])
         assert.same({ ns.CardWidget.rarityRGB(5) }, colors)
       end)
@@ -220,7 +230,7 @@ describe("UI frames", function()
       assert.is_false(widgets[1].name.shown)
       frame.revealAll.scripts.OnClick()
       assert.is_true(ns.Reveal.isDone(state))
-      assert.equals("Interface\\Icons\\INV_Misc_Head_Gnoll_01", widgets[1].icon.texture)
+      assert.equals("Interface\\Icons\\"..lastLegendary().icon, widgets[1].icon.texture)
       assert.is_true(widgets[1].halo.shown)
 
       -- Next pack reuses the widget: the Legendary face must not stay visible.
@@ -661,7 +671,7 @@ describe("UI frames", function()
       assert.equals("New!", widgets[1].newTag.text)
       assert.equals("?", widgets[2].back.text)
       assert.same({}, char.newCards)
-      assert.equals("Zone 1429  1/16", zoneButtons[1].text)
+      assert.equals("Zone 1429  1/"..#ns.Cards.zoneCards(1429), zoneButtons[1].text)
     end)
 
     it("opens with no registered zone without error", function()

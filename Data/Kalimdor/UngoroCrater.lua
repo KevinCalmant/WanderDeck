@@ -7,7 +7,7 @@ ns.Cards.registerZone({
   zoneMapID = 1449,
   continentMapID = 1414,
   cards = {
-    { id = "1449:larkorwi", kind = "rare", rarity = 5, name = "Lar'korwi", icon = "Ability_Hunter_Pet_Cat",
+    { id = "1449:larkorwi", kind = "rare", rarity = 4, name = "Lar'korwi", icon = "Ability_Hunter_Pet_Cat",
       flavor = "An elusive beast that hunters chase across the crater." },
     { id = "1449:blazerunner", kind = "elite", rarity = 4, name = "Blazerunner", icon = "Spell_Fire_Incinerate",
       flavor = "The leader of the fire elementals on Fire Plume Ridge." },

@@ -16,7 +16,7 @@ ns.Cards.registerZone({
       flavor = "The embalmer's bride, and she does not forgive." },
     { id = "1431:lord_malathrom", kind = "rare", rarity = 3, name = "Lord Malathrom", icon = "Spell_Shadow_Curse",
       flavor = "An undead noble who still rules a graveyard." },
-    { id = "1431:commander_althea_ebonlocke", kind = "npc", rarity = 3, name = "Commander Althea Ebonlocke", icon = "INV_Shield_06",
+    { id = "1431:commander_althea_ebonlocke", kind = "npc", rarity = 4, name = "Commander Althea Ebonlocke", icon = "INV_Shield_06",
       flavor = "The noble who keeps Darkshire's defenders in line." },
     { id = "1431:darkshire", kind = "place", rarity = 2, name = "Darkshire", icon = "INV_Drink_05",
       flavor = "A gloomy town where the lamps burn all day." },

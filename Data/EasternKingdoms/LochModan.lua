@@ -7,7 +7,7 @@ ns.Cards.registerZone({
   zoneMapID = 1432,
   continentMapID = 1415,
   cards = {
-    { id = "1432:large_loch_crocolisk", kind = "rare", rarity = 5, name = "Large Loch Crocolisk", icon = "Ability_Hunter_Pet_Scorpid",
+    { id = "1432:large_loch_crocolisk", kind = "rare", rarity = 4, name = "Large Loch Crocolisk", icon = "Ability_Hunter_Pet_Scorpid",
       flavor = "The lake's biggest jaws, and they know it." },
     { id = "1432:mogrosh_stronghold", kind = "place", rarity = 4, name = "Mo'grosh Stronghold", icon = "INV_Misc_Head_Gnoll_01",
       flavor = "An ogre den that most travelers wisely walk around." },

@@ -5,12 +5,15 @@ local _, ns = ...
 -- re-run it. Names are English localization keys; flavor comes from level
 -- and creature type (CardText.flavor). Icons unverified on Forever (/wd art).
 ns.Cards.addCards(1413, {
+  { id = "1413:npc_3389", kind = "npc", rarity = 5, name = "Regthar Deathgate", icon = "Ability_Warrior_BattleShout", npcID = 3389, level = 28, creatureType = "Humanoid" },
+  { id = "1413:npc_3391", kind = "npc", rarity = 5, name = "Gazlowe", icon = "Ability_Warrior_BattleShout", npcID = 3391, level = 60, creatureType = "Humanoid" },
   { id = "1413:npc_3653", kind = "boss", rarity = 4, name = "Kresh", icon = "INV_Misc_Pelt_Wolf_01", npcID = 3653, level = 20, creatureType = "Beast" },
   { id = "1413:npc_3669", kind = "boss", rarity = 4, name = "Lord Cobrahn", icon = "Ability_Warrior_WarCry", npcID = 3669, level = 20, creatureType = "Humanoid" },
   { id = "1413:npc_3670", kind = "boss", rarity = 4, name = "Lord Pythas", icon = "Ability_Warrior_WarCry", npcID = 3670, level = 20, creatureType = "Humanoid" },
   { id = "1413:npc_3671", kind = "boss", rarity = 4, name = "Lady Anacondra", icon = "Ability_Warrior_WarCry", npcID = 3671, level = 20, creatureType = "Humanoid" },
   { id = "1413:npc_3673", kind = "boss", rarity = 4, name = "Lord Serpentis", icon = "Ability_Warrior_WarCry", npcID = 3673, level = 20, creatureType = "Humanoid" },
   { id = "1413:npc_3674", kind = "boss", rarity = 4, name = "Skum", icon = "INV_Misc_Pelt_Wolf_01", npcID = 3674, level = 20, creatureType = "Beast" },
+  { id = "1413:npc_3429", kind = "npc", rarity = 4, name = "Thork", icon = "Ability_Warrior_BattleShout", npcID = 3429, level = 42, creatureType = "Humanoid" },
   { id = "1413:npc_3840", kind = "elite", rarity = 3, name = "Druid of the Fang", icon = "Spell_Nature_Rejuvenation", npcID = 3840, level = 19, creatureType = "Humanoid" },
   { id = "1413:npc_4442", kind = "elite", rarity = 3, name = "Razorfen Defender", icon = "INV_Shield_06", npcID = 4442, level = 26, creatureType = "Humanoid" },
   { id = "1413:npc_5761", kind = "elite", rarity = 3, name = "Deviate Shambler", icon = "Spell_Nature_Earthquake", npcID = 5761, level = 19, creatureType = "Elemental" },
@@ -24,9 +27,6 @@ ns.Cards.addCards(1413, {
   { id = "1413:item_10762", kind = "item", rarity = 3, name = "Robes of the Lich", icon = "INV_Misc_Bag_08", itemID = 10762 },
   { id = "1413:npc_2980", kind = "npc", rarity = 2, name = "Grull Hawkwind", icon = "Ability_Hunter_Pet_Vulture", npcID = 2980, level = 4, creatureType = "Humanoid" },
   { id = "1413:npc_3387", kind = "npc", rarity = 2, name = "Jorn Skyseer", icon = "Ability_Warrior_BattleShout", npcID = 3387, level = 32, creatureType = "Humanoid" },
-  { id = "1413:npc_3389", kind = "npc", rarity = 2, name = "Regthar Deathgate", icon = "Ability_Warrior_BattleShout", npcID = 3389, level = 28, creatureType = "Humanoid" },
-  { id = "1413:npc_3391", kind = "npc", rarity = 2, name = "Gazlowe", icon = "Ability_Warrior_BattleShout", npcID = 3391, level = 60, creatureType = "Humanoid" },
-  { id = "1413:npc_3429", kind = "npc", rarity = 2, name = "Thork", icon = "Ability_Warrior_BattleShout", npcID = 3429, level = 42, creatureType = "Humanoid" },
   { id = "1413:npc_3430", kind = "npc", rarity = 2, name = "Mangletooth", icon = "Ability_Warrior_BattleShout", npcID = 3430, level = 17, creatureType = "Humanoid" },
   { id = "1413:npc_3442", kind = "npc", rarity = 2, name = "Sputtervalve", icon = "INV_Misc_Head_Gnome_01", npcID = 3442, level = 15, creatureType = "Humanoid" },
   { id = "1413:npc_3446", kind = "npc", rarity = 2, name = "Mebok Mizzyrix", icon = "Ability_Warrior_BattleShout", npcID = 3446, level = 17, creatureType = "Humanoid" },

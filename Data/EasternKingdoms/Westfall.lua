@@ -26,7 +26,7 @@ ns.Cards.registerZone({
       flavor = "Still standing, still farming, still hoping." },
     { id = "1436:jangolode_mine", kind = "place", rarity = 2, name = "Jangolode Mine", icon = "Trade_Mining",
       flavor = "A quiet entrance, busy shadows." },
-    { id = "1436:gryan_stoutmantle", kind = "npc", rarity = 3, name = "Gryan Stoutmantle", icon = "Ability_Warrior_BattleShout",
+    { id = "1436:gryan_stoutmantle", kind = "npc", rarity = 5, name = "Gryan Stoutmantle", icon = "Ability_Warrior_BattleShout",
       flavor = "Founder of the People's Militia, stubborn as stone." },
     { id = "1436:foe_reaper_4000", kind = "rare", rarity = 3, name = "Foe Reaper 4000", icon = "INV_Misc_Gear_01",
       flavor = "A harvest golem that reaps more than wheat." },

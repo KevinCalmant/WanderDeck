@@ -5,6 +5,7 @@ local _, ns = ...
 -- re-run it. Names are English localization keys; flavor comes from level
 -- and creature type (CardText.flavor). Icons unverified on Forever (/wd art).
 ns.Cards.addCards(1441, {
+  { id = "1441:npc_4453", kind = "npc", rarity = 4, name = "Wizzle Brassbolts", icon = "Ability_Warrior_BattleShout", npcID = 4453, level = 31, creatureType = "Humanoid" },
   { id = "1441:npc_5934", kind = "elite", rarity = 3, name = "Heartrazor", icon = "INV_Misc_Pelt_Wolf_01", npcID = 5934, level = 32, creatureType = "Beast" },
   { id = "1441:npc_5937", kind = "elite", rarity = 3, name = "Vile Sting", icon = "Ability_Hunter_Pet_Scorpid", npcID = 5937, level = 35, creatureType = "Beast" },
   { id = "1441:npc_10992", kind = "elite", rarity = 3, name = "Enraged Panther", icon = "Ability_Hunter_Pet_Cat", npcID = 10992, level = 30, creatureType = "Beast" },
@@ -21,7 +22,6 @@ ns.Cards.addCards(1441, {
   { id = "1441:item_10582", kind = "item", rarity = 3, name = "Briar Tredders", icon = "INV_Misc_Bag_08", itemID = 10582 },
   { id = "1441:item_10584", kind = "item", rarity = 3, name = "Stormgale Fists", icon = "INV_Shield_06", itemID = 10584 },
   { id = "1441:npc_4452", kind = "npc", rarity = 2, name = "Kravel Koalbeard", icon = "Ability_Warrior_BattleShout", npcID = 4452, level = 29, creatureType = "Humanoid" },
-  { id = "1441:npc_4453", kind = "npc", rarity = 2, name = "Wizzle Brassbolts", icon = "Ability_Warrior_BattleShout", npcID = 4453, level = 31, creatureType = "Humanoid" },
   { id = "1441:npc_4454", kind = "npc", rarity = 2, name = "Fizzle Brassbolts", icon = "Ability_Warrior_BattleShout", npcID = 4454, level = 30, creatureType = "Humanoid" },
   { id = "1441:npc_4630", kind = "npc", rarity = 2, name = "Pozzik", icon = "Ability_Warrior_BattleShout", npcID = 4630, level = 30, creatureType = "Humanoid" },
   { id = "1441:npc_4706", kind = "npc", rarity = 2, name = "Razzeric", icon = "Ability_Warrior_BattleShout", npcID = 4706, level = 30, creatureType = "Humanoid" },

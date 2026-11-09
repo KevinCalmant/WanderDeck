@@ -5,6 +5,7 @@ local _, ns = ...
 -- re-run it. Names are English localization keys; flavor comes from level
 -- and creature type (CardText.flavor). Icons unverified on Forever (/wd art).
 ns.Cards.addCards(1447, {
+  { id = "1447:npc_8379", kind = "npc", rarity = 4, name = "Archmage Xylem", icon = "Ability_Warrior_BattleShout", npcID = 8379, level = 60, creatureType = "Humanoid" },
   { id = "1447:npc_6131", kind = "elite", rarity = 3, name = "Draconic Mageweaver", icon = "Spell_Frost_Frostbolt02", npcID = 6131, level = 52, creatureType = "Dragonkin" },
   { id = "1447:npc_6146", kind = "elite", rarity = 3, name = "Cliff Breaker", icon = "Ability_ThunderClap", npcID = 6146, level = 55, creatureType = "Giant" },
   { id = "1447:npc_6147", kind = "elite", rarity = 3, name = "Cliff Thunderer", icon = "Ability_ThunderClap", npcID = 6147, level = 54, creatureType = "Giant" },
@@ -23,7 +24,6 @@ ns.Cards.addCards(1447, {
   { id = "1447:item_19982", kind = "item", rarity = 3, name = "Duskbat Drape", icon = "INV_Misc_Bag_08", itemID = 19982 },
   { id = "1447:item_19984", kind = "item", rarity = 3, name = "Ebon Mask", icon = "INV_Misc_Bag_08", itemID = 19984 },
   { id = "1447:npc_7866", kind = "npc", rarity = 2, name = "Peter Galen", icon = "INV_Misc_Pelt_Wolf_01", npcID = 7866, level = 50, creatureType = "Humanoid" },
-  { id = "1447:npc_8379", kind = "npc", rarity = 2, name = "Archmage Xylem", icon = "Ability_Warrior_BattleShout", npcID = 8379, level = 60, creatureType = "Humanoid" },
   { id = "1447:npc_8405", kind = "npc", rarity = 2, name = "Ogtinc", icon = "Ability_Warrior_BattleShout", npcID = 8405, level = 45, creatureType = "Humanoid" },
   { id = "1447:npc_8420", kind = "npc", rarity = 2, name = "Kim'jael", icon = "Ability_Warrior_BattleShout", npcID = 8420, level = 46, creatureType = "Humanoid" },
   { id = "1447:npc_8576", kind = "npc", rarity = 2, name = "Ag'tor Bloodfist", icon = "Ability_Warrior_BattleShout", npcID = 8576, level = 45, creatureType = "Humanoid" },

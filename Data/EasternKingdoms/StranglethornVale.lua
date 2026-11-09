@@ -10,7 +10,7 @@ ns.Cards.registerZone({
   cards = {
     { id = "1434:king_bangalash", kind = "elite", rarity = 5, name = "King Bangalash", icon = "Ability_Hunter_Pet_Cat",
       flavor = "The white tiger every big-game hunter dreams of bagging." },
-    { id = "1434:baron_revilgaz", kind = "npc", rarity = 4, name = "Baron Revilgaz", icon = "INV_Misc_Coin_01",
+    { id = "1434:baron_revilgaz", kind = "npc", rarity = 5, name = "Baron Revilgaz", icon = "INV_Misc_Coin_01",
       flavor = "The goblin who runs Booty Bay and counts every coin." },
     { id = "1434:gurubashi_arena", kind = "place", rarity = 4, name = "Gurubashi Arena", icon = "Ability_Warrior_WarCry",
       flavor = "A troll arena on the southern cape where fights are public." },
@@ -18,7 +18,7 @@ ns.Cards.registerZone({
       flavor = "A rare jungle prowler that avoids the main trails." },
     { id = "1434:rippa", kind = "rare", rarity = 3, name = "Rippa", icon = "Ability_Druid_CatForm",
       flavor = "A rare beast with a long memory for hunters." },
-    { id = "1434:hemet_nesingwary_jr", kind = "npc", rarity = 3, name = "Hemet Nesingwary Jr.", icon = "Ability_Hunter_Pet_Boar",
+    { id = "1434:hemet_nesingwary_jr", kind = "npc", rarity = 4, name = "Hemet Nesingwary Jr.", icon = "Ability_Hunter_Pet_Boar",
       flavor = "The famous hunter who hands out beast-hunting contracts." },
     { id = "1434:booty_bay", kind = "place", rarity = 2, name = "Booty Bay", icon = "INV_Misc_Coin_01",
       flavor = "A goblin port where every deal has a price." },

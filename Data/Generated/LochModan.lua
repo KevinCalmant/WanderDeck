@@ -5,6 +5,9 @@ local _, ns = ...
 -- re-run it. Names are English localization keys; flavor comes from level
 -- and creature type (CardText.flavor). Icons unverified on Forever (/wd art).
 ns.Cards.addCards(1432, {
+  { id = "1432:npc_1093", kind = "npc", rarity = 5, name = "Chief Engineer Hinderweir VII", icon = "INV_Gizmo_02", npcID = 1093, level = 40, creatureType = "Humanoid" },
+  { id = "1432:npc_1092", kind = "npc", rarity = 4, name = "Captain Rugelfuss", icon = "Ability_Warrior_BattleShout", npcID = 1092, level = 40, creatureType = "Humanoid" },
+  { id = "1432:npc_1344", kind = "npc", rarity = 4, name = "Prospector Ironband", icon = "Trade_Mining", npcID = 1344, level = 15, creatureType = "Humanoid" },
   { id = "1432:npc_1210", kind = "elite", rarity = 3, name = "Chok'sul", icon = "Ability_Warrior_BattleShout", npcID = 1210, level = 22, creatureType = "Humanoid" },
   { id = "1432:npc_2477", kind = "elite", rarity = 3, name = "Gradok", icon = "Ability_Warrior_BattleShout", npcID = 2477, level = 20, creatureType = "Humanoid" },
   { id = "1432:npc_2478", kind = "elite", rarity = 3, name = "Haren Swifthoof", icon = "Ability_Warrior_BattleShout", npcID = 2478, level = 20, creatureType = "Humanoid" },
@@ -19,13 +22,10 @@ ns.Cards.addCards(1432, {
   { id = "1432:quest_1655", kind = "quest", rarity = 3, name = "Bailor's Ore Shipment", icon = "INV_Misc_Note_01", questID = 1655, level = 22 },
   { id = "1432:npc_1089", kind = "npc", rarity = 2, name = "Mountaineer Cobbleflint", icon = "INV_Misc_Head_Dwarf_01", npcID = 1089, level = 30, creatureType = "Humanoid" },
   { id = "1432:npc_1090", kind = "npc", rarity = 2, name = "Mountaineer Wallbang", icon = "INV_Misc_Head_Dwarf_01", npcID = 1090, level = 30, creatureType = "Humanoid" },
-  { id = "1432:npc_1092", kind = "npc", rarity = 2, name = "Captain Rugelfuss", icon = "Ability_Warrior_BattleShout", npcID = 1092, level = 40, creatureType = "Humanoid" },
-  { id = "1432:npc_1093", kind = "npc", rarity = 2, name = "Chief Engineer Hinderweir VII", icon = "INV_Gizmo_02", npcID = 1093, level = 40, creatureType = "Humanoid" },
   { id = "1432:npc_1105", kind = "npc", rarity = 2, name = "Jern Hornhelm", icon = "Ability_Warrior_BattleShout", npcID = 1105, level = 15, creatureType = "Humanoid" },
   { id = "1432:npc_1187", kind = "npc", rarity = 2, name = "Daryl the Youngling", icon = "Ability_Warrior_BattleShout", npcID = 1187, level = 15, creatureType = "Humanoid" },
   { id = "1432:npc_1340", kind = "npc", rarity = 2, name = "Mountaineer Kadrell", icon = "INV_Misc_Head_Dwarf_01", npcID = 1340, level = 30, creatureType = "Humanoid" },
   { id = "1432:npc_1343", kind = "npc", rarity = 2, name = "Mountaineer Stormpike", icon = "INV_Misc_Head_Dwarf_01", npcID = 1343, level = 30, creatureType = "Humanoid" },
-  { id = "1432:npc_1344", kind = "npc", rarity = 2, name = "Prospector Ironband", icon = "Trade_Mining", npcID = 1344, level = 15, creatureType = "Humanoid" },
   { id = "1432:npc_1470", kind = "npc", rarity = 2, name = "Ghak Healtouch", icon = "Spell_Nature_Rejuvenation", npcID = 1470, level = 25, creatureType = "Humanoid" },
   { id = "1432:npc_2909", kind = "npc", rarity = 2, name = "Hammertoe Grez", icon = "Ability_Warrior_BattleShout", npcID = 2909, level = 40, creatureType = "Humanoid" },
   { id = "1432:quest_161", kind = "quest", rarity = 2, name = "A Dark Threat Looms", icon = "INV_Misc_Note_01", questID = 161, level = 18 },

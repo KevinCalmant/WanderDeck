@@ -7,7 +7,7 @@ ns.Cards.registerZone({
   zoneMapID = 1422,
   continentMapID = 1415,
   cards = {
-    { id = "1422:uthers_tomb", kind = "place", rarity = 5, name = "Uther's Tomb", icon = "Spell_Holy_SealOfMight",
+    { id = "1422:uthers_tomb", kind = "place", rarity = 4, name = "Uther's Tomb", icon = "Spell_Holy_SealOfMight",
       flavor = "The resting place of a paladin whose name still carries weight." },
     { id = "1422:scholomance", kind = "place", rarity = 4, name = "Scholomance", icon = "Spell_Shadow_RaiseDead",
       flavor = "A school of necromancy on an island of the dead." },
@@ -15,7 +15,7 @@ ns.Cards.registerZone({
       flavor = "A Scarlet Crusade stronghold that trusts no stranger." },
     { id = "1422:andorhal", kind = "place", rarity = 3, name = "Andorhal", icon = "Spell_Shadow_AnimateDead",
       flavor = "A ruined town overrun by the undead." },
-    { id = "1422:commander_ashlam_valorfist", kind = "npc", rarity = 3, name = "Commander Ashlam Valorfist", icon = "Spell_Holy_SealOfWrath",
+    { id = "1422:commander_ashlam_valorfist", kind = "npc", rarity = 4, name = "Commander Ashlam Valorfist", icon = "Spell_Holy_SealOfWrath",
       flavor = "The Argent Dawn commander at Chillwind Camp." },
     { id = "1422:caer_darrow", kind = "place", rarity = 3, name = "Caer Darrow", icon = "Spell_Shadow_Twilight",
       flavor = "The island that holds the Scholomance." },
@@ -27,5 +27,7 @@ ns.Cards.registerZone({
       flavor = "A plague-risen dead that never stops walking." },
     { id = "1422:ooze", kind = "creature", rarity = 1, name = "Ooze", icon = "Spell_Nature_ProtectionformNature",
       flavor = "A plague slime oozing across the fields." },
+    { id = "1422:darkmaster_gandling", kind = "npc", rarity = 5, name = "Darkmaster Gandling", icon = "Spell_Shadow_GatherShadows",
+      flavor = "The headmaster whose school never lets its pupils graduate alive." },
   },
 })

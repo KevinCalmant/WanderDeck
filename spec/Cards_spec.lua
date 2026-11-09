@@ -462,13 +462,13 @@ describe("Data", function()
     end
   end)
 
-  it("keeps exactly one Legendary per zone (generated cards never are)", function()
+  it("keeps one to four Legendaries per zone: its leading figures", function()
     for _, zoneMapID in ipairs(ns.Cards.zoneIDs()) do
       local legendary = 0
       for _, c in ipairs(ns.Cards.zoneCards(zoneMapID)) do
         if c.rarity == 5 then legendary = legendary + 1 end
       end
-      assert.equals(1, legendary, tostring(zoneMapID))
+      assert.is_true(legendary >= 1 and legendary <= 4, zoneMapID..": "..legendary)
     end
   end)
 

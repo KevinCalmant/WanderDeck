@@ -105,3 +105,7 @@ L["A blighted forest where nothing grows right."] = "Une foret ravagee ou rien n
 L["A ghost-haunted village in ruins."] = "Un village en ruines hante par des fantomes."
 L["An undead scavenger with a poor sense of manners."] = "Un charognard mort-vivant aux manieres douteuses."
 L["A stone-winged undead that strikes from above."] = "Un mort-vivant aux ailes de pierre qui frappe d'en haut."
+L["The dreadlord who sits at the Banshee Queen's right hand, and keeps his own counsel."] = "Le seigneur de l'effroi qui siege a la droite de la Reine banshee, et garde ses propres conseils."
+L["Head of the Royal Apothecary Society, brewing the plague's cure and its worse cousins."] = "Chef de la Societe royale des apothicaires, il prepare le remede a la peste et ses cousins pires."
+L["A Dalaran archmage who stayed by the crater, still searching for his lost daughter."] = "Un archimage de Dalaran reste pres du cratere, cherchant encore sa fille disparue."
+L["The headmaster whose school never lets its pupils graduate alive."] = "Le directeur dont l'ecole ne laisse jamais ses eleves en sortir vivants."

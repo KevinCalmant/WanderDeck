@@ -13,7 +13,7 @@ ns.Cards.registerZone({
       flavor = "Arugal's fortress, where howls echo down every hall." },
     { id = "1421:gorefang", kind = "rare", rarity = 4, name = "Gorefang", icon = "Ability_Hunter_Pet_Wolf",
       flavor = "A rare beast that stalks the forest paths at night." },
-    { id = "1421:high_executor_hadrec", kind = "npc", rarity = 3, name = "High Executor Hadrec", icon = "Spell_Shadow_DeathScream",
+    { id = "1421:high_executor_hadrec", kind = "npc", rarity = 4, name = "High Executor Hadrec", icon = "Spell_Shadow_DeathScream",
       flavor = "The Forsaken leader who runs things at the Sepulcher." },
     { id = "1421:apothecary_renferrel", kind = "npc", rarity = 3, name = "Apothecary Renferrel", icon = "INV_Drink_05",
       flavor = "A Forsaken alchemist always short of a certain ingredient." },

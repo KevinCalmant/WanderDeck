@@ -170,6 +170,50 @@ ZONE_ORDER = [1429, 1436, 1426, 1420, 1438, 1411, 1412,
 # ID) is not generated again for the newer zone. Empty the set to rehome
 # them: their card IDs then change.
 FROZEN_ZONES = frozenset({1429, 1436, 1426, 1420, 1438, 1411, 1412})
+# Generated cards of notable NPCs whose rarity is set by hand (4 Epic for
+# secondary figures, 5 Legendary for a zone's leading figures). Applied after
+# the selection, so card IDs never change. "<zone>:npc_<entry>": rarity.
+RARITY_OVERRIDES = {
+    "1413:npc_3389": 5,
+    "1413:npc_3391": 5,
+    "1413:npc_3429": 4,
+    "1417:npc_2706": 4,
+    "1417:npc_2789": 4,
+    "1419:npc_12396": 4,
+    "1422:npc_10667": 4,
+    "1422:npc_11216": 4,
+    "1427:npc_14624": 4,
+    "1427:npc_14625": 4,
+    "1428:npc_9560": 4,
+    "1429:npc_332": 4,
+    "1430:npc_7665": 4,
+    "1431:npc_263": 5,
+    "1432:npc_1092": 4,
+    "1432:npc_1093": 5,
+    "1432:npc_1344": 4,
+    "1433:npc_382": 4,
+    "1434:npc_2465": 4,
+    "1435:npc_1443": 4,
+    "1436:npc_392": 4,
+    "1438:npc_2079": 4,
+    "1438:npc_3515": 4,
+    "1440:npc_12757": 4,
+    "1440:npc_3880": 4,
+    "1441:npc_4453": 4,
+    "1442:npc_3994": 4,
+    "1442:npc_5916": 4,
+    "1445:npc_4967": 4,
+    "1446:npc_15192": 5,
+    "1447:npc_8379": 4,
+    "1448:npc_11016": 4,
+    "1448:npc_11020": 4,
+    "1449:npc_6500": 5,
+    "1449:npc_9118": 4,
+    "1449:npc_9119": 4,
+    "1449:npc_9999": 4,
+    "1450:npc_11801": 4,
+    "1451:npc_15183": 4,
+}
 # Data folder -> continent uiMapID (report only: addCards takes no continent).
 CONTINENTS = {"EasternKingdoms": 1415, "Kalimdor": 1414}
 
@@ -344,6 +388,16 @@ ZONE_RECTS = [
 # --- Card budget -----------------------------------------------------------
 
 TARGET_TOTAL = 120
+# Generated budget each zone shipped with (TARGET_TOTAL minus its hand-written
+# cards at commit d4696c7). Adding hand-written cards later keeps this budget,
+# so the selection and its rarity quotas, and every shipped card ID, stay put.
+SHIPPED_BUDGET = {
+    1411: 106, 1412: 105, 1413: 110, 1416: 110, 1417: 110, 1418: 110, 1419: 110, 1420: 104,
+    1421: 110, 1422: 110, 1423: 110, 1424: 110, 1425: 110, 1426: 103, 1427: 111, 1428: 110,
+    1429: 104, 1430: 111, 1431: 111, 1432: 110, 1433: 111, 1434: 110, 1435: 110, 1436: 105,
+    1437: 110, 1438: 106, 1439: 110, 1440: 110, 1441: 111, 1442: 111, 1443: 110, 1444: 110,
+    1445: 111, 1446: 110, 1447: 110, 1448: 111, 1449: 110, 1450: 111, 1451: 110, 1452: 111,
+}
 RARITY_SHARE = {4: 0.05, 3: 0.10, 2: 0.25}  # common takes the rest
 # Kinds taken in turn inside each rarity (weight = cards per turn).
 ROUND_ROBIN = {
@@ -675,7 +729,10 @@ def check_card(c):
             problems.append(field)
     if "entry" in c and not (is_id(c.get("level")) and c["level"] <= 63):
         problems.append("level")
-    if not (isinstance(c.get("rarity"), int) and 1 <= c["rarity"] <= 4):
+    # Generated cards top out at Epic; only a curated RARITY_OVERRIDES entry
+    # may make one Legendary.
+    top = 5 if RARITY_OVERRIDES.get(c.get("id")) == 5 else 4
+    if not (isinstance(c.get("rarity"), int) and not isinstance(c["rarity"], bool) and 1 <= c["rarity"] <= top):
         problems.append("rarity")
     if problems:
         sys.exit("refusing card %r: bad %s" % (c.get("id"), ", ".join(problems)))
@@ -1039,13 +1096,34 @@ def build(sql, repo, report):
             fresh = [c for c in cands if not taken_by_other_zone(c, taken_refs, taken_names)]
             skipped["already a card of another zone"] += len(cands) - len(fresh)
             cands = fresh
-        chosen = select(cands, TARGET_TOTAL - hand_count)
+        # A hand-written card added after a zone shipped must not change the
+        # generated selection (budget and rarity quotas): shipped zones keep
+        # the budget they shipped with, and the zone holds a few more cards.
+        budget = SHIPPED_BUDGET.get(zone, TARGET_TOTAL - hand_count)
+        chosen = select(cands, budget)
         taken_refs |= {card_ref(c) for c in chosen}
         taken_names |= {c["name"].lower() for c in chosen}
         out[zone] = (chosen, hand_count, len(cands))
+    apply_rarity_overrides(out)
     if report:
         print("skipped:", dict(sorted(skipped.items())), file=sys.stderr)
     return out
+
+
+def apply_rarity_overrides(out):
+    """Raises (or lowers) the rarity of curated generated cards after the
+    selection, so the chosen set and every card ID stay the same. Stops when
+    an override names a card the run no longer generates."""
+    found = set()
+    for zone, (chosen, _, _) in out.items():
+        for c in chosen:
+            rarity = RARITY_OVERRIDES.get(c["id"])
+            if rarity is not None:
+                c["rarity"] = rarity
+                found.add(c["id"])
+    missing = sorted(set(RARITY_OVERRIDES) - found)
+    if missing:
+        sys.exit("RARITY_OVERRIDES names cards this run does not generate: " + ", ".join(missing))
 
 
 def select(cands, budget):

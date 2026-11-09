@@ -5,10 +5,10 @@ local _, ns = ...
 -- re-run it. Names are English localization keys; flavor comes from level
 -- and creature type (CardText.flavor). Icons unverified on Forever (/wd art).
 ns.Cards.addCards(1446, {
+  { id = "1446:npc_15192", kind = "boss", rarity = 5, name = "Anachronos", icon = "Spell_Fire_Volcano", npcID = 15192, level = 63, creatureType = "Dragonkin" },
   { id = "1446:npc_7271", kind = "boss", rarity = 4, name = "Witch Doctor Zum'rah", icon = "INV_Misc_Head_Troll_01", npcID = 7271, level = 46, creatureType = "Humanoid" },
   { id = "1446:npc_7272", kind = "boss", rarity = 4, name = "Theka the Martyr", icon = "Spell_Shadow_RaiseDead", npcID = 7272, level = 46, creatureType = "Undead" },
   { id = "1446:npc_8127", kind = "boss", rarity = 4, name = "Antu'sul", icon = "Ability_Warrior_WarCry", npcID = 8127, level = 46, creatureType = "Humanoid" },
-  { id = "1446:npc_15192", kind = "boss", rarity = 4, name = "Anachronos", icon = "Spell_Fire_Volcano", npcID = 15192, level = 63, creatureType = "Dragonkin" },
   { id = "1446:item_21196", kind = "item", rarity = 4, name = "Signet Ring of the Bronze Dragonflight", icon = "INV_Misc_Bag_08", itemID = 21196 },
   { id = "1446:item_21517", kind = "item", rarity = 4, name = "Gnomish Turban of Psychic Might", icon = "INV_Misc_Bag_08", itemID = 21517 },
   { id = "1446:npc_5649", kind = "elite", rarity = 3, name = "Sandfury Blood Drinker", icon = "INV_Drink_05", npcID = 5649, level = 45, creatureType = "Humanoid" },

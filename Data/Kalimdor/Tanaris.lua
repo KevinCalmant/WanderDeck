@@ -7,7 +7,7 @@ ns.Cards.registerZone({
   zoneMapID = 1446,
   continentMapID = 1414,
   cards = {
-    { id = "1446:chief_ukorz_sandscalp", kind = "boss", rarity = 5, name = "Chief Ukorz Sandscalp", icon = "INV_Misc_Head_Troll_01",
+    { id = "1446:chief_ukorz_sandscalp", kind = "boss", rarity = 4, name = "Chief Ukorz Sandscalp", icon = "INV_Misc_Head_Troll_01",
       flavor = "The troll chief who waits at the end of the sunken city." },
     { id = "1446:gahzrilla", kind = "boss", rarity = 4, name = "Gahz'rilla", icon = "Ability_Hunter_Pet_Scorpid",
       flavor = "A boss you can face before or after the pyramid event." },

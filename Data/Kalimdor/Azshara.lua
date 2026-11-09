@@ -13,7 +13,7 @@ ns.Cards.registerZone({
       flavor = "A naga lord ruling from a watery temple." },
     { id = "1447:ruins_of_eldarath", kind = "place", rarity = 4, name = "Ruins of Eldarath", icon = "Spell_Shadow_GatherShadows",
       flavor = "The ruined site of a Highborne city." },
-    { id = "1447:loramus_thalipedes", kind = "npc", rarity = 3, name = "Loramus Thalipedes", icon = "Spell_Shadow_SummonImp",
+    { id = "1447:loramus_thalipedes", kind = "npc", rarity = 4, name = "Loramus Thalipedes", icon = "Spell_Shadow_SummonImp",
       flavor = "A demon hunter watching from his island refuge." },
     { id = "1447:general_fangferror", kind = "rare", rarity = 3, name = "General Fangferror", icon = "Ability_Hunter_Pet_Wolf",
       flavor = "A rare with a general's rank and a hunter's patience." },

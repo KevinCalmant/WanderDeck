@@ -5,7 +5,7 @@ local _, ns = ...
 -- re-run it. Names are English localization keys; flavor comes from level
 -- and creature type (CardText.flavor). Icons unverified on Forever (/wd art).
 ns.Cards.addCards(1430, {
-  { id = "1430:npc_7665", kind = "elite", rarity = 3, name = "Grol the Destroyer", icon = "Spell_Shadow_SummonImp", npcID = 7665, level = 58, creatureType = "Demon" },
+  { id = "1430:npc_7665", kind = "elite", rarity = 4, name = "Grol the Destroyer", icon = "Spell_Shadow_SummonImp", npcID = 7665, level = 58, creatureType = "Demon" },
   { id = "1430:npc_574", kind = "rare", rarity = 3, name = "Naraxis", icon = "Ability_Hunter_Pet_Spider", npcID = 574, level = 27, creatureType = "Beast" },
   { id = "1430:npc_8296", kind = "rare", rarity = 3, name = "Mojo the Twisted", icon = "Ability_Warrior_BattleShout", npcID = 8296, level = 48, creatureType = "Humanoid" },
   { id = "1430:item_4448", kind = "item", rarity = 2, name = "Husk of Naraxis", icon = "INV_Shield_06", itemID = 4448 },

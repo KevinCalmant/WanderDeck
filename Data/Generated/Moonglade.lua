@@ -5,13 +5,13 @@ local _, ns = ...
 -- re-run it. Names are English localization keys; flavor comes from level
 -- and creature type (CardText.flavor). Icons unverified on Forever (/wd art).
 ns.Cards.addCards(1450, {
+  { id = "1450:npc_11801", kind = "npc", rarity = 4, name = "Rabine Saturna", icon = "Ability_Warrior_BattleShout", npcID = 11801, level = 60, creatureType = "Humanoid" },
   { id = "1450:item_21531", kind = "item", rarity = 4, name = "Drake Tooth Necklace", icon = "INV_Misc_Bag_08", itemID = 21531 },
   { id = "1450:item_21532", kind = "item", rarity = 4, name = "Drudge Boots", icon = "INV_Misc_Bag_08", itemID = 21532 },
   { id = "1450:quest_5526", kind = "quest", rarity = 3, name = "Shards of the Felvine", icon = "INV_Misc_Note_01", questID = 5526, level = 60 },
   { id = "1450:quest_8735", kind = "quest", rarity = 3, name = "The Nightmare's Corruption", icon = "INV_Misc_Note_01", questID = 8735, level = 60 },
   { id = "1450:item_18535", kind = "item", rarity = 3, name = "Milli's Shield", icon = "INV_Shield_06", itemID = 18535 },
   { id = "1450:item_18536", kind = "item", rarity = 3, name = "Milli's Lexicon", icon = "INV_Misc_Bag_08", itemID = 18536 },
-  { id = "1450:npc_11801", kind = "npc", rarity = 2, name = "Rabine Saturna", icon = "Ability_Warrior_BattleShout", npcID = 11801, level = 60, creatureType = "Humanoid" },
   { id = "1450:npc_11939", kind = "npc", rarity = 2, name = "Umber", icon = "Ability_Warrior_BattleShout", npcID = 11939, level = 55, creatureType = "Humanoid" },
   { id = "1450:npc_12042", kind = "npc", rarity = 2, name = "Loganaar", icon = "Spell_Nature_Rejuvenation", npcID = 12042, level = 51, creatureType = "Humanoid" },
   { id = "1450:quest_1124", kind = "quest", rarity = 2, name = "Wasteland", icon = "INV_Misc_Note_01", questID = 1124, level = 55 },

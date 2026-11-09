@@ -5,6 +5,8 @@ local _, ns = ...
 -- re-run it. Names are English localization keys; flavor comes from level
 -- and creature type (CardText.flavor). Icons unverified on Forever (/wd art).
 ns.Cards.addCards(1438, {
+  { id = "1438:npc_2079", kind = "npc", rarity = 4, name = "Conservator Ilthalaine", icon = "Ability_Warrior_BattleShout", npcID = 2079, level = 4, creatureType = "Humanoid" },
+  { id = "1438:npc_3515", kind = "npc", rarity = 4, name = "Corithras Moonrage", icon = "Spell_Nature_MoonGlow", npcID = 3515, level = 10, creatureType = "Humanoid" },
   { id = "1438:npc_5782", kind = "elite", rarity = 3, name = "Crildor", icon = "Ability_Warrior_BattleShout", npcID = 5782, level = 55, creatureType = "Humanoid" },
   { id = "1438:npc_11866", kind = "elite", rarity = 3, name = "Ilyenia Moonfire", icon = "INV_Sword_04", npcID = 11866, level = 50, creatureType = "Humanoid" },
   { id = "1438:npc_14428", kind = "rare", rarity = 3, name = "Uruson", icon = "Ability_Warrior_BattleShout", npcID = 14428, level = 7, creatureType = "Humanoid" },
@@ -17,11 +19,9 @@ ns.Cards.addCards(1438, {
   { id = "1438:quest_2925", kind = "quest", rarity = 3, name = "Klockmort's Essentials", icon = "INV_Misc_Note_01", questID = 2925, level = 30 },
   { id = "1438:quest_7494", kind = "quest", rarity = 3, name = "Feathermoon Stronghold", icon = "INV_Misc_Note_01", questID = 7494, level = 57 },
   { id = "1438:npc_2078", kind = "npc", rarity = 2, name = "Athridas Bearmantle", icon = "Ability_Warrior_BattleShout", npcID = 2078, level = 11, creatureType = "Humanoid" },
-  { id = "1438:npc_2079", kind = "npc", rarity = 2, name = "Conservator Ilthalaine", icon = "Ability_Warrior_BattleShout", npcID = 2079, level = 4, creatureType = "Humanoid" },
   { id = "1438:npc_2082", kind = "npc", rarity = 2, name = "Gilshalan Windwalker", icon = "Ability_Warrior_BattleShout", npcID = 2082, level = 9, creatureType = "Humanoid" },
   { id = "1438:npc_2083", kind = "npc", rarity = 2, name = "Syral Bladeleaf", icon = "INV_Sword_04", npcID = 2083, level = 12, creatureType = "Humanoid" },
   { id = "1438:npc_2151", kind = "npc", rarity = 2, name = "Moon Priestess Amara", icon = "Spell_Holy_HolySmite", npcID = 2151, level = 25, creatureType = "Humanoid" },
-  { id = "1438:npc_3515", kind = "npc", rarity = 2, name = "Corithras Moonrage", icon = "Spell_Nature_MoonGlow", npcID = 3515, level = 10, creatureType = "Humanoid" },
   { id = "1438:npc_6142", kind = "npc", rarity = 2, name = "Mathiel", icon = "Ability_Warrior_BattleShout", npcID = 6142, level = 33, creatureType = "Humanoid" },
   { id = "1438:npc_7916", kind = "npc", rarity = 2, name = "Erelas Ambersky", icon = "Ability_Warrior_BattleShout", npcID = 7916, level = 30, creatureType = "Humanoid" },
   { id = "1438:npc_8583", kind = "npc", rarity = 2, name = "Dirania Silvershine", icon = "Ability_Warrior_BattleShout", npcID = 8583, level = 8, creatureType = "Humanoid" },

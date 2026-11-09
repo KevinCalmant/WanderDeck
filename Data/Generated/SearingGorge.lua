@@ -5,6 +5,8 @@ local _, ns = ...
 -- re-run it. Names are English localization keys; flavor comes from level
 -- and creature type (CardText.flavor). Icons unverified on Forever (/wd art).
 ns.Cards.addCards(1427, {
+  { id = "1427:npc_14624", kind = "npc", rarity = 4, name = "Master Smith Burninate", icon = "Spell_Holy_HolySmite", npcID = 14624, level = 52, creatureType = "Humanoid" },
+  { id = "1427:npc_14625", kind = "npc", rarity = 4, name = "Overseer Oilfist", icon = "Spell_Holy_HolySmite", npcID = 14625, level = 60, creatureType = "Humanoid" },
   { id = "1427:npc_8479", kind = "elite", rarity = 3, name = "Kalaran Windblade", icon = "Spell_Fire_Volcano", npcID = 8479, level = 55, creatureType = "Dragonkin" },
   { id = "1427:npc_9026", kind = "elite", rarity = 3, name = "Overmaster Pyron", icon = "Spell_Nature_Earthquake", npcID = 9026, level = 51, creatureType = "Elemental" },
   { id = "1427:npc_8277", kind = "rare", rarity = 3, name = "Rekk'tilac", icon = "Ability_Hunter_Pet_Spider", npcID = 8277, level = 48, creatureType = "Beast" },
@@ -31,7 +33,6 @@ ns.Cards.addCards(1427, {
   { id = "1427:npc_9080", kind = "npc", rarity = 2, name = "Lexlort", icon = "Ability_Warrior_BattleShout", npcID = 9080, level = 58, creatureType = "Humanoid" },
   { id = "1427:npc_9081", kind = "npc", rarity = 2, name = "Galamav the Marksman", icon = "INV_Weapon_Bow_02", npcID = 9081, level = 58, creatureType = "Humanoid" },
   { id = "1427:npc_9084", kind = "npc", rarity = 2, name = "Thunderheart", icon = "Ability_Warrior_BattleShout", npcID = 9084, level = 52, creatureType = "Humanoid" },
-  { id = "1427:npc_14624", kind = "npc", rarity = 2, name = "Master Smith Burninate", icon = "Spell_Holy_HolySmite", npcID = 14624, level = 52, creatureType = "Humanoid" },
   { id = "1427:quest_3367", kind = "quest", rarity = 2, name = "Suntara Stones", icon = "INV_Misc_Note_01", questID = 3367, level = 46 },
   { id = "1427:quest_3372", kind = "quest", rarity = 2, name = "Release Them", icon = "INV_Misc_Note_01", questID = 3372, level = 46 },
   { id = "1427:quest_3441", kind = "quest", rarity = 2, name = "Divine Retribution", icon = "INV_Misc_Note_01", questID = 3441, level = 48 },
@@ -55,7 +56,6 @@ ns.Cards.addCards(1427, {
   { id = "1427:npc_5833", kind = "npc", rarity = 1, name = "Margol the Rager", icon = "INV_Misc_Pelt_Wolf_01", npcID = 5833, level = 43, creatureType = "Beast" },
   { id = "1427:npc_10058", kind = "npc", rarity = 1, name = "Greth", icon = "INV_Misc_Horn_01", npcID = 10058, level = 30, creatureType = "Humanoid" },
   { id = "1427:npc_11703", kind = "npc", rarity = 1, name = "Graw Cornerstone", icon = "INV_Misc_Coin_01", npcID = 11703, level = 58, creatureType = "Humanoid" },
-  { id = "1427:npc_14625", kind = "npc", rarity = 1, name = "Overseer Oilfist", icon = "Spell_Holy_HolySmite", npcID = 14625, level = 60, creatureType = "Humanoid" },
   { id = "1427:npc_14626", kind = "npc", rarity = 1, name = "Taskmaster Scrange", icon = "Spell_Holy_HolySmite", npcID = 14626, level = 54, creatureType = "Humanoid" },
   { id = "1427:npc_14634", kind = "npc", rarity = 1, name = "Lookout Captain Lolo Longstriker", icon = "Spell_Holy_HolySmite", npcID = 14634, level = 59, creatureType = "Humanoid" },
   { id = "1427:npc_2716", kind = "creature", rarity = 1, name = "Dustbelcher Wyrmhunter", icon = "Ability_Warrior_BattleShout", npcID = 2716, level = 41, creatureType = "Humanoid" },

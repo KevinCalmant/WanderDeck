@@ -5,6 +5,8 @@ local _, ns = ...
 -- re-run it. Names are English localization keys; flavor comes from level
 -- and creature type (CardText.flavor). Icons unverified on Forever (/wd art).
 ns.Cards.addCards(1448, {
+  { id = "1448:npc_11016", kind = "npc", rarity = 4, name = "Captured Arko'narin", icon = "Ability_Warrior_BattleShout", npcID = 11016, level = 51, creatureType = "Humanoid" },
+  { id = "1448:npc_11020", kind = "npc", rarity = 4, name = "Remains of Trey Lightforge", icon = "Ability_Warrior_BattleShout", npcID = 11020, level = 50, creatureType = "Humanoid" },
   { id = "1448:npc_2172", kind = "rare", rarity = 3, name = "Strider Clutchmother", icon = "Ability_Hunter_Pet_TallStrider", npcID = 2172, level = 20, creatureType = "Beast" },
   { id = "1448:npc_2192", kind = "rare", rarity = 3, name = "Firecaller Radison", icon = "Spell_Fire_Incinerate", npcID = 2192, level = 19, creatureType = "Humanoid" },
   { id = "1448:npc_14339", kind = "rare", rarity = 3, name = "Death Howl", icon = "Ability_Hunter_Pet_Wolf", npcID = 14339, level = 49, creatureType = "Beast" },
@@ -20,9 +22,7 @@ ns.Cards.addCards(1448, {
   { id = "1448:npc_10921", kind = "npc", rarity = 2, name = "Taronn Redfeather", icon = "Ability_Warrior_BattleShout", npcID = 10921, level = 50, creatureType = "Humanoid" },
   { id = "1448:npc_10922", kind = "npc", rarity = 2, name = "Greta Mosshoof", icon = "Ability_Warrior_BattleShout", npcID = 10922, level = 59, creatureType = "Humanoid" },
   { id = "1448:npc_10924", kind = "npc", rarity = 2, name = "Ivy Leafrunner", icon = "Ability_Warrior_BattleShout", npcID = 10924, level = 63, creatureType = "Humanoid" },
-  { id = "1448:npc_11016", kind = "npc", rarity = 2, name = "Captured Arko'narin", icon = "Ability_Warrior_BattleShout", npcID = 11016, level = 51, creatureType = "Humanoid" },
   { id = "1448:npc_11019", kind = "npc", rarity = 2, name = "Jessir Moonbow", icon = "Spell_Nature_MoonGlow", npcID = 11019, level = 50, creatureType = "Humanoid" },
-  { id = "1448:npc_11020", kind = "npc", rarity = 2, name = "Remains of Trey Lightforge", icon = "Ability_Warrior_BattleShout", npcID = 11020, level = 50, creatureType = "Humanoid" },
   { id = "1448:npc_14470", kind = "npc", rarity = 2, name = "Impsy", icon = "Spell_Shadow_SummonImp", npcID = 14470, level = 56, creatureType = "Demon" },
   { id = "1448:quest_4421", kind = "quest", rarity = 2, name = "The Corruption of the Jadefire", icon = "INV_Misc_Note_01", questID = 4421, level = 54 },
   { id = "1448:quest_4441", kind = "quest", rarity = 2, name = "Felbound Ancients", icon = "INV_Misc_Note_01", questID = 4441, level = 54 },

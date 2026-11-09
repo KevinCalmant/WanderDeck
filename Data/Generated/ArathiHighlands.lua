@@ -5,6 +5,8 @@ local _, ns = ...
 -- re-run it. Names are English localization keys; flavor comes from level
 -- and creature type (CardText.flavor). Icons unverified on Forever (/wd art).
 ns.Cards.addCards(1417, {
+  { id = "1417:npc_2706", kind = "npc", rarity = 4, name = "Tor'gan", icon = "Ability_Warrior_BattleShout", npcID = 2706, level = 40, creatureType = "Humanoid" },
+  { id = "1417:npc_2789", kind = "npc", rarity = 4, name = "Skuerto", icon = "Ability_Warrior_BattleShout", npcID = 2789, level = 36, creatureType = "Humanoid" },
   { id = "1417:npc_15126", kind = "elite", rarity = 3, name = "Rutherford Twing", icon = "Ability_Warrior_BattleShout", npcID = 15126, level = 55, creatureType = "Humanoid" },
   { id = "1417:npc_15127", kind = "elite", rarity = 3, name = "Samuel Hawke", icon = "Ability_Hunter_Pet_Vulture", npcID = 15127, level = 55, creatureType = "Humanoid" },
   { id = "1417:npc_15128", kind = "elite", rarity = 3, name = "Defiler Elite", icon = "Ability_Warrior_BattleShout", npcID = 15128, level = 55, creatureType = "Humanoid" },
@@ -21,13 +23,11 @@ ns.Cards.addCards(1417, {
   { id = "1417:npc_2610", kind = "npc", rarity = 2, name = "Shakes O'Breen", icon = "Ability_Warrior_BattleShout", npcID = 2610, level = 40, creatureType = "Humanoid" },
   { id = "1417:npc_2700", kind = "npc", rarity = 2, name = "Captain Nials", icon = "Ability_Warrior_BattleShout", npcID = 2700, level = 41, creatureType = "Humanoid" },
   { id = "1417:npc_2703", kind = "npc", rarity = 2, name = "Zengu", icon = "Ability_Warrior_BattleShout", npcID = 2703, level = 40, creatureType = "Humanoid" },
-  { id = "1417:npc_2706", kind = "npc", rarity = 2, name = "Tor'gan", icon = "Ability_Warrior_BattleShout", npcID = 2706, level = 40, creatureType = "Humanoid" },
   { id = "1417:npc_2766", kind = "npc", rarity = 2, name = "Lolo the Lookout", icon = "Ability_Warrior_BattleShout", npcID = 2766, level = 39, creatureType = "Humanoid" },
   { id = "1417:npc_2767", kind = "npc", rarity = 2, name = "First Mate Nilzlix", icon = "Ability_Warrior_BattleShout", npcID = 2767, level = 39, creatureType = "Humanoid" },
   { id = "1417:npc_2771", kind = "npc", rarity = 2, name = "Drum Fel", icon = "Ability_Warrior_BattleShout", npcID = 2771, level = 30, creatureType = "Humanoid" },
   { id = "1417:npc_2774", kind = "npc", rarity = 2, name = "Doctor Draxlegauge", icon = "Ability_Warrior_BattleShout", npcID = 2774, level = 38, creatureType = "Humanoid" },
   { id = "1417:npc_2788", kind = "npc", rarity = 2, name = "Apprentice Kryten", icon = "Ability_Warrior_BattleShout", npcID = 2788, level = 30, creatureType = "Humanoid" },
-  { id = "1417:npc_2789", kind = "npc", rarity = 2, name = "Skuerto", icon = "Ability_Warrior_BattleShout", npcID = 2789, level = 36, creatureType = "Humanoid" },
   { id = "1417:npc_2792", kind = "npc", rarity = 2, name = "Gor'mul", icon = "Ability_Warrior_BattleShout", npcID = 2792, level = 40, creatureType = "Humanoid" },
   { id = "1417:quest_639", kind = "quest", rarity = 2, name = "Sigil of Strom", icon = "INV_Misc_Note_01", questID = 639, level = 37 },
   { id = "1417:quest_640", kind = "quest", rarity = 2, name = "The Broken Sigil", icon = "INV_Misc_Note_01", questID = 640, level = 40 },

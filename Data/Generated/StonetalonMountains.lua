@@ -5,8 +5,9 @@ local _, ns = ...
 -- re-run it. Names are English localization keys; flavor comes from level
 -- and creature type (CardText.flavor). Icons unverified on Forever (/wd art).
 ns.Cards.addCards(1442, {
+  { id = "1442:npc_5916", kind = "elite", rarity = 4, name = "Sentinel Amarassan", icon = "INV_Weapon_Bow_02", npcID = 5916, level = 27, creatureType = "Humanoid" },
+  { id = "1442:npc_3994", kind = "npc", rarity = 4, name = "Keeper Albagorm", icon = "Ability_Warrior_BattleShout", npcID = 3994, level = 30, creatureType = "Humanoid" },
   { id = "1442:npc_5915", kind = "elite", rarity = 3, name = "Brother Ravenoak", icon = "Ability_Hunter_Pet_Vulture", npcID = 5915, level = 29, creatureType = "Humanoid" },
-  { id = "1442:npc_5916", kind = "elite", rarity = 3, name = "Sentinel Amarassan", icon = "INV_Weapon_Bow_02", npcID = 5916, level = 27, creatureType = "Humanoid" },
   { id = "1442:npc_5930", kind = "elite", rarity = 3, name = "Sister Riven", icon = "Spell_Holy_HolySmite", npcID = 5930, level = 28, creatureType = "Humanoid" },
   { id = "1442:npc_5931", kind = "elite", rarity = 3, name = "Foreman Rigger", icon = "Ability_Warrior_BattleShout", npcID = 5931, level = 24, creatureType = "Humanoid" },
   { id = "1442:npc_5932", kind = "elite", rarity = 3, name = "Taskmaster Whipfang", icon = "Ability_Warrior_BattleShout", npcID = 5932, level = 22, creatureType = "Humanoid" },
@@ -21,7 +22,6 @@ ns.Cards.addCards(1442, {
   { id = "1442:item_17705", kind = "item", rarity = 3, name = "Thrash Blade", icon = "INV_Sword_04", itemID = 17705 },
   { id = "1442:item_17743", kind = "item", rarity = 3, name = "Resurgence Rod", icon = "INV_Sword_04", itemID = 17743 },
   { id = "1442:item_17753", kind = "item", rarity = 3, name = "Verdant Keeper's Aim", icon = "INV_Weapon_Bow_02", itemID = 17753 },
-  { id = "1442:npc_3994", kind = "npc", rarity = 2, name = "Keeper Albagorm", icon = "Ability_Warrior_BattleShout", npcID = 3994, level = 30, creatureType = "Humanoid" },
   { id = "1442:npc_4077", kind = "npc", rarity = 2, name = "Gaxim Rustfizzle", icon = "Ability_Warrior_BattleShout", npcID = 4077, level = 30, creatureType = "Humanoid" },
   { id = "1442:npc_4080", kind = "npc", rarity = 2, name = "Kaela Shadowspear", icon = "Spell_Shadow_SummonImp", npcID = 4080, level = 23, creatureType = "Humanoid" },
   { id = "1442:npc_4201", kind = "npc", rarity = 2, name = "Ziz Fizziks", icon = "Ability_Warrior_BattleShout", npcID = 4201, level = 20, creatureType = "Humanoid" },
