@@ -200,7 +200,7 @@ describe("loading screen card widget", function()
       local secret = mocks.newSecret()
       mocks.installSecrets({ secret })
       for _, args in ipairs({ { true, nil }, { true, 0 }, { true, "1" }, { false, "error" }, { true, secret },
-        { true, -1 }, { true, 1.5 }, { true, 0 / 0 }, { true, math.huge }, { true, 2 ^ 31 } }) do
+        { true, -1 }, { true, 1.5 }, { true, 0 / 0 }, { true, math.huge }, { true, -math.huge }, { true, 2 ^ 31 } }) do
         assert.equals("  1436:the_deadmines  LoadScreenDeadmines  MISSING", ns.LoadScreenTest.reportLine(c, args[1], args[2]))
       end
     end)
